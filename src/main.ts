@@ -46,6 +46,7 @@ const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
 async function emitEvent(em: EntityManager, chainId: number, txHash: string, cb: (chain: number, txHash: string) => void): Promise<"err" | "ok"> {
     const ent = await em.findOne(TxStore, { chainId, txHash });
     if (ent != null) return "err";
+	await em.persistAndFlush(new TxStore(chainId, txHash));
 
     cb(chainId, txHash);
 
