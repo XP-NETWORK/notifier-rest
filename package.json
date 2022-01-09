@@ -11,7 +11,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "yarn run build && node build/main/main.js",
-    "hash": "node hash.js"
+    "hash": "node hash.js",
+    "start": "node build/main/main.js"
   },
   "engines": {
     "node": ">=10"
