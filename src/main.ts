@@ -93,7 +93,7 @@ async function main() {
         res.send({ "status": "ok" });
     });
 
-    app.post('/tx/tezos', requireAuth, (req: Request<{}, {}, { tx_hash: string }>, res) => {
+    app.post('/tx/tezos', (req: Request<{}, {}, { tx_hash: string }>, res) => {
         emitEvent(
             orm.em,
             0x12,
