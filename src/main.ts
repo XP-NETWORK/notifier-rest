@@ -46,7 +46,7 @@ const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
 async function emitEvent(em: EntityManager, chainId: number, txHash: string, cb: (chain: number, txHash: string) => void): Promise<"err" | "ok"> {
     const ent = await em.findOne(TxStore, { chainId, txHash });
     if (ent != null) return "err";
-	await em.persistAndFlush(new TxStore(chainId, txHash));
+    await em.persistAndFlush(new TxStore(chainId, txHash));
 
     cb(chainId, txHash);
 
@@ -92,6 +92,17 @@ async function main() {
 
         res.send({ "status": "ok" });
     });
+
+    app.post('/tx/tezos', requireAuth, (req: Request<{}, {}, { tx_hash: string }>, res) => {
+        emitEvent(
+            orm.em,
+            0x12,
+            req.body.tx_hash,
+            (_, txHash) => io.emit("tezos:bridge_tx", txHash)
+        );
+
+        res.send({ "status": "ok" });
+    })
 
 
     server.listen(port, () => console.log(`Server is up on port ${port}!`))
