@@ -18,6 +18,7 @@ export type ServerEvents = {
         nft_url: string
     ) => void;
     readonly "tezos:bridge_tx": (tx_hash: string) => void;
+	readonly "elrond:bridge_tx": (tx_hash: string) => void;
 };
 
 export type ClientEvents = {

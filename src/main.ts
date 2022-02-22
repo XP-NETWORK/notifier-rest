@@ -93,6 +93,25 @@ async function main() {
         res.send({ "status": "ok" });
     });
 
+	app.post('/tx/elrond', async (req, res) => {
+		const status = await emitEvent(
+			orm.em,
+			2,
+			req.body.tx_hash,
+			() => {}
+		);
+		res.json({ status });
+	});
+
+	app.post('/commit/elrond', requireAuth, (req, res) => {
+		io.emit(
+			"elrond:bridge_tx",
+			req.body.tx_hash
+		);
+
+		res.json({ "status": "ok" });
+	});
+
     app.post('/tx/tezos', (req: Request<{}, {}, { tx_hash: string }>, res) => {
         emitEvent(
             orm.em,
