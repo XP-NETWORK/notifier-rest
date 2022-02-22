@@ -2,12 +2,13 @@ import express, { NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import * as socket from './socket';
 import { scrypt_verify } from './scrypt';
-import { port, secret_hash } from './config';
+import { elrond_minter, elrond_uri, port, secret_hash } from './config';
 import http from "http";
 import { MikroORM, RequestContext } from '@mikro-orm/core';
 import mikroConf from './mikro-orm';
 import { EntityManager, MongoDriver } from '@mikro-orm/mongodb';
 import { TxStore } from './db/TxStore';
+import axios, { AxiosResponse} from 'axios';
 
 const app = express();
 const server = http.createServer(app);
@@ -52,6 +53,45 @@ async function emitEvent(em: EntityManager, chainId: number, txHash: string, cb:
 
     return "ok";
 }
+
+type TxRespMin = {
+	data?: {
+		transaction?: {
+			smartContractResults?: {
+				data: string,
+				hash: string,
+				sender: string
+			}[]
+		}
+	}
+};
+
+async function elrondExtractFunctionEvent(txHash: string) {
+	let txData: AxiosResponse<TxRespMin>;
+	try {
+		txData = await axios.get(`${elrond_uri}/transaction?withResults=true`);
+	} catch (e) {
+		console.warn("failed to fetch txdata with err", e);
+		return undefined;
+	}
+	if (!txData.data.data?.transaction?.smartContractResults?.length) {
+		console.warn("no events in transaction");
+		return undefined
+	}
+
+	let withdrawFlag = false;
+	let multiEsdt = undefined;
+	for (const res of txData.data.data.transaction.smartContractResults) {
+		if (res.data.startsWith("MultiESDTNFTTransfer")) {
+			multiEsdt = res.hash;
+		}
+		if (res.data.startsWith("@6f6b") && res.sender == elrond_minter) {
+			withdrawFlag = true;
+		}
+	}
+	return withdrawFlag ? multiEsdt : txHash;
+}
+
 
 async function main() {
     const orm: MikroORM<MongoDriver> = await MikroORM.init(mikroConf);
@@ -103,10 +143,16 @@ async function main() {
 		res.json({ status });
 	});
 
-	app.post('/commit/elrond', requireAuth, (req, res) => {
+	app.post('/commit/elrond', requireAuth, async (req, res) => {
+		const tx = await elrondExtractFunctionEvent(req.body.tx_hash);
+		if (!tx) {
+			res.status(400).json({ "status": "err" })
+			return;
+		}
+
 		io.emit(
 			"elrond:bridge_tx",
-			req.body.tx_hash
+			tx
 		);
 
 		res.json({ "status": "ok" });
