@@ -69,7 +69,7 @@ type TxRespMin = {
 async function elrondExtractFunctionEvent(txHash: string) {
 	let txData: AxiosResponse<TxRespMin>;
 	try {
-		txData = await axios.get(`${elrond_uri}/transaction?withResults=true`);
+		txData = await axios.get(`${elrond_uri}/transaction/${txHash}?withResults=true`);
 	} catch (e) {
 		console.warn("failed to fetch txdata with err", e);
 		return undefined;
