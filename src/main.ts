@@ -109,7 +109,7 @@ const elrondWaitTxnConfirmed = async (tx_hash: string) => {
     throw Error(`failed to query transaction exceeded 10 retries ${tx_hash}`);
 };
 
-async function elrondExtractFunctionEvent(txHash: string) {
+async function elrondExtractFunctionEvent(em: EntityManager, txHash: string) {
     if (txHash.length != 64) {
         console.log("elrond: received invalid hash", txHash);
         return undefined;
@@ -147,7 +147,7 @@ async function elrondExtractFunctionEvent(txHash: string) {
     }
 	if (withdrawFlag) {
 		await elrondWaitTxnConfirmed(multiEsdt);
-		return multiEsdt;
+		return await emitEvent(em, 0x2, multiEsdt, () => {}) == "ok" ? multiEsdt : undefined;
 	} else {
 		return txHash;
 	}
@@ -200,7 +200,7 @@ async function main() {
             2,
             req.body.tx_hash,
             async (_, txHash) => {
-                const ex = await elrondExtractFunctionEvent(txHash);
+                const ex = await elrondExtractFunctionEvent(orm.em, txHash);
                 ex && io.emit("elrond:bridge_tx", ex);
             }
         );
