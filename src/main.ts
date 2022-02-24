@@ -60,9 +60,10 @@ type TxRespMin = {
             smartContractResults?: {
                 data: string,
                 hash: string,
+                receiver: string,
                 sender: string
             }[],
-			logs?: unknown[]
+            logs?: unknown[]
         }
     }
 };
@@ -70,7 +71,7 @@ type TxRespMin = {
 const elrondWaitTxnConfirmed = async (tx_hash: string) => {
     const uri = `${elrond_uri}/transaction/${tx_hash}?withResults=true`;
     let tries = 0;
-	let hit = false;
+    let hit = false;
 
     while (tries < 10) {
         tries += 1;
@@ -94,14 +95,14 @@ const elrondWaitTxnConfirmed = async (tx_hash: string) => {
         if (tx_info["status"] != "success") {
             throw Error("failed to execute txn");
         }
-		if (!tx_info["smartContractResults"]?.length && !tx_info["logs"]) {
-			await new Promise((r) => setTimeout(r, 5000));
-			if (tries > 8 && !hit) {
-				tries = 0;
-				hit = true;
-			};
-			continue;
-		}
+        if (!tx_info["smartContractResults"]?.length && !tx_info["logs"]) {
+            await new Promise((r) => setTimeout(r, 5000));
+            if (tries > 8 && !hit) {
+                tries = 0;
+                hit = true;
+            };
+            continue;
+        }
 
         return data as TxRespMin;
     }
@@ -133,24 +134,34 @@ async function elrondExtractFunctionEvent(em: EntityManager, txHash: string) {
         return undefined
     }
 
-	await new Promise(r => setTimeout(r, 10000));
+    await new Promise(r => setTimeout(r, 10000));
 
     let withdrawFlag = false;
     let multiEsdt: string | undefined = undefined;
-    for (const res of txData.data.transaction.smartContractResults) {
-        if (res.data.startsWith("MultiESDTNFTTransfer")) {
-            multiEsdt = res.hash;
-        }
-        if (res.data.startsWith("@6f6b") && res.sender == elrond_minter) {
-            withdrawFlag = true;
+    const doTxFetch = () => {
+        for (const res of txData.data.transaction.smartContractResults) {
+            if (res.data.startsWith("MultiESDTNFTTransfer") &&
+                res.receiver == elrond_minter) {
+                multiEsdt = res.hash;
+            }
+            if (res.data.startsWith("@6f6b") && res.sender == elrond_minter) {
+                withdrawFlag = true;
+            }
         }
     }
-	if (withdrawFlag) {
-		await elrondWaitTxnConfirmed(multiEsdt);
-		return await emitEvent(em, 0x2, multiEsdt, () => {}) == "ok" ? multiEsdt : undefined;
-	} else {
-		return txHash;
-	}
+    doTxFetch();
+
+    while (multiEsdt && !withdrawFlag) {
+        txData = await elrondWaitTxnConfirmed(txHash);
+        doTxFetch();
+    }
+
+    if (withdrawFlag) {
+        await elrondWaitTxnConfirmed(multiEsdt);
+        return await emitEvent(em, 0x2, multiEsdt, () => { }) == "ok" ? multiEsdt : undefined;
+    } else {
+        return txHash;
+    }
 }
 
 
