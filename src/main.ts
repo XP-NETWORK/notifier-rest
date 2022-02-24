@@ -102,7 +102,7 @@ const elrondWaitTxnConfirmed = async (tx_hash: string) => {
 			continue;
 		}
 
-        return tx_info as TxRespMin;
+        return data as TxRespMin;
     }
 
     throw Error(`failed to query transaction exceeded 10 retries ${tx_hash}`);
