@@ -147,7 +147,7 @@ async function elrondExtractFunctionEvent(txHash: string) {
     }
 	if (withdrawFlag) {
 		await elrondWaitTxnConfirmed(multiEsdt);
-		return txHash;
+		return multiEsdt;
 	} else {
 		return txHash;
 	}
