@@ -69,6 +69,7 @@ type TxRespMin = {
 const elrondWaitTxnConfirmed = async (tx_hash: string) => {
     const uri = `${elrond_uri}/transaction/${tx_hash}?withResults=true`;
     let tries = 0;
+	let hit = false;
 
     while (tries < 10) {
         tries += 1;
@@ -92,6 +93,14 @@ const elrondWaitTxnConfirmed = async (tx_hash: string) => {
         if (tx_info["status"] != "success") {
             throw Error("failed to execute txn");
         }
+		if (!tx_info["smartContractResults"]?.length) {
+			await new Promise((r) => setTimeout(r, 5000));
+			if (tries > 8 && !hit) {
+				tries = 0;
+				hit = true;
+			};
+			continue;
+		}
 
         return tx_info as TxRespMin;
     }
