@@ -61,7 +61,8 @@ type TxRespMin = {
                 data: string,
                 hash: string,
                 sender: string
-            }[]
+            }[],
+			logs?: unknown[]
         }
     }
 };
@@ -93,7 +94,7 @@ const elrondWaitTxnConfirmed = async (tx_hash: string) => {
         if (tx_info["status"] != "success") {
             throw Error("failed to execute txn");
         }
-		if (!tx_info["smartContractResults"]?.length) {
+		if (!tx_info["smartContractResults"]?.length && !tx_info["logs"]) {
 			await new Promise((r) => setTimeout(r, 5000));
 			if (tries > 8 && !hit) {
 				tries = 0;
@@ -132,8 +133,10 @@ async function elrondExtractFunctionEvent(txHash: string) {
         return undefined
     }
 
+	await new Promise(r => setTimeout(r, 10000));
+
     let withdrawFlag = false;
-    let multiEsdt = undefined;
+    let multiEsdt: string | undefined = undefined;
     for (const res of txData.data.transaction.smartContractResults) {
         if (res.data.startsWith("MultiESDTNFTTransfer")) {
             multiEsdt = res.hash;
@@ -142,7 +145,12 @@ async function elrondExtractFunctionEvent(txHash: string) {
             withdrawFlag = true;
         }
     }
-    return withdrawFlag ? multiEsdt : txHash;
+	if (withdrawFlag) {
+		await elrondWaitTxnConfirmed(multiEsdt);
+		return txHash;
+	} else {
+		return txHash;
+	}
 }
 
 
