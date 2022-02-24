@@ -4,11 +4,11 @@ import * as socket from './socket';
 import { scrypt_verify } from './scrypt';
 import { elrond_minter, elrond_uri, port, secret_hash } from './config';
 import http from "http";
-import { MikroORM, RequestContext } from '@mikro-orm/core';
+import { ConstraintViolationException, MikroORM, RequestContext } from '@mikro-orm/core';
 import mikroConf from './mikro-orm';
 import { EntityManager, MongoDriver } from '@mikro-orm/mongodb';
 import { TxStore } from './db/TxStore';
-import axios, { AxiosResponse} from 'axios';
+import axios from 'axios';
 
 const app = express();
 const server = http.createServer(app);
@@ -55,41 +55,85 @@ async function emitEvent(em: EntityManager, chainId: number, txHash: string, cb:
 }
 
 type TxRespMin = {
-	data?: {
-		transaction?: {
-			smartContractResults?: {
-				data: string,
-				hash: string,
-				sender: string
-			}[]
-		}
-	}
+    data?: {
+        transaction?: {
+            smartContractResults?: {
+                data: string,
+                hash: string,
+                sender: string
+            }[]
+        }
+    }
+};
+
+const elrondWaitTxnConfirmed = async (tx_hash: string) => {
+    const uri = `${elrond_uri}/transaction/${tx_hash}?withResults=true`;
+    let tries = 0;
+
+    while (tries < 10) {
+        tries += 1;
+        let err;
+        // TODO: type safety
+        const res = await axios.get(uri).catch((e) => (err = e));
+        if (err) {
+            await new Promise((r) => setTimeout(r, 3000));
+            continue;
+        }
+        const data = res.data;
+        if (data["code"] != "successful") {
+            throw Error("failed to execute txn");
+        }
+
+        const tx_info = data["data"]["transaction"];
+        if (tx_info["status"] == "pending") {
+            await new Promise((r) => setTimeout(r, 5000));
+            continue;
+        }
+        if (tx_info["status"] != "success") {
+            throw Error("failed to execute txn");
+        }
+
+        return tx_info as TxRespMin;
+    }
+
+    throw Error(`failed to query transaction exceeded 10 retries ${tx_hash}`);
 };
 
 async function elrondExtractFunctionEvent(txHash: string) {
-	let txData: AxiosResponse<TxRespMin>;
-	try {
-		txData = await axios.get(`${elrond_uri}/transaction/${txHash}?withResults=true`);
-	} catch (e) {
-		console.warn("failed to fetch txdata with err", e);
-		return undefined;
-	}
-	if (!txData.data.data?.transaction?.smartContractResults?.length) {
-		console.warn("no events in transaction");
-		return undefined
-	}
+    if (txHash.length != 64) {
+        console.log("elrond: received invalid hash", txHash);
+        return undefined;
+    }
+    try {
+        Buffer.from(txHash, "hex");
+    } catch (_) {
+        console.log("elrond: received invalid hash", txHash);
+        return undefined;
+    }
 
-	let withdrawFlag = false;
-	let multiEsdt = undefined;
-	for (const res of txData.data.data.transaction.smartContractResults) {
-		if (res.data.startsWith("MultiESDTNFTTransfer")) {
-			multiEsdt = res.hash;
-		}
-		if (res.data.startsWith("@6f6b") && res.sender == elrond_minter) {
-			withdrawFlag = true;
-		}
-	}
-	return withdrawFlag ? multiEsdt : txHash;
+    let txData: TxRespMin;
+    try {
+        txData = await elrondWaitTxnConfirmed(txHash);
+    } catch (e) {
+        console.warn("failed to fetch txdata with err", e);
+        return undefined;
+    }
+    if (!txData.data?.transaction?.smartContractResults?.length) {
+        console.warn("no events in transaction");
+        return undefined
+    }
+
+    let withdrawFlag = false;
+    let multiEsdt = undefined;
+    for (const res of txData.data.transaction.smartContractResults) {
+        if (res.data.startsWith("MultiESDTNFTTransfer")) {
+            multiEsdt = res.hash;
+        }
+        if (res.data.startsWith("@6f6b") && res.sender == elrond_minter) {
+            withdrawFlag = true;
+        }
+    }
+    return withdrawFlag ? multiEsdt : txHash;
 }
 
 
@@ -133,18 +177,18 @@ async function main() {
         res.send({ "status": "ok" });
     });
 
-	app.post('/tx/elrond', async (req, res) => {
-		const status = await emitEvent(
-			orm.em,
-			2,
-			req.body.tx_hash,
-			async (_, txHash) => {
-				const ex = await elrondExtractFunctionEvent(txHash);
-				ex && io.emit("elrond:bridge_tx", ex);
-			}
-		);
-		res.json({ status });
-	});
+    app.post('/tx/elrond', async (req, res) => {
+        const status = await emitEvent(
+            orm.em,
+            2,
+            req.body.tx_hash,
+            async (_, txHash) => {
+                const ex = await elrondExtractFunctionEvent(txHash);
+                ex && io.emit("elrond:bridge_tx", ex);
+            }
+        );
+        res.json({ status });
+    });
 
     app.post('/tx/tezos', (req: Request<{}, {}, { tx_hash: string }>, res) => {
         emitEvent(
