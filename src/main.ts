@@ -4,7 +4,7 @@ import * as socket from './socket';
 import { scrypt_verify } from './scrypt';
 import { elrond_minter, elrond_uri, port, secret_hash } from './config';
 import http from "http";
-import { ConstraintViolationException, MikroORM, RequestContext } from '@mikro-orm/core';
+import { MikroORM, RequestContext } from '@mikro-orm/core';
 import mikroConf from './mikro-orm';
 import { EntityManager, MongoDriver } from '@mikro-orm/mongodb';
 import { TxStore } from './db/TxStore';
