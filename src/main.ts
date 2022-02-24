@@ -138,24 +138,12 @@ async function main() {
 			orm.em,
 			2,
 			req.body.tx_hash,
-			() => {}
+			async (_, txHash) => {
+				const ex = await elrondExtractFunctionEvent(txHash);
+				ex && io.emit("elrond:bridge_tx", ex);
+			}
 		);
 		res.json({ status });
-	});
-
-	app.post('/commit/elrond', requireAuth, async (req, res) => {
-		const tx = await elrondExtractFunctionEvent(req.body.tx_hash);
-		if (!tx) {
-			res.status(400).json({ "status": "err" })
-			return;
-		}
-
-		io.emit(
-			"elrond:bridge_tx",
-			tx
-		);
-
-		res.json({ "status": "ok" });
 	});
 
     app.post('/tx/tezos', (req: Request<{}, {}, { tx_hash: string }>, res) => {
