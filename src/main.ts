@@ -221,7 +221,7 @@ async function main() {
       req.body.tx_hash,
       async (_, txHash) => {
         const ex = await elrondExtractFunctionEvent(orm.em, txHash);
-        ex && io.emit('elrond:bridge_tx', ex, req.body.sender, req.body.uris);
+        ex && io.emit('elrond:bridge_tx', ex, req.body.sender, req.body.uris, req.body.action_id);
       }
     );
     res.json({ status });
