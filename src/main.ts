@@ -197,13 +197,13 @@ async function main() {
           'web3:bridge_tx',
           chain,
           hash,
-          req.body.actionId,
-          req.body.type,
-          req.body.toChain,
-          req.body.txFees,
-          req.body.senderAddress,
-          req.body.targetAddress,
-          req.body.nftUri
+          req.body?.actionId,
+          req.body?.type,
+          req.body?.toChain,
+          req.body?.txFees,
+          req.body?.senderAddress,
+          req.body?.targetAddress,
+          req.body?.nftUri
         )
     );
     res.json({ status });
