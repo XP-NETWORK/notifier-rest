@@ -8,7 +8,18 @@ export type ServerEvents = {
   // eslint-disable-next-line functional/no-return-void
   readonly 'tron:bridge_tx': (tx_hash: string) => void;
   // eslint-disable-next-line functional/no-return-void
-  readonly 'web3:bridge_tx': (chain: number, tx_hash: string) => void;
+  // readonly 'web3:bridge_tx': (chain: number, tx_hash: string) => void;
+  readonly 'web3:bridge_tx': (
+    fromChain: number,
+    fromHash: string,
+    actionId?: string,
+    type?: string,
+    toChain?: number,
+    txFees?: string,
+    senderAddress?: string,
+    targetAddress?: string,
+    nftUri?: string
+  ) => void;
   // eslint-disable-next-line functional/no-return-void
   readonly 'algorand:bridge_tx': (
     action_id: string,

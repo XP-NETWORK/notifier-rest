@@ -192,7 +192,19 @@ async function main() {
       orm.em,
       req.body.chain_nonce,
       req.body.tx_hash,
-      (chain, hash) => io.emit('web3:bridge_tx', chain, hash)
+      (chain, hash) =>
+        io.emit(
+          'web3:bridge_tx',
+          chain,
+          hash,
+          req.body.actionId,
+          req.body.type,
+          req.body.toChain,
+          req.body.txFees,
+          req.body.senderAddress,
+          req.body.targetAddress,
+          req.body.nftUri
+        )
     );
     res.json({ status });
   });
@@ -221,7 +233,14 @@ async function main() {
       req.body.tx_hash,
       async (_, txHash) => {
         const ex = await elrondExtractFunctionEvent(orm.em, txHash);
-        ex && io.emit('elrond:bridge_tx', ex, req.body.sender, req.body.uris, req.body.action_id);
+        ex &&
+          io.emit(
+            'elrond:bridge_tx',
+            ex,
+            req.body.sender,
+            req.body.uris,
+            req.body.action_id
+          );
       }
     );
     res.json({ status });
