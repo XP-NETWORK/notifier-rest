@@ -1,8 +1,7 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express, { Request } from 'express';
 import cors from 'cors';
 import * as socket from './socket';
-import { scrypt_verify } from './scrypt';
-import { elrond_minter, elrond_uri, port, secret_hash } from './config';
+import { elrond_minter, elrond_uri, port } from './config';
 import http from 'http';
 import { MikroORM, RequestContext } from '@mikro-orm/core';
 import mikroConf from './mikro-orm';
@@ -19,15 +18,7 @@ console.log('WARN: using permissive cors!!');
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-type AlgorandMintReq = {
-  action_id: number;
-  chain_nonce: number;
-  target_address: string;
-  transaction_fees: string;
-  nft_url: string;
-};
-
-const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
+/*const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
   const auth = req.header('Authorization');
   if (!auth) {
     return res.status(403).send({ status: 'err' });
@@ -42,7 +33,7 @@ const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
   }
 
   return res.status(403).send({ status: 'err' });
-};
+};*/
 
 async function emitEvent(
   em: EntityManager,
@@ -211,20 +202,20 @@ async function main() {
 
   app.post(
     '/tx/algorand',
-    requireAuth,
-    (req: Request<{}, {}, AlgorandMintReq>, res) => {
-      io.emit(
-        'algorand:bridge_tx',
-        req.body.action_id.toString(),
-        req.body.chain_nonce,
-        req.body.target_address,
-        req.body.transaction_fees,
-        req.body.nft_url
-      );
-
-      res.send({ status: 'ok' });
-    }
-  );
+    async (req, res) => {
+		const status = await emitEvent(
+			orm.em,
+			15,
+			req.body.tx_hash,
+			async (_, txHash) => {
+				io.emit(
+					'algorand:bridge_tx',
+					txHash
+				)
+			}
+		);
+		res.json({ status });
+  });
 
   app.post('/tx/elrond', async (req, res) => {
     const status = await emitEvent(
