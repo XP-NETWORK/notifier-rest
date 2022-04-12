@@ -203,7 +203,9 @@ async function main() {
           req.body?.txFees,
           req.body?.senderAddress,
           req.body?.targetAddress,
-          req.body?.nftUri
+          req.body?.nftUri,
+          req.body?.tokenId,
+          req.body?.contract
         )
     );
     res.json({ status });

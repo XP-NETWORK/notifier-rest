@@ -18,7 +18,9 @@ export type ServerEvents = {
     txFees?: string,
     senderAddress?: string,
     targetAddress?: string,
-    nftUri?: string
+    nftUri?: string,
+    tokenId?: string,
+    contract?: string
   ) => void;
   // eslint-disable-next-line functional/no-return-void
   readonly 'algorand:bridge_tx': (
