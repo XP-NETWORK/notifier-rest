@@ -134,7 +134,7 @@ async function elrondExtractFunctionEvent(em: EntityManager, txHash: string) {
 
   let withdrawFlag = false;
   let multiEsdt: string | undefined = undefined;
-  const doTxFetch = () => {
+  const doTxFetch = async () => {
     for (const res of txData.data.transaction.smartContractResults) {
       if (
         res.data.startsWith('MultiESDTNFTTransfer') &&
@@ -144,14 +144,20 @@ async function elrondExtractFunctionEvent(em: EntityManager, txHash: string) {
       }
       if (res.data.startsWith('@6f6b') && res.sender == elrond_minter) {
         withdrawFlag = true;
-      }
+		return;
+	  }
+
+	  const withdrawDat = await elrondWaitTxnConfirmed(multiEsdt).catch(() => undefined);
+	  if (withdrawDat && withdrawDat.data.transaction?.logs?.events.some((e: any) => e.identifier == "withdrawNft")) {
+		  withdrawFlag = true;
+	  }
     }
   };
-  doTxFetch();
+  await doTxFetch();
 
   while (multiEsdt && !withdrawFlag) {
     txData = await elrondWaitTxnConfirmed(txHash);
-    doTxFetch();
+    await doTxFetch();
   }
 
   if (withdrawFlag) {
