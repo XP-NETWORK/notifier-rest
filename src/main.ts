@@ -148,7 +148,7 @@ async function elrondExtractFunctionEvent(em: EntityManager, txHash: string) {
 	  }
 
 	  const withdrawDat = await elrondWaitTxnConfirmed(multiEsdt).catch(() => undefined);
-	  if (withdrawDat && withdrawDat.data.transaction?.logs?.events.some((e: any) => e.identifier == "withdrawNft")) {
+	  if (withdrawDat && withdrawDat.data.transaction?.logs?.events.some((e: any) => e.identifier == "withdrawNft" || e.identifier == "freezeSendNft")) {
 		  withdrawFlag = true;
 	  }
     }
