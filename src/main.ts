@@ -234,6 +234,7 @@ async function main() {
             req.body.uris,
             req.body.action_id
           );
+		console.log("elrond sent tx to validator", ex);
       }
     );
     res.json({ status });
