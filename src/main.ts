@@ -1,13 +1,14 @@
-import express, { Request } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import * as socket from './socket';
-import { elrond_minter, elrond_uri, port } from './config';
+import { elrond_minter, elrond_uri, port, secret_hash } from './config';
 import http from 'http';
 import { MikroORM, RequestContext } from '@mikro-orm/core';
 import mikroConf from './mikro-orm';
 import { EntityManager, MongoDriver } from '@mikro-orm/mongodb';
 import { TxStore } from './db/TxStore';
 import axios from 'axios';
+import { scrypt_verify } from './scrypt';
 
 const app = express();
 const server = http.createServer(app);
@@ -18,7 +19,7 @@ console.log('WARN: using permissive cors!!');
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-/*const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
+const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
   const auth = req.header('Authorization');
   if (!auth) {
     return res.status(403).send({ status: 'err' });
@@ -33,7 +34,7 @@ app.use(express.json());
   }
 
   return res.status(403).send({ status: 'err' });
-};*/
+};
 
 async function emitEvent(
   em: EntityManager,
@@ -144,13 +145,13 @@ async function elrondExtractFunctionEvent(em: EntityManager, txHash: string) {
       }
       if (res.data.startsWith('@6f6b') && res.sender == elrond_minter) {
         withdrawFlag = true;
-		return;
-	  }
+        return;
+      }
 
-	  const withdrawDat = await elrondWaitTxnConfirmed(multiEsdt).catch(() => undefined);
-	  if (withdrawDat && withdrawDat.data.transaction?.logs?.events.some((e: any) => e.identifier == "withdrawNft" || e.identifier == "freezeSendNft")) {
-		  withdrawFlag = true;
-	  }
+      const withdrawDat = await elrondWaitTxnConfirmed(multiEsdt).catch(() => undefined);
+      if (withdrawDat && withdrawDat.data.transaction?.logs?.events.some((e: any) => e.identifier == "withdrawNft" || e.identifier == "freezeSendNft")) {
+        withdrawFlag = true;
+      }
     }
   };
   await doTxFetch();
@@ -162,7 +163,7 @@ async function elrondExtractFunctionEvent(em: EntityManager, txHash: string) {
 
   if (withdrawFlag) {
     await elrondWaitTxnConfirmed(multiEsdt);
-    return (await emitEvent(em, 0x2, multiEsdt, () => {})) == 'ok'
+    return (await emitEvent(em, 0x2, multiEsdt, () => { })) == 'ok'
       ? multiEsdt
       : undefined;
   } else {
@@ -211,19 +212,19 @@ async function main() {
   app.post(
     '/tx/algorand',
     async (req, res) => {
-		const status = await emitEvent(
-			orm.em,
-			15,
-			req.body.tx_hash,
-			async (_, txHash) => {
-				io.emit(
-					'algorand:bridge_tx',
-					txHash
-				)
-			}
-		);
-		res.json({ status });
-  });
+      const status = await emitEvent(
+        orm.em,
+        15,
+        req.body.tx_hash,
+        async (_, txHash) => {
+          io.emit(
+            'algorand:bridge_tx',
+            txHash
+          )
+        }
+      );
+      res.json({ status });
+    });
 
   app.post('/tx/elrond', async (req, res) => {
     const status = await emitEvent(
@@ -240,7 +241,7 @@ async function main() {
             req.body.uris,
             req.body.action_id
           );
-		console.log("elrond sent tx to validator", ex);
+        console.log("elrond sent tx to validator", ex);
       }
     );
     res.json({ status });
@@ -253,6 +254,11 @@ async function main() {
 
     res.send({ status: 'ok' });
   });
+
+  app.post('/whitelist', requireAuth, (req: Request<{}, {}, { chain_nonce: number, contract: string }>, res) => {
+    io.emit('whitelist_nft', req.body.chain_nonce, req.body.contract);
+    res.send({ status: 'ok' });
+  })
 
   server.listen(port, () => console.log(`Server is up on port ${port}!`));
 }

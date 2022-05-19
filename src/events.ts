@@ -24,7 +24,7 @@ export type ServerEvents = {
   ) => void;
   // eslint-disable-next-line functional/no-return-void
   readonly 'algorand:bridge_tx': (
-	  tx_hash: string
+    tx_hash: string
   ) => void;
   readonly 'tezos:bridge_tx': (tx_hash: string) => void;
   readonly 'elrond:bridge_tx': (
@@ -33,6 +33,7 @@ export type ServerEvents = {
     uris: string[],
     action_id: string
   ) => void;
+  readonly 'whitelist_nft': (chain: number, contract: string) => void;
 };
 
 export type ClientEvents = {
