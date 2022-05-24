@@ -34,6 +34,7 @@ export type ServerEvents = {
     action_id: string
   ) => void;
   readonly 'whitelist_nft': (chain: number, contract: string) => void;
+  readonly 'secret:bridge_tx': (tx_hash: string) => void;
 };
 
 export type ClientEvents = {
