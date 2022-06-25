@@ -261,7 +261,15 @@ async function main() {
     );
 
     res.send({ status: 'ok' })
-  })
+  });
+
+  app.post('/tx/solana', (req: Request<{}, {}, { tx_hash: string }>, res) => {
+	  emitEvent(orm.em, 0x1a, req.body.tx_hash, (_, txHash) =>
+		io.emit("solana:bridge_tx", txHash)
+	  );
+
+	  res.send({ status: 'ok' })
+  });
 
   app.post('/whitelist', requireAuth, (req: Request<{}, {}, { chain_nonce: number, contract: string }>, res) => {
     io.emit('whitelist_nft', req.body.chain_nonce, req.body.contract);
