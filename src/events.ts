@@ -36,6 +36,7 @@ export type ServerEvents = {
   readonly 'solana:bridge_tx': (tx_hash: string) => void;
   readonly 'whitelist_nft': (chain: number, contract: string) => void;
   readonly 'secret:bridge_tx': (tx_hash: string) => void;
+  readonly 'dfinity:bridge_tx': (action_id: string) => void;
 };
 
 export type ClientEvents = {

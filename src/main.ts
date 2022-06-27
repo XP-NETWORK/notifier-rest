@@ -271,6 +271,15 @@ async function main() {
 	  res.send({ status: 'ok' })
   });
 
+  app.post('/tx/dfinity', (req: Request<{}, {}, { action_id: string  }>, res) => {
+	  // TODO: ignore action id if no event is found
+	  emitEvent(orm.em, 0x1c, req.body.action_id, (_, actionId) =>
+		io.emit("dfinity:bridge_tx", actionId)
+	  );
+
+	  res.send({ status: 'ok' })
+  })
+
   app.post('/whitelist', requireAuth, (req: Request<{}, {}, { chain_nonce: number, contract: string }>, res) => {
     io.emit('whitelist_nft', req.body.chain_nonce, req.body.contract);
     res.send({ status: 'ok' });
