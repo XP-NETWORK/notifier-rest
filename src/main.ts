@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import * as socket from './socket';
-import { elrond_minter, elrond_uri, port, secret_hash } from './config';
+import { dfinity_bridge, dfinity_uri, elrond_minter, elrond_uri, port, secret_hash } from './config';
 import http from 'http';
 import { MikroORM, RequestContext } from '@mikro-orm/core';
 import mikroConf from './mikro-orm';
@@ -9,6 +9,11 @@ import { EntityManager, MongoDriver } from '@mikro-orm/mongodb';
 import { TxStore } from './db/TxStore';
 import axios from 'axios';
 import { scrypt_verify } from './scrypt';
+import { HttpAgent } from "@dfinity/agent";
+import { Principal } from '@dfinity/principal';
+import { encode, Nat } from '@dfinity/candid/lib/cjs/idl';
+import { PipeArrayBuffer, safeReadUint8 } from '@dfinity/candid';
+
 
 const app = express();
 const server = http.createServer(app);
@@ -174,6 +179,13 @@ async function elrondExtractFunctionEvent(em: EntityManager, txHash: string) {
 async function main() {
   const orm: MikroORM<MongoDriver> = await MikroORM.init(mikroConf);
 
+  const dfinityAgent = new HttpAgent({
+    host: dfinity_uri,
+    fetch: require("node-fetch")
+  });
+
+  const bridgeContract = Principal.fromText(dfinity_bridge);
+
   app.use((_, __, next) => {
     RequestContext.create(orm.em, next);
   });
@@ -264,20 +276,40 @@ async function main() {
   });
 
   app.post('/tx/solana', (req: Request<{}, {}, { tx_hash: string }>, res) => {
-	  emitEvent(orm.em, 0x1a, req.body.tx_hash, (_, txHash) =>
-		io.emit("solana:bridge_tx", txHash)
-	  );
+    emitEvent(orm.em, 0x1a, req.body.tx_hash, (_, txHash) =>
+      io.emit("solana:bridge_tx", txHash)
+    );
 
-	  res.send({ status: 'ok' })
+    res.send({ status: 'ok' })
   });
 
-  app.post('/tx/dfinity', (req: Request<{}, {}, { action_id: string  }>, res) => {
-	  // TODO: ignore action id if no event is found
-	  emitEvent(orm.em, 0x1c, req.body.action_id, (_, actionId) =>
-		io.emit("dfinity:bridge_tx", actionId)
-	  );
+  app.post('/tx/dfinity', async (req: Request<{}, {}, { action_id: string }>, res) => {
+    let act: BigInt;
+    try {
+      act = BigInt(req.body.action_id);
+    } catch {
+      return res.send({ status: 'err' });
+    }
 
-	  res.send({ status: 'ok' })
+    const evQuery = await dfinityAgent.query(
+      bridgeContract,
+      {
+        methodName: 'get_event',
+        arg: encode(
+          [Nat],
+          [act]
+        )
+      }
+    );
+    if ('reject_code' in evQuery) return res.send({ status: 'err' });
+
+    if (safeReadUint8(new PipeArrayBuffer(evQuery.reply.arg)) == 0) return res.send({ status: 'err' });
+
+    emitEvent(orm.em, 0x1c, req.body.action_id, (_, actionId) =>
+      io.emit("dfinity:bridge_tx", actionId)
+    );
+
+    return res.send({ status: 'ok' })
   })
 
   app.post('/whitelist', requireAuth, (req: Request<{}, {}, { chain_nonce: number, contract: string }>, res) => {
