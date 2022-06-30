@@ -167,6 +167,8 @@ async function elrondExtractFunctionEvent(em: EntityManager, txHash: string) {
   }
 
   if (withdrawFlag) {
+    if (!multiEsdt) return undefined;
+
     await elrondWaitTxnConfirmed(multiEsdt);
     return (await emitEvent(em, 0x2, multiEsdt, () => { })) == 'ok'
       ? multiEsdt
