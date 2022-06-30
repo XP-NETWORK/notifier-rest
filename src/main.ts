@@ -176,15 +176,47 @@ async function elrondExtractFunctionEvent(em: EntityManager, txHash: string) {
   }
 }
 
-async function main() {
-  const orm: MikroORM<MongoDriver> = await MikroORM.init(mikroConf);
-
-  const dfinityAgent = new HttpAgent({
-    host: dfinity_uri,
-    fetch: require("node-fetch")
-  });
+function dfinitySetup(orm: MikroORM<MongoDriver>) {
+  if (!dfinity_uri) return;
 
   const bridgeContract = Principal.fromText(dfinity_bridge);
+  const dfinityAgent = new HttpAgent({
+    host: dfinity_uri,
+    fetch: require("cross-fetch")
+  });
+
+  app.post('/tx/dfinity', async (req: Request<{}, {}, { action_id: string }>, res) => {
+    let act: BigInt;
+    try {
+      act = BigInt(req.body.action_id);
+    } catch {
+      return res.send({ status: 'err' });
+    }
+
+    const evQuery = await dfinityAgent.query(
+      bridgeContract,
+      {
+        methodName: 'get_event',
+        arg: encode(
+          [Nat],
+          [act]
+        )
+      }
+    );
+    if ('reject_code' in evQuery) return res.send({ status: 'err' });
+
+    if (safeReadUint8(new PipeArrayBuffer(evQuery.reply.arg)) == 0) return res.send({ status: 'err' });
+
+    emitEvent(orm.em, 0x1c, req.body.action_id, (_, actionId) =>
+      io.emit("dfinity:bridge_tx", actionId)
+    );
+
+    return res.send({ status: 'ok' })
+  })
+}
+
+async function main() {
+  const orm: MikroORM<MongoDriver> = await MikroORM.init(mikroConf);
 
   app.use((_, __, next) => {
     RequestContext.create(orm.em, next);
@@ -283,39 +315,12 @@ async function main() {
     res.send({ status: 'ok' })
   });
 
-  app.post('/tx/dfinity', async (req: Request<{}, {}, { action_id: string }>, res) => {
-    let act: BigInt;
-    try {
-      act = BigInt(req.body.action_id);
-    } catch {
-      return res.send({ status: 'err' });
-    }
-
-    const evQuery = await dfinityAgent.query(
-      bridgeContract,
-      {
-        methodName: 'get_event',
-        arg: encode(
-          [Nat],
-          [act]
-        )
-      }
-    );
-    if ('reject_code' in evQuery) return res.send({ status: 'err' });
-
-    if (safeReadUint8(new PipeArrayBuffer(evQuery.reply.arg)) == 0) return res.send({ status: 'err' });
-
-    emitEvent(orm.em, 0x1c, req.body.action_id, (_, actionId) =>
-      io.emit("dfinity:bridge_tx", actionId)
-    );
-
-    return res.send({ status: 'ok' })
-  })
-
   app.post('/whitelist', requireAuth, (req: Request<{}, {}, { chain_nonce: number, contract: string }>, res) => {
     io.emit('whitelist_nft', req.body.chain_nonce, req.body.contract);
     res.send({ status: 'ok' });
   })
+
+  dfinitySetup(orm);
 
   server.listen(port, () => console.log(`Server is up on port ${port}!`));
 }
