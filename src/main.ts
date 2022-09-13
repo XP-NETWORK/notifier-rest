@@ -231,6 +231,13 @@ async function main() {
     res.json({ status });
   });
 
+  app.post("/tx/near", async (req, res) => {
+    const status = await emitEvent(orm.em, 0x1f, req.body.tx_hash, (_, txHash) => {
+      io.emit("near:bridge_tx", txHash)
+    })
+    res.json({ status })
+  })
+
   app.post('/tx/web3', async (req, res) => {
     const status = await emitEvent(
       orm.em,
