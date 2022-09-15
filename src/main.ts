@@ -291,6 +291,18 @@ async function main() {
     res.json({ status });
   });
 
+  app.post('/tx/aptos', async (req, res) => {
+    const status = await emitEvent(
+      orm.em,
+      0x22,
+      req.body.tx_hash,
+      async (_, txHash) => {
+        io.emit('aptos:bridge_tx', txHash);
+      }
+    );
+    return res.json({ status });
+  });
+
   app.post('/tx/elrond', async (req, res) => {
     const status = await emitEvent(
       orm.em,
