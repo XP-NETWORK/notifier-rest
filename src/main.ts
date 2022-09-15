@@ -1,7 +1,14 @@
 import express, { NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import * as socket from './socket';
-import { dfinity_bridge, dfinity_uri, elrond_minter, elrond_uri, port, secret_hash } from './config';
+import {
+  dfinity_bridge,
+  dfinity_uri,
+  elrond_minter,
+  elrond_uri,
+  port,
+  secret_hash,
+} from './config';
 import http from 'http';
 import { MikroORM, RequestContext } from '@mikro-orm/core';
 import mikroConf from './mikro-orm';
@@ -9,11 +16,10 @@ import { EntityManager, MongoDriver } from '@mikro-orm/mongodb';
 import { TxStore } from './db/TxStore';
 import axios from 'axios';
 import { scrypt_verify } from './scrypt';
-import { HttpAgent } from "@dfinity/agent";
+import { HttpAgent } from '@dfinity/agent';
 import { Principal } from '@dfinity/principal';
 import { encode, Nat } from '@dfinity/candid/lib/cjs/idl';
 import { PipeArrayBuffer, safeReadUint8 } from '@dfinity/candid';
-
 
 const app = express();
 const server = http.createServer(app);
@@ -153,8 +159,16 @@ async function elrondExtractFunctionEvent(em: EntityManager, txHash: string) {
         return;
       }
 
-      const withdrawDat = await elrondWaitTxnConfirmed(multiEsdt).catch(() => undefined);
-      if (withdrawDat && withdrawDat.data.transaction?.logs?.events.some((e: any) => e.identifier == "withdrawNft" || e.identifier == "freezeSendNft")) {
+      const withdrawDat = await elrondWaitTxnConfirmed(multiEsdt).catch(
+        () => undefined
+      );
+      if (
+        withdrawDat &&
+        withdrawDat.data.transaction?.logs?.events.some(
+          (e: any) =>
+            e.identifier == 'withdrawNft' || e.identifier == 'freezeSendNft'
+        )
+      ) {
         withdrawFlag = true;
       }
     }
@@ -170,7 +184,7 @@ async function elrondExtractFunctionEvent(em: EntityManager, txHash: string) {
     if (!multiEsdt) return undefined;
 
     await elrondWaitTxnConfirmed(multiEsdt);
-    return (await emitEvent(em, 0x2, multiEsdt, () => { })) == 'ok'
+    return (await emitEvent(em, 0x2, multiEsdt, () => {})) == 'ok'
       ? multiEsdt
       : undefined;
   } else {
@@ -184,37 +198,35 @@ function dfinitySetup(orm: MikroORM<MongoDriver>) {
   const bridgeContract = Principal.fromText(dfinity_bridge);
   const dfinityAgent = new HttpAgent({
     host: dfinity_uri,
-    fetch: require("cross-fetch")
+    fetch: require('cross-fetch'),
   });
 
-  app.post('/tx/dfinity', async (req: Request<{}, {}, { action_id: string }>, res) => {
-    let act: BigInt;
-    try {
-      act = BigInt(req.body.action_id);
-    } catch {
-      return res.send({ status: 'err' });
-    }
-
-    const evQuery = await dfinityAgent.query(
-      bridgeContract,
-      {
-        methodName: 'get_event',
-        arg: encode(
-          [Nat],
-          [act]
-        )
+  app.post(
+    '/tx/dfinity',
+    async (req: Request<{}, {}, { action_id: string }>, res) => {
+      let act: BigInt;
+      try {
+        act = BigInt(req.body.action_id);
+      } catch {
+        return res.send({ status: 'err' });
       }
-    );
-    if ('reject_code' in evQuery) return res.send({ status: 'err' });
 
-    if (safeReadUint8(new PipeArrayBuffer(evQuery.reply.arg)) == 0) return res.send({ status: 'err' });
+      const evQuery = await dfinityAgent.query(bridgeContract, {
+        methodName: 'get_event',
+        arg: encode([Nat], [act]),
+      });
+      if ('reject_code' in evQuery) return res.send({ status: 'err' });
 
-    emitEvent(orm.em, 0x1c, req.body.action_id, (_, actionId) =>
-      io.emit("dfinity:bridge_tx", actionId)
-    );
+      if (safeReadUint8(new PipeArrayBuffer(evQuery.reply.arg)) == 0)
+        return res.send({ status: 'err' });
 
-    return res.send({ status: 'ok' })
-  })
+      emitEvent(orm.em, 0x1c, req.body.action_id, (_, actionId) =>
+        io.emit('dfinity:bridge_tx', actionId)
+      );
+
+      return res.send({ status: 'ok' });
+    }
+  );
 }
 
 async function main() {
@@ -231,12 +243,17 @@ async function main() {
     res.json({ status });
   });
 
-  app.post("/tx/near", async (req, res) => {
-    const status = await emitEvent(orm.em, 0x1f, req.body.tx_hash, (_, txHash) => {
-      io.emit("near:bridge_tx", txHash)
-    })
-    res.json({ status })
-  })
+  app.post('/tx/near', async (req, res) => {
+    const status = await emitEvent(
+      orm.em,
+      0x1f,
+      req.body.tx_hash,
+      (_, txHash) => {
+        io.emit('near:bridge_tx', txHash);
+      }
+    );
+    res.json({ status });
+  });
 
   app.post('/tx/web3', async (req, res) => {
     const status = await emitEvent(
@@ -262,22 +279,17 @@ async function main() {
     res.json({ status });
   });
 
-  app.post(
-    '/tx/algorand',
-    async (req, res) => {
-      const status = await emitEvent(
-        orm.em,
-        15,
-        req.body.tx_hash,
-        async (_, txHash) => {
-          io.emit(
-            'algorand:bridge_tx',
-            txHash
-          )
-        }
-      );
-      res.json({ status });
-    });
+  app.post('/tx/algorand', async (req, res) => {
+    const status = await emitEvent(
+      orm.em,
+      15,
+      req.body.tx_hash,
+      async (_, txHash) => {
+        io.emit('algorand:bridge_tx', txHash);
+      }
+    );
+    res.json({ status });
+  });
 
   app.post('/tx/elrond', async (req, res) => {
     const status = await emitEvent(
@@ -294,7 +306,7 @@ async function main() {
             req.body.uris,
             req.body.action_id
           );
-        console.log("elrond sent tx to validator", ex);
+        console.log('elrond sent tx to validator', ex);
       }
     );
     res.json({ status });
@@ -313,21 +325,25 @@ async function main() {
       io.emit('secret:bridge_tx', txHash)
     );
 
-    res.send({ status: 'ok' })
+    res.send({ status: 'ok' });
   });
 
   app.post('/tx/solana', (req: Request<{}, {}, { tx_hash: string }>, res) => {
     emitEvent(orm.em, 0x1a, req.body.tx_hash, (_, txHash) =>
-      io.emit("solana:bridge_tx", txHash)
+      io.emit('solana:bridge_tx', txHash)
     );
 
-    res.send({ status: 'ok' })
+    res.send({ status: 'ok' });
   });
 
-  app.post('/whitelist', requireAuth, (req: Request<{}, {}, { chain_nonce: number, contract: string }>, res) => {
-    io.emit('whitelist_nft', req.body.chain_nonce, req.body.contract);
-    res.send({ status: 'ok' });
-  })
+  app.post(
+    '/whitelist',
+    requireAuth,
+    (req: Request<{}, {}, { chain_nonce: number; contract: string }>, res) => {
+      io.emit('whitelist_nft', req.body.chain_nonce, req.body.contract);
+      res.send({ status: 'ok' });
+    }
+  );
 
   dfinitySetup(orm);
 

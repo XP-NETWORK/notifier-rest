@@ -23,9 +23,7 @@ export type ServerEvents = {
     contract?: string
   ) => void;
   // eslint-disable-next-line functional/no-return-void
-  readonly 'algorand:bridge_tx': (
-    tx_hash: string
-  ) => void;
+  readonly 'algorand:bridge_tx': (tx_hash: string) => void;
   readonly 'tezos:bridge_tx': (tx_hash: string) => void;
   readonly 'elrond:bridge_tx': (
     tx_hash: string,
@@ -34,7 +32,7 @@ export type ServerEvents = {
     action_id: string
   ) => void;
   readonly 'solana:bridge_tx': (tx_hash: string) => void;
-  readonly 'whitelist_nft': (chain: number, contract: string) => void;
+  readonly whitelist_nft: (chain: number, contract: string) => void;
   readonly 'secret:bridge_tx': (tx_hash: string) => void;
   readonly 'dfinity:bridge_tx': (action_id: string) => void;
   readonly 'near:bridge_tx': (tx_hash: string) => void;

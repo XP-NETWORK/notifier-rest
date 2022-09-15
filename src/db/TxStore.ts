@@ -1,19 +1,19 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
-import { ObjectId } from "@mikro-orm/mongodb";
+import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
+import { ObjectId } from '@mikro-orm/mongodb';
 
 @Entity()
 export class TxStore {
-    @PrimaryKey()
-    _id!: ObjectId;
+  @PrimaryKey()
+  _id!: ObjectId;
 
-    @Property()
-    chainId: number;
+  @Property()
+  chainId: number;
 
-    @Property()
-    txHash: string;
+  @Property()
+  txHash: string;
 
-    constructor(chainId: number, txHash: string) {
-        this.chainId = chainId;
-        this.txHash = txHash;
-    }
+  constructor(chainId: number, txHash: string) {
+    this.chainId = chainId;
+    this.txHash = txHash;
+  }
 }

@@ -12,7 +12,8 @@
     "build": "tsc -p tsconfig.json",
     "dev": "yarn run build && node build/main/main.js",
     "hash": "node hash.js",
-    "start": "node build/main/main.js"
+    "start": "node build/main/main.js",
+    "prepare": "husky install"
   },
   "engines": {
     "node": ">=10"
@@ -40,7 +41,9 @@
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-functional": "^3.0.2",
     "eslint-plugin-import": "^2.22.0",
+    "husky": "^8.0.0",
     "prettier": "^2.1.1",
+    "pretty-quick": "^3.1.3",
     "typedoc": "^0.22.12",
     "typescript": "^4.5.5"
   },

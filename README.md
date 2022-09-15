@@ -1,6 +1,5 @@
 # notifier-rest
 
-
 ## Generate the hash for your secret
 
 make sure to keep this hash as you will need it for algorand backend
