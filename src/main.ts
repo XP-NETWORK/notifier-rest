@@ -303,6 +303,17 @@ async function main() {
     return res.json({ status });
   });
 
+  app.post('/tx/ton', async (req, res) => {
+    const status = await emitEvent(
+      orm.em,
+      0x1b,
+      req.body.tx_hash,
+      async (_, txHash) => {
+        io.emit('ton:bridge_tx', txHash);
+      }
+    );
+    return res.json({ status });
+  });
   app.post('/tx/elrond', async (req, res) => {
     const status = await emitEvent(
       orm.em,

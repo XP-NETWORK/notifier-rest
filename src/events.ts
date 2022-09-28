@@ -37,6 +37,7 @@ export type ServerEvents = {
   readonly 'dfinity:bridge_tx': (action_id: string) => void;
   readonly 'near:bridge_tx': (tx_hash: string) => void;
   readonly 'aptos:bridge_tx': (tx_hash: string) => void;
+  readonly 'ton:bridge_tx': (tx_hash: string) => void;
 };
 
 export type ClientEvents = {
