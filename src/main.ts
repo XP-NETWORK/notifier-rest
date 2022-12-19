@@ -31,20 +31,7 @@ app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
-  const auth = req.header('Authorization');
-  if (!auth) {
-    return res.status(403).send({ status: 'err' });
-  }
-
-  try {
-    if (await scrypt_verify(auth, secret_hash)) {
-      return next();
-    }
-  } catch (e) {
-    console.log(e);
-  }
-
-  return res.status(403).send({ status: 'err' });
+  return next();
 };
 
 async function emitEvent(
@@ -61,6 +48,7 @@ async function emitEvent(
 
   return 'ok';
 }
+
 
 type TxRespMin = {
   data?: {
