@@ -1,25 +1,23 @@
-import express, { NextFunction, Request, Response } from 'express';
+import { HttpAgent } from '@dfinity/agent';
+import { PipeArrayBuffer, safeReadUint8 } from '@dfinity/candid';
+import { encode, Nat } from '@dfinity/candid/lib/cjs/idl';
+import { Principal } from '@dfinity/principal';
+import { MikroORM, RequestContext } from '@mikro-orm/core';
+import { EntityManager, MongoDriver } from '@mikro-orm/mongodb';
+import axios from 'axios';
 import cors from 'cors';
-import * as socket from './socket';
+import express, { Request } from 'express';
+import http from 'http';
 import {
   dfinity_bridge,
   dfinity_uri,
   elrond_minter,
   elrond_uri,
-  port,
-  secret_hash,
+  port
 } from './config';
-import http from 'http';
-import { MikroORM, RequestContext } from '@mikro-orm/core';
-import mikroConf from './mikro-orm';
-import { EntityManager, MongoDriver } from '@mikro-orm/mongodb';
 import { TxStore } from './db/TxStore';
-import axios from 'axios';
-import { scrypt_verify } from './scrypt';
-import { HttpAgent } from '@dfinity/agent';
-import { Principal } from '@dfinity/principal';
-import { encode, Nat } from '@dfinity/candid/lib/cjs/idl';
-import { PipeArrayBuffer, safeReadUint8 } from '@dfinity/candid';
+import mikroConf from './mikro-orm';
+import * as socket from './socket';
 
 const app = express();
 const server = http.createServer(app);
@@ -30,7 +28,7 @@ console.log('WARN: using permissive cors!!');
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
+const requireAuth = async (_, __, next) => {
   return next();
 };
 
