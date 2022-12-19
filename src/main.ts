@@ -348,8 +348,8 @@ async function main() {
   app.post(
     '/whitelist',
     requireAuth,
-    (req: Request<{}, {}, { chain_nonce: number; contract: string }>, res) => {
-      io.emit('whitelist_nft', req.body.chain_nonce, req.body.contract);
+    (req: Request<{}, {}, { chain_nonce: number; contract: string, action_id: any }>, res) => {
+      io.emit('whitelist_nft', req.body.chain_nonce, req.body.contract, req.body.action_id);
       res.send({ status: 'ok' });
     }
   );
