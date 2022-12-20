@@ -13,7 +13,7 @@ import {
   dfinity_uri,
   elrond_minter,
   elrond_uri,
-  port
+  port,
 } from './config';
 import { TxStore } from './db/TxStore';
 import mikroConf from './mikro-orm';
@@ -46,7 +46,6 @@ async function emitEvent(
 
   return 'ok';
 }
-
 
 type TxRespMin = {
   data?: {
@@ -348,9 +347,15 @@ async function main() {
   app.post(
     '/whitelist',
     requireAuth,
-    (req: Request<{}, {}, { chain_nonce: number; contract: string, action_id: any }>, res) => {
-      console.log({actionId: req.body.action_id})
-      io.emit('whitelist_nft', req.body.chain_nonce, req.body.contract, req.body.action_id);
+    (req: Request<{}, {}, { chain_nonce: number; contract: string }>, res) => {
+      const chainNonce = req?.body?.chain_nonce;
+      const contract = req?.body?.contract;
+
+      if (!chainNonce || chainNonce < 0 || !contract)
+        res.send({ status: 'error' });
+
+      const actionId = parseInt(contract, 16) + Number(chainNonce);
+      io.emit('whitelist_nft', chainNonce, contract, actionId);
       res.send({ status: 'ok' });
     }
   );
