@@ -18,6 +18,7 @@ import {
 import { TxStore } from './db/TxStore';
 import mikroConf from './mikro-orm';
 import * as socket from './socket';
+import BN from 'bignumber.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -354,7 +355,7 @@ async function main() {
       if (!chainNonce || chainNonce < 0 || !contract)
         res.send({ status: 'error' });
 
-      const actionId = parseInt(contract, 16) + Number(chainNonce);
+      const actionId = BN(parseInt(contract, 16)).plus(BN(chainNonce));
       io.emit('whitelist_nft', chainNonce, contract, actionId);
       res.send({ status: 'ok' });
     }

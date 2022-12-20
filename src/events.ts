@@ -1,3 +1,5 @@
+import BigNumber from 'bignumber.js';
+
 export type TransferEvent = {
   readonly to: string;
   readonly value: BigInt;
@@ -35,7 +37,7 @@ export type ServerEvents = {
   readonly whitelist_nft: (
     chain: number,
     contract: string,
-    action_id: number
+    action_id: BigNumber
   ) => void;
   readonly 'secret:bridge_tx': (tx_hash: string) => void;
   readonly 'dfinity:bridge_tx': (action_id: string) => void;
