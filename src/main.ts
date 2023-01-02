@@ -19,6 +19,10 @@ import { TxStore } from './db/TxStore';
 import mikroConf from './mikro-orm';
 import * as socket from './socket';
 import BN from 'bignumber.js';
+import { WhiteListStore } from './db/WhiteListStore';
+import { Mutex } from 'async-mutex';
+
+const mutex = new Mutex();
 
 const app = express();
 const server = http.createServer(app);
@@ -348,16 +352,51 @@ async function main() {
   app.post(
     '/whitelist',
     requireAuth,
-    (req: Request<{}, {}, { chain_nonce: number; contract: string }>, res) => {
-      const chainNonce = req?.body?.chain_nonce;
-      const contract = req?.body?.contract;
+    async (
+      req: Request<
+        {},
+        {},
+        { chain_nonce: number; contract: string; authKey: string }
+      >,
+      res
+    ) => {
+      const release = await mutex.acquire();
+      try {
+        const chainNonce = req?.body?.chain_nonce;
+        const contract = req?.body?.contract;
+        const authKey = req?.body?.authKey;
+        console.log('notifier', { contract, chainNonce });
+        if (!chainNonce || chainNonce < 0 || !contract) {
+          return res
+            .status(400)
+            .send({ error: 'Invalid request body', contract, chainNonce });
+        }
 
-      if (!chainNonce || chainNonce < 0 || !contract)
-        res.send({ status: 'error' });
+        const ent = await orm.em.findOne(WhiteListStore, {
+          chainNonce,
+          contract,
+        });
+        if (ent != null) {
+          return res
+            .status(400)
+            .send({
+              error: 'Chain nonce and contract combination already exists',
+              contract,
+              chainNonce,
+            });
+        }
 
-      const actionId = BN(parseInt(contract, 16)).plus(BN(chainNonce));
-      io.emit('whitelist_nft', chainNonce, contract, actionId);
-      res.send({ status: 'ok' });
+        const actionId = BN(parseInt(contract, 16)).plus(BN(chainNonce));
+        io.emit('whitelist_nft', chainNonce, contract, actionId, authKey);
+        await orm.em.persistAndFlush(new WhiteListStore(chainNonce, contract));
+        console.log('whitelist event emitted');
+        return res.send({ status: 'ok' });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).send({ error: 'Internal server error' });
+      } finally {
+        release();
+      }
     }
   );
 
