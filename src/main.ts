@@ -9,6 +9,7 @@ import cors from 'cors';
 import express, { Request } from 'express';
 import http from 'http';
 import {
+  config_scan,
   dfinity_bridge,
   dfinity_uri,
   elrond_minter,
@@ -21,6 +22,8 @@ import * as socket from './socket';
 import BN from 'bignumber.js';
 import { WhiteListStore } from './db/WhiteListStore';
 import { Mutex } from 'async-mutex';
+import { isWhitelistable } from './utils';
+import { TExplorerConfig } from './types';
 
 const mutex = new Mutex();
 
@@ -377,15 +380,22 @@ async function main() {
           contract,
         });
         if (ent != null) {
-          return res
-            .status(400)
-            .send({
-              error: 'Chain nonce and contract combination already exists',
-              contract,
-              chainNonce,
-            });
+          return res.status(400).send({
+            error: 'Chain nonce and contract combination already exists',
+            contract,
+            chainNonce,
+          });
         }
-
+        const explorerConfig: TExplorerConfig = config_scan[chainNonce] || {};
+        const { secret = '', url = '' } = explorerConfig;
+        const isWhitelistable_ = await isWhitelistable(url, contract, secret);
+        if (!isWhitelistable_ && !authKey) {
+          return res.status(400).send({
+            error: 'Contract not whitelistable',
+            contract,
+            chainNonce,
+          });
+        }
         const actionId = BN(parseInt(contract, 16)).plus(BN(chainNonce));
         io.emit('whitelist_nft', chainNonce, contract, actionId, authKey);
         await orm.em.persistAndFlush(new WhiteListStore(chainNonce, contract));
