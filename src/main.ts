@@ -375,6 +375,18 @@ async function main() {
             .send({ error: 'Invalid request body', contract, chainNonce });
         }
 
+        const explorerConfig: TExplorerConfig = config_scan[chainNonce] || {};
+        const { secret = '', url = '' } = explorerConfig;
+        const isWhitelistable_ = await isWhitelistable(url, contract, secret);
+        console.log('is whitelistable', isWhitelistable_);
+
+        if (!isWhitelistable_ && !authKey) {
+          return res.status(400).send({
+            error: 'Contract not whitelistable',
+            contract,
+            chainNonce,
+          });
+        }
         const ent = await orm.em.findOne(WhiteListStore, {
           chainNonce,
           contract,
@@ -382,16 +394,6 @@ async function main() {
         if (ent != null) {
           return res.status(400).send({
             error: 'Chain nonce and contract combination already exists',
-            contract,
-            chainNonce,
-          });
-        }
-        const explorerConfig: TExplorerConfig = config_scan[chainNonce] || {};
-        const { secret = '', url = '' } = explorerConfig;
-        const isWhitelistable_ = await isWhitelistable(url, contract, secret);
-        if (!isWhitelistable_ && !authKey) {
-          return res.status(400).send({
-            error: 'Contract not whitelistable',
             contract,
             chainNonce,
           });
