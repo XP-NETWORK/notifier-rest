@@ -374,9 +374,13 @@ async function main() {
             .status(400)
             .send({ error: 'Invalid request body', contract, chainNonce });
         }
+        console.log({ config_scan });
 
         const explorerConfig: TExplorerConfig = config_scan[chainNonce] || {};
+        console.log({ explorerConfig });
+
         const { secret = '', url = '' } = explorerConfig;
+        console.log({ secret, url });
         const isWhitelistable_ = await isWhitelistable(url, contract, secret);
         console.log('is whitelistable', isWhitelistable_);
 

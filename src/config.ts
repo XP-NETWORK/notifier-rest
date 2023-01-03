@@ -11,5 +11,5 @@ export const elrond_minter = process.env.ELROND_MINTER!;
 export const dfinity_uri = process.env.DFINITY_AGENT_URI;
 export const dfinity_bridge = process.env.DFINITY_BRIDGE!;
 export const config_scan: TExplorerConfig = JSON.parse(
-  JSON.stringify(process.env.EVM_WHITELIST_CONFIG!)
+  process.env.EVM_WHITELIST_CONFIG!
 );

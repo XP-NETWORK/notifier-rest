@@ -20,6 +20,7 @@ export const isWhitelistable = async (
   if (!explorerApi || !contractAddress || !apiKey) return false;
 
   const endpoint = `${explorerApi}/api?module=contract&action=getsourcecode&address=${contractAddress}&apikey=${apiKey}`;
+  console.log({ endpoint });
 
   try {
     const data = await axios.get(endpoint);
