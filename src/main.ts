@@ -369,7 +369,9 @@ async function main() {
   );
 
   dfinitySetup(orm);
-
+  app.all('*', (_req, res) => {
+    res.status(404).send("<h1 style='text-align: center;'>404 Not Found</h1>");
+  });
   server.listen(port, () => console.log(`Server is up on port ${port}!`));
 }
 
