@@ -12,8 +12,12 @@ export class WhiteListStore {
   @Property()
   contract: string;
 
+  @Property()
+  isWhiteListed: boolean;
+
   constructor(chainNonce: number, contract: string) {
     this.chainNonce = chainNonce;
     this.contract = contract;
+    this.isWhiteListed = false;
   }
 }

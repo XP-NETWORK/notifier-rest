@@ -36,7 +36,7 @@ export const isWhitelistable = async (
     let contractName = data.data.result[0].ContractName;
     console.log('Contract Name = ', contractName);
 
-    if (sourceCode === '') {
+    if (!sourceCode.trim()) {
       console.log(isNotVerified);
       return isNotVerified;
     }

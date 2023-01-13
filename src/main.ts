@@ -385,11 +385,11 @@ async function main() {
         console.log('is whitelistable', isWhitelistable_);
 
         if (!isWhitelistable_ && !authKey) {
-          return res.status(400).send({
-            error: 'Contract not whitelistable',
-            contract,
-            chainNonce,
-          });
+          // return res.status(400).send({
+          //   error: 'Contract not whitelistable',
+          //   contract,
+          //   chainNonce,
+          // });
         }
         const ent = await orm.em.findOne(WhiteListStore, {
           chainNonce,
@@ -416,6 +416,92 @@ async function main() {
     }
   );
 
+  app.post('/add_white_list', requireAuth, async (req, res) => {
+    const release = await mutex.acquire();
+    try {
+      const chainNonce = req?.body?.chain_nonce;
+      const contract = req?.body?.contract;
+      const authKey = req?.body?.authKey;
+
+      console.log('authKey', authKey);
+
+      if (!chainNonce || !contract) {
+        return res
+          .status(400)
+          .send({ error: 'Invalid request body', contract, chainNonce });
+      }
+
+      const entity = await orm.em.findOne(WhiteListStore, {
+        chainNonce,
+        contract,
+      });
+      console.log('entity', entity);
+      if (entity) {
+        return res.status(400).json({
+          error: 'Already whitelisted',
+          status: 'failed',
+        });
+      }
+      await orm.em.persistAndFlush(new WhiteListStore(chainNonce, contract));
+      return res.status(200).json({
+        error: null,
+        status: 'success',
+      });
+    } catch (error) {
+      console.log('error in whitelist status', error);
+      return res.status(500).send({ error: 'Internal server error' });
+    } finally {
+      release();
+    }
+  });
+
+  app.post('/update_white_list_status', requireAuth, async (req, res) => {
+    try {
+      const chainNonce = req?.body?.chain_nonce;
+      const contract = req?.body?.contract;
+      const authKey = req?.body?.authKey;
+      const isGet = req?.body?.isGet;
+      console.log('authKey', authKey);
+      if (!chainNonce || !contract) {
+        return res
+          .status(400)
+          .send({ error: 'Invalid request body', contract, chainNonce });
+      }
+      const entity = await orm.em.findOne(WhiteListStore, {
+        chainNonce,
+        contract,
+      });
+      if (isGet) {
+        if (!entity) {
+          return res.status(400).json({
+            status: 'not found',
+            whitelisted: false,
+          });
+        }
+        return res.status(200).json({
+          status: 'ok',
+          whitelisted: entity.isWhiteListed,
+        });
+      }
+      if (entity) {
+        if (entity.isWhiteListed) {
+          return res.status(200).json({
+            status: 'ok',
+            whitelisted: true,
+          });
+        }
+        entity.isWhiteListed = true;
+        await orm.em.flush();
+      }
+      return res.status(200).json({
+        status: 'ok',
+        whitelisted: true,
+      });
+    } catch (error) {
+      console.log('error in whitelist status', error);
+      return res.status(500).send({ error: 'Internal server error' });
+    }
+  });
   dfinitySetup(orm);
 
   server.listen(port, () => console.log(`Server is up on port ${port}!`));
