@@ -381,8 +381,13 @@ async function main() {
 
         const { secret = '', url = '' } = explorerConfig;
         console.log({ secret, url });
-        const isWhitelistable_ = await isWhitelistable(url, contract, secret);
-        console.log('is whitelistable', isWhitelistable_);
+        let isWhitelistable_;
+        try {
+          isWhitelistable_ = await isWhitelistable(url, contract, secret);
+          console.log('is whitelistable', isWhitelistable_);
+        } catch (error) {
+          isWhitelistable_ = false;
+        }
 
         if (!isWhitelistable_ && !authKey) {
           // return res.status(400).send({
