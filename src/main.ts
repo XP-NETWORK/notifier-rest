@@ -385,11 +385,11 @@ async function main() {
         console.log('is whitelistable', isWhitelistable_);
 
         if (!isWhitelistable_ && !authKey) {
-          return res.status(400).send({
-            error: 'Contract not whitelistable',
-            contract,
-            chainNonce,
-          });
+          // return res.status(400).send({
+          //   error: 'Contract not whitelistable',
+          //   contract,
+          //   chainNonce,
+          // });
         }
         const ent = await orm.em.findOne(WhiteListStore, {
           chainNonce,

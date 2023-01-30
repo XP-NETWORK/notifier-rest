@@ -162,7 +162,7 @@ export const isWhitelistable = async (
   let sourceCode = data.data.result[0].SourceCode;
   let contractName = data.data.result[0].ContractName;
   console.log('Contract Name = ', contractName);
-  if (!sourceCode.trim()) {
+  if (sourceCode === '') {
     return false;
   }
   sourceCode = sourceCode
