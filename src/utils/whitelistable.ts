@@ -12,12 +12,18 @@ const checkFunctionsAndDefinitioins = {
   msgSender: [
     '{assembly{sender:=shr(96,calldataload(sub(calldatasize(),20)))}}',
   ],
+  calldataload: [''],
+  sub: [''],
+  calldatasize: [''],
+  shr: [''],
   _msgSender: [
     '{returnContextMixin.msgSender();}',
     '{returnmsg.sender;}',
     '{returnpayable(msg.sender);}',
     '{returnForwarderRegistryContextBase._msgSender();}',
   ],
+  payable: [''],
+  ForwarderRegistryContextBase: [''],
   _exists: [
     '{return_owners[tokenId]!=address(0);}',
     '{addressowner=_tokenOwner[tokenId];returnowner!=address(0);}',
@@ -28,6 +34,10 @@ const checkFunctionsAndDefinitioins = {
     '{returntokenId>0&&tokenId<=getNumMinted()&&_tokens[tokenId].owner!=0x0;}',
     '{return_tokenOwners.contains(tokenId);}',
   ],
+  contains: [''],
+  startTokenId: [''],
+  return_startTokenId: [''],
+  returntokenId: [''],
   getNumMinted: ['{return_tokens.length-1;}'],
   _ownerOf: ['{return_owners[tokenId];}'],
   ownerOf: [
@@ -44,6 +54,12 @@ const checkFunctionsAndDefinitioins = {
     '{return_tokenOwners.get(tokenId,"ERC721:ownerqueryfornonexistenttoken");}',
     '{if(!_exists(tokenId))revertOwnerQueryForNonexistentToken();//Cannotrealisticallyoverflow,sinceweareusinguint256unchecked{for(tokenId;;tokenId++){if(_owners[tokenId]!=address(0)){return_owners[tokenId];}}}revertUnableDetermineTokenOwner();}',
   ],
+  revertOwnerQueryForNonexistentToken: [''],
+  revertUnableDetermineTokenOwner: [''],
+  get: [''],
+  _tokenOwner: [''],
+  uint160: [''],
+  ownershipOf: [''],
   _checkOnERC721Received: [
     '{if(to.isContract()){tryIERC721Receiver(to).onERC721Received(_msgSender(),from,tokenId,data)returns(bytes4retval){returnretval==IERC721Receiver.onERC721Received.selector;}catch(bytesmemoryreason){if(reason.length==0){revert("ERC721:transfertononERC721Receiverimplementer");}else{///@soliditymemory-safe-assemblyassembly{revert(add(32,reason),mload(reason))}}}}else{returntrue;}}',
     '{if(to.isContract()){tryIERC721Receiver(to).onERC721Received(_msgSender(),from,tokenId,data)returns(bytes4retval){returnretval==IERC721Receiver.onERC721Received.selector;}catch(bytesmemoryreason){if(reason.length==0){revert("ERC721:transfertononERC721Receiverimplementer");}else{assembly{revert(add(32,reason),mload(reason))}}}}else{returntrue;}}',
@@ -55,6 +71,9 @@ const checkFunctionsAndDefinitioins = {
     '{if(!to.isContract()){returntrue;}bytesmemoryreturndata=to.functionCall(abi.encodeWithSelector(IERC721Receiver(to).onERC721Received.selector,_msgSender(),from,tokenId,_data),"ERC721:transfertononERC721Receiverimplementer");bytes4retval=abi.decode(returndata,(bytes4));return(retval==_ERC721_RECEIVED);}',
     '{if(to.isContract()){tryIERC721Receiver(to).onERC721Received(_msgSender(),from,tokenId,_data)returns(bytes4retval){returnretval==IERC721Receiver(to).onERC721Received.selector;}catch(bytesmemoryreason){if(reason.length==0){revert("ERC721:transfertononERC721Receiverimplementer");}else{assembly{revert(add(32,reason),mload(reason))}}}}else{returntrue;}}',
   ],
+  functionCall: [''],
+  encodeWithSelector: [''],
+  catch: [''],
   safeTransferFrom: [
     '',
     '{_transfer(from,to,tokenId);if(to.isContract()&&!_checkContractOnERC721Received(from,to,tokenId,_data)){revertTransferToNonERC721ReceiverImplementer();}}',
@@ -67,6 +86,8 @@ const checkFunctionsAndDefinitioins = {
     '{transferFrom(from,to,id);if(!_checkOnERC721Received(from,to,id,data))revertTransferToNonERC721ReceiverImplementer();}',
     '{_callOptionalReturn(token,abi.encodeWithSelector(token.transferFrom.selector,from,to,value));}',
   ],
+  _callOptionalReturn: [''],
+  _safeTransferFrom: [''],
   _isApprovedOrOwner: [
     '',
     '{addressowner=ERC721.ownerOf(tokenId);return(spender==owner||isApprovedForAll(owner,spender)||getApproved(tokenId)==spender);}',
@@ -78,10 +99,8 @@ const checkFunctionsAndDefinitioins = {
   ],
   isApprovedForAll: [
     '',
-    '{if(_isProxyForUser(_owner,_operator)){returntrue;}returnsuper.isApprovedForAll(_owner,_operator);}',
     '{return_operatorApprovals[account][operator];}',
     '{return_operatorApprovals[owner][operator];}',
-    '{if(operator==0xDb71120Dc4F75f7721A302308692ae3a7865cf73){returntrue;}return_operatorApprovals[owner][operator];}',
     '{returns.operators[owner][operator];}',
   ],
   getApproved: [
@@ -95,6 +114,8 @@ const checkFunctionsAndDefinitioins = {
     '{if(!_exists(tokenId))revertApprovalQueryForNonexistentToken();return_tokenApprovals[tokenId];}',
     '{uint256owner=s.owners[tokenId];require(_tokenExists(owner),"ERC721:non-existingtoken");if(_tokenHasApproval(owner)){returns.approvals[tokenId];}else{returnaddress(0);}}',
   ],
+  _tokenExists: [''],
+  _tokenHasApproval: [''],
   _requireMinted: ['{require(_exists(tokenId),"ERC721:invalidtokenID");}'],
   _safeTransfer: [
     '',
@@ -115,6 +136,9 @@ const checkFunctionsAndDefinitioins = {
     '{require(ERC721.ownerOf(tokenId)==from,"ERC721:transferoftokenthatisnotown");//internalownerrequire(to!=address(0),"ERC721:transfertothezeroaddress");_beforeTokenTransfer(from,to,tokenId);//Clearapprovalsfromthepreviousowner_approve(address(0),tokenId);_holderTokens[from].remove(tokenId);_holderTokens[to].add(tokenId);_tokenOwners.set(tokenId,to);emitTransfer(from,to,tokenId);}',
     '{require(ownerOf(tokenId)==from,"ERC721:transferoftokenthatisnotown");require(to!=address(0),"ERC721:transfertothezeroaddress");_beforeTokenTransfer(from,to,tokenId);//Clearapprovalsfromthepreviousowner_approve(address(0),tokenId);_holderTokens[from].remove(tokenId);_holderTokens[to].add(tokenId);_tokenOwners.set(tokenId,to);emitTransfer(from,to,tokenId);}',
   ],
+  remove: [''],
+  set: [''],
+  uint256: [''],
   _beforeTokenTransfer: [
     '',
     '{super._beforeTokenTransfer(operator,from,to,ids,amounts,data);require(!paused(),"ERC1155Pausable:tokentransferwhilepaused");}',
@@ -136,7 +160,9 @@ const checkFunctionsAndDefinitioins = {
     '{addressspender=_msgSender();_spendAllowance(from,spender,amount);_transfer(from,to,amount);returntrue;}',
     '{require(to!=address(0),"ERC721:transfertoaddress(0)");uint256owner=s.owners[tokenId];require(_tokenExists(owner),"ERC721:non-existingtoken");require(_tokenOwner(owner)==from,"ERC721:non-ownedtoken");if(!_isOperatable(s,from,sender)){require(_tokenHasApproval(owner)&&sender==s.approvals[tokenId],"ERC721:non-approvedsender");}s.owners[tokenId]=uint256(uint160(to));if(from!=to){unchecked{--s.balances[from];++s.balances[to];}}emitTransfer(from,to,tokenId);}',
   ],
-  _checkContractOnERC721Received: [],
+
+  _spendAllowance: [''],
+  _checkContractOnERC721Received: [''],
   revertTransferToNonERC721ReceiverImplementer: ['{}', ''],
   IERC721Receiver: ['{}', ''],
   _startTokenId: ['{}', '', '{return0;}'],
@@ -153,6 +179,7 @@ const checkFunctionsAndDefinitioins = {
     '{//Thismethodreliesonextcodesize,whichreturns0forcontractsin//construction,sincethecodeisonlystoredattheendofthe//constructorexecution.uint256size;//solhint-disable-next-lineno-inline-assemblyassembly{size:=extcodesize(account)}returnsize>0;}',
     '{\t\t\t\tuint256size=0;\t\t\t\t\t\t\t\t\t\t\t\tassembly{\t\t\t\t\t\tsize:=extcodesize(addr)\t\t}\t\t\t\treturnsize>0;\t}',
   ],
+  extcodesize: [''],
   tryIERC721Receiver: ['{}', ''],
   onERC721Received: ['{}', ''],
   add: [
@@ -162,6 +189,8 @@ const checkFunctionsAndDefinitioins = {
     '{uint256c=a+b;require(c>=a,"SafeMath:additionoverflow");returnc;}',
     '{return_add(set._inner,bytes32(value));}',
   ],
+  bytes32: [''],
+  _add: [''],
   mload: ['{}', ''],
   revert: ['{}', ''],
   revertApprovalQueryForNonexistentToken: ['{}', ''],
@@ -171,8 +200,6 @@ const checkFunctionsAndDefinitioins = {
     '{require(owner!=address(0),"ERC20:approvefromthezeroaddress");require(spender!=address(0),"ERC20:approvetothezeroaddress");_allowances[owner][spender]=amount;emitApproval(owner,spender,amount);}',
     '{_tokenApprovals[tokenId]=to;emitApproval(ERC721.ownerOf(tokenId),to,tokenId);//internalowner}',
   ],
-  emitTransfer: ['{}', ''],
-  ownershipOf: ['{}', ''],
 };
 
 function extractFunctions(str: string) {
