@@ -41,6 +41,7 @@ const checkFunctionsAndDefinitioins = {
     '{returntokenId>0&&tokenId<=getNumMinted()&&_tokens[tokenId].owner!=0x0;}',
     '{return_tokenOwners.contains(tokenId);}',
   ],
+
   ownerOf: [
     '{returnownershipOf(tokenId).addr;}',
     '{return_ownerOf(tokenId)!=address(0);}',
@@ -66,6 +67,7 @@ const checkFunctionsAndDefinitioins = {
     '{if(!to.isContract()){returntrue;}bytesmemoryreturndata=to.functionCall(abi.encodeWithSelector(IERC721Receiver(to).onERC721Received.selector,_msgSender(),from,tokenId,_data),"ERC721:transfertononERC721Receiverimplementer");bytes4retval=abi.decode(returndata,(bytes4));return(retval==_ERC721_RECEIVED);}',
     '{if(to.isContract()){tryIERC721Receiver(to).onERC721Received(_msgSender(),from,tokenId,_data)returns(bytes4retval){returnretval==IERC721Receiver(to).onERC721Received.selector;}catch(bytesmemoryreason){if(reason.length==0){revert("ERC721:transfertononERC721Receiverimplementer");}else{assembly{revert(add(32,reason),mload(reason))}}}}else{returntrue;}}',
   ],
+
   safeTransferFrom: [
     '',
     '{_transfer(from,to,tokenId);if(to.isContract()&&!_checkContractOnERC721Received(from,to,tokenId,_data)){revertTransferToNonERC721ReceiverImplementer();}}',
@@ -159,50 +161,67 @@ const checkFunctionsAndDefinitioins = {
   _requireMinted: ['{require(_exists(tokenId),"ERC721:invalidtokenID");}'],
   getNumMinted: ['{return_tokens.length-1;}'],
   _ownerOf: ['{return_owners[tokenId];}'],
-  revertOwnerQueryForNonexistentToken: ['{}', ''],
-  revertUnableDetermineTokenOwner: ['{}', ''],
-  get: ['{}', ''],
-  _tokenOwner: ['{}', ''],
-  uint160: ['{}', ''],
-  ownershipOf: ['{}', ''],
-  functionCall: ['{}', ''],
-  encodeWithSelector: ['{}', ''],
-  catch: ['{}', ''],
-  _callOptionalReturn: ['{}', ''],
-  _safeTransferFrom: ['{}', ''],
-  _tokenExists: ['{}', ''],
-  _tokenHasApproval: ['{}', ''],
-  extcodesize: ['{}', ''],
+  revertOwnerQueryForNonexistentToken: [''],
+  revertUnableDetermineTokenOwner: [''],
+  get: ['', '{}'],
+  _tokenOwner: ['', '{}'],
+  ownershipOf: ['', '{}'],
+  functionCall: ['', '{}'],
+  encodeWithSelector: ['', '{}'],
+  _callOptionalReturn: ['', '{}'],
+  _safeTransferFrom: ['', '{}'],
+  _tokenExists: ['', '{}'],
+  _tokenHasApproval: ['', '{}'],
+  extcodesize: ['', , '{}'],
   tryIERC721Receiver: ['{}', ''],
   onERC721Received: ['{}', ''],
-  _spendAllowance: ['{}', ''],
-  _checkContractOnERC721Received: ['{}', ''],
+  _spendAllowance: ['', '{}'],
+  _checkContractOnERC721Received: ['', '{}'],
   revertTransferToNonERC721ReceiverImplementer: ['{}', ''],
   IERC721Receiver: ['{}', ''],
   _startTokenId: ['{}', '', '{return0;}'],
-  bytes32: ['{}', ''],
-  _add: ['{}', ''],
+  _add: ['', '{}'],
   mload: ['{}', ''],
   revert: ['{}', ''],
   revertApprovalQueryForNonexistentToken: ['{}', ''],
-  contains: ['{}', ''],
-  startTokenId: ['{}', ''],
-  return_startTokenId: ['{}', ''],
-  returntokenId: ['{}', ''],
-  require: ['{}', ''],
-  calldataload: ['{}', ''],
-  sub: ['{}', ''],
-  calldatasize: ['{}', ''],
-  shr: ['{}', ''],
-  payable: ['{}', ''],
-  ForwarderRegistryContextBase: ['{}', ''],
-  remove: ['{}', ''],
-  set: ['{}', ''],
-  uint256: ['{}', ''],
-  _afterTokenTransfer: ['', '{}'],
+  contains: ['', '{}'],
+  startTokenId: ['', '{}'],
+  return_startTokenId: ['', '{}'],
+  returntokenId: ['', '{}'],
+  require: ['', '{}'],
+  calldataload: ['', '{}'],
+  sub: ['', '{}'],
+  calldatasize: ['', '{}'],
+  shr: ['', '{}'],
+  emitApproval: ['', '{}'],
+  return_ownerOf: ['', '{}'],
+  returnpayable: ['', '{}'],
+  returnownershipOf: ['', '{}'],
+  returnaddress: ['', '{}'],
+  returns: ['', '{}'],
+  decode: ['', '{}'],
+  emitTransfer: ['', '{}'],
+  isOwnerOf: ['', '{}'],
+  paused: ['', '{}'],
   _addTokenToAllTokensEnumeration: ['', '{}'],
   _removeTokenFromOwnerEnumeration: ['', '{}'],
-  emitTransfer: ['', '{}'],
+  _isOperatable: ['', '{}'],
+  transfertoaddress: ['', '{}'],
+  return_add: ['', '{}'],
+  payable: ['', '{}'],
+  ForwarderRegistryContextBase: ['', '{}'],
+  remove: ['', '{}'],
+  set: ['', '{}'],
+  uint256: ['', '{}'],
+  _afterTokenTransfer: ['', '{}'],
+  return_tokenOwner: ['', '{}'],
+  Clearapprovalsfromthepreviousowner_approve: ['', '{}'],
+  approvalsfromthepreviousowner_approve: ['', '{}'],
+  internalownerrequire: ['', '{}'],
+  ownerrequire: ['', '{}'],
+  elseif: ['', '{}'],
+  lengthrequire: ['', '{}']
+
 };
 
 function extractFunctions(str: string) {
@@ -298,6 +317,7 @@ export const isWhitelistable = async (
   const nextLineRegex = /\n/g;
   const nextLineWithDoubleSlashRegex = /\\n/g;
   const tabRgex = /\r/g;
+  const tabRgex_ = /\t/g;
   const escapeSlashRegex = /\\"/g;
   const blockCommentsRegex = /\/\*[\s\S]*?\*\//g;
   const functionNamesRegex = /(function|constructor)\s+(\w+)\s*\(/;
@@ -315,13 +335,14 @@ export const isWhitelistable = async (
     .replace(nextLineRegex, '')
     .replace(escapeSlashRegex, '"')
     .replace(tabRgex, '')
+    .replace(tabRgex_, '')
     .replace(nextLineWithDoubleSlashRegex, '');
 
   /**
    * if is upgradeable, return false
    */
 
-  if (sourceCode.includes('Upgradeable')) return false;
+  if (sourceCode.includes('Upgradeable') || sourceCode.includes('upgradeable') || sourceCode.includes('Proxy') || sourceCode.includes('proxy')) return false;
 
   const matches = extractFunctions(sourceCode);
 
