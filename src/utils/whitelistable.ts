@@ -12,6 +12,7 @@ const checkFunctionsAndDefinitioins = {
   msgSender: [
     '{assembly{sender:=shr(96,calldataload(sub(calldatasize(),20)))}}',
   ],
+  require: [''],
   calldataload: [''],
   sub: [''],
   calldatasize: [''],
