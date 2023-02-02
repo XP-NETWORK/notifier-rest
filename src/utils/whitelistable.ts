@@ -200,6 +200,9 @@ const checkFunctionsAndDefinitioins = {
   set: ['{}', ''],
   uint256: ['{}', ''],
   _afterTokenTransfer: ['', '{}'],
+  _addTokenToAllTokensEnumeration: ['', '{}'],
+  _removeTokenFromOwnerEnumeration: ['', '{}'],
+  emitTransfer: ['', '{}'],
 };
 
 function extractFunctions(str: string) {
