@@ -381,8 +381,8 @@ async function main() {
 
         const { secret = '', url = '' } = explorerConfig;
         console.log({ secret, url });
-        let isWhitelistable_;
-        if (!url) {
+        let isWhitelistable_: boolean;
+        if (!url.trim()) {
           isWhitelistable_ = false;
         } else {
           try {
@@ -394,11 +394,11 @@ async function main() {
         }
 
         if (!isWhitelistable_ && !authKey) {
-          // return res.status(400).send({
-          //   error: 'Contract not whitelistable',
-          //   contract,
-          //   chainNonce,
-          // });
+          return res.status(400).send({
+            error: 'Contract not whitelistable',
+            contract,
+            chainNonce,
+          });
         }
         const ent = await orm.em.findOne(WhiteListStore, {
           chainNonce,
