@@ -172,7 +172,7 @@ const checkFunctionsAndDefinitioins = {
   _safeTransferFrom: ['', '{}'],
   _tokenExists: ['', '{}'],
   _tokenHasApproval: ['', '{}'],
-  extcodesize: ['', , '{}'],
+  extcodesize: ['', '{}'],
   tryIERC721Receiver: ['{}', ''],
   onERC721Received: ['{}', ''],
   _spendAllowance: ['', '{}'],
@@ -220,8 +220,7 @@ const checkFunctionsAndDefinitioins = {
   internalownerrequire: ['', '{}'],
   ownerrequire: ['', '{}'],
   elseif: ['', '{}'],
-  lengthrequire: ['', '{}']
-
+  lengthrequire: ['', '{}'],
 };
 
 function extractFunctions(str: string) {
@@ -342,7 +341,13 @@ export const isWhitelistable = async (
    * if is upgradeable, return false
    */
 
-  if (sourceCode.includes('Upgradeable') || sourceCode.includes('upgradeable') || sourceCode.includes('Proxy') || sourceCode.includes('proxy')) return false;
+  if (
+    sourceCode.includes('Upgradeable') ||
+    sourceCode.includes('upgradeable') ||
+    sourceCode.includes('Proxy') ||
+    sourceCode.includes('proxy')
+  )
+    return false;
 
   const matches = extractFunctions(sourceCode);
 
