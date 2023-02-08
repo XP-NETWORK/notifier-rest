@@ -132,6 +132,7 @@ const checkFunctionsAndDefinitioins = {
     '{if(!_exists(tokenId))revertApprovalQueryForNonexistentToken();return_tokenApprovals[tokenId].value;}',
     '{if(!_exists(tokenId))revertApprovalQueryForNonexistentToken();return_tokenApprovals[tokenId];}',
     '{uint256owner=s.owners[tokenId];require(_tokenExists(owner),"ERC721:non-existingtoken");if(_tokenHasApproval(owner)){returns.approvals[tokenId];}else{returnaddress(0);}}',
+    '{require(_exists(tokenId),"ERC721A:approvedqueryfornonexistenttoken");return_tokenApprovals[tokenId];}'
   ],
   _safeTransfer: [
     '',
