@@ -46,6 +46,7 @@ const checkFunctionsAndDefinitioins = {
     '{return_startTokenId()<=tokenId&&tokenId<_currentIndex&&!_ownerships[tokenId].burned;}',
     '{returntokenId>0&&tokenId<=getNumMinted()&&_tokens[tokenId].owner!=0x0;}',
     '{return_tokenOwners.contains(tokenId);}',
+    '{returntokenId<currentIndex;}'
   ],
 
   ownerOf: [
