@@ -317,7 +317,9 @@ const checkFunctionsAndDefinitioins = {
   returns: ['', '{}'],
   decode: ['', '{}'],
   emitTransfer: ['', '{}'],
-  isOwnerOf: ['', '{}'],
+  unwrap: ['', '{}'],
+  uint240: ['', '{}'],
+  isOwnerOf: ['', '{}', '{addressowner=ownerOf(id);returnowner==account;}'],
   paused: [
     '',
     '{}',
