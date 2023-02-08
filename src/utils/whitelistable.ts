@@ -386,10 +386,6 @@ const checkFunctionsAndDefinitioins = {
     '{uint256length=ERC721.balanceOf(to);_ownedTokens[to][length]=tokenId;_ownedTokensIndex[tokenId]=length;}',
   ],
   pop: ['', '{}'],
-  returnfunctionCallWithValue: ['', '{}'],
-  return_verifyCallResult: ['', '{}'],
-  returnverifyCallResultFromTarget: ['', '{}'],
-  returnverifyCallResult: ['', '{}'],
   SubtractBalance: ['', '{}'],
   AddBalance: [
     '',
@@ -411,8 +407,7 @@ const checkFunctionsAndDefinitioins = {
     '{returnallowances[_owner][_spender][_id];}',
   ],
   _contains: ['', '{}', '{returnset._indexes[value]!=0;}'],
-  return_contains: ['', '{}'],
-  return_remove: ['', '{}'],
+
   keccak256: ['', '{}'],
   assert: ['', '{}'],
   extcodehash: ['', '{}'],
