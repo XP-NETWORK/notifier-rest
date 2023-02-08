@@ -14,6 +14,7 @@ const checkFunctionsAndDefinitioins = {
     '{_tokenApprovals[tokenId]=to;emitApproval(ERC721.ownerOf(tokenId),to,tokenId);}',
     '{require(owner!=address(0),"ERC20:approvefromthezeroaddress");require(spender!=address(0),"ERC20:approvetothezeroaddress");_allowances[owner][spender]=amount;emitApproval(owner,spender,amount);}',
     '{_tokenApprovals[tokenId]=to;emitApproval(ERC721.ownerOf(tokenId),to,tokenId);//internalowner}',
+    '{_tokenApprovals[tokenId]=to;emitApproval(owner,to,tokenId);}'
   ],
   msgSender: [
     '{assembly{sender:=shr(96,calldataload(sub(calldatasize(),20)))}}',
