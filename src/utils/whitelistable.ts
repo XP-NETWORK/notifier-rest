@@ -330,6 +330,7 @@ const checkFunctionsAndDefinitioins = {
   uint160: ['', '{}'],
   _verifyCallResult: ['', '{}',
     '{if(success){returnreturndata;}else{if(returndata.length>0){assembly{letreturndata_size:=mload(returndata)revert(add(32,returndata),returndata_size)}}else{revert(errorMessage);}}}',
+    '{if(success){returnreturndata;}else{if(returndata.length>0){assembly{letreturndata_size:=mload(returndata)revert(add(32,returndata),returndata_size)}}else{revert(errorMessage);}}}'
   ],
   verifyCallResult: ['', '{}'],
   _remove: ['', '{}'],
