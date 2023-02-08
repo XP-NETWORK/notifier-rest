@@ -318,6 +318,7 @@ const checkFunctionsAndDefinitioins = {
   decode: ['', '{}'],
   emitTransfer: ['', '{}'],
   unwrap: ['', '{}'],
+  uint160: ['', '{}'],
   uint240: ['', '{}'],
   isOwnerOf: ['', '{}', '{addressowner=ownerOf(id);returnowner==account;}'],
   paused: [
