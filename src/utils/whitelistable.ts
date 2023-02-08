@@ -319,6 +319,9 @@ const checkFunctionsAndDefinitioins = {
   emitTransfer: ['', '{}'],
   unwrap: ['', '{}'],
   uint160: ['', '{}'],
+  _verifyCallResult: ['', '{}'],
+  verifyCallResult: ['', '{}'],
+  _remove: ['', '{}'],
   uint240: ['', '{}'],
   isOwnerOf: ['', '{}', '{addressowner=ownerOf(id);returnowner==account;}'],
   paused: [
