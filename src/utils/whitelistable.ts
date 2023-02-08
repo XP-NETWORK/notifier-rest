@@ -204,7 +204,7 @@ const checkFunctionsAndDefinitioins = {
   revertUnableDetermineTokenOwner: [''],
   get: ['', '{}'],
   _tokenOwner: ['', '{}'],
-  ownershipOf: ['', '{}'],
+  ownershipOf: ['', '{}', '{require(_exists(tokenId),"ERC721A:ownerqueryfornonexistenttoken");uint256lowestTokenToCheck;if(tokenId>=maxBatchSize){lowestTokenToCheck=tokenId-maxBatchSize+1;}for(uint256curr=tokenId;curr>=lowestTokenToCheck;curr--){TokenOwnershipmemoryownership=_ownerships[curr];if(ownership.addr!=address(0)){returnownership;}}revert("ERC721A:unabletodeterminetheowneroftoken");}'],
   functionCall: [
     '',
     '{}',
