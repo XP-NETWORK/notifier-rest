@@ -61,6 +61,7 @@ const checkFunctionsAndDefinitioins = {
     '{uint256owner=s.owners[tokenId];require(_tokenExists(owner),"ERC721:non-existingtoken");return_tokenOwner(owner);}',
     '{return_tokenOwners.get(tokenId,"ERC721:ownerqueryfornonexistenttoken");}',
     '{returnnfOwners[_id];}',
+    '{require(_exists(tokenId),"ERC721A:ownerqueryfornonexistenttoken");uint256lowestTokenToCheck;if(tokenId>=maxBatchSize){lowestTokenToCheck=tokenId-maxBatchSize+1;}for(uint256curr=tokenId;curr>=lowestTokenToCheck;curr--){TokenOwnershipmemoryownership=_ownerships[curr];if(ownership.addr!=address(0)){returnownership;}}revert("ERC721A:unabletodeterminetheowneroftoken");}',
     '{if(!_exists(tokenId))revertOwnerQueryForNonexistentToken();//Cannotrealisticallyoverflow,sinceweareusinguint256unchecked{for(tokenId;;tokenId++){if(_owners[tokenId]!=address(0)){return_owners[tokenId];}}}revertUnableDetermineTokenOwner();}',
   ],
   _checkOnERC721Received: [
