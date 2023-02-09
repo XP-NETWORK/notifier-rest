@@ -31,6 +31,7 @@ const checkFunctionsAndDefinitioins = {
     '{}',
   ],
   verifyCallResult: [
+    `{\\rif(success){\\rreturnreturndata;\\r}else{\\rif(returndata.length\\u003e0){\\r\\rassembly{\\rletreturndata_size:=mload(returndata)\\rrevert(add(32,returndata),returndata_size)\\r}\\r}else{\\rrevert(errorMessage);\\r}\\r}\\r}`,
     '{\\rif(success){\\rreturnreturndata;\\r}else{\\rif(returndata.length>0){\\r\\rassembly{\\rletreturndata_size:=mload(returndata)\\rrevert(add(32,returndata),returndata_size)\\r}\\r}else{\\rrevert(errorMessage);\\r}\\r}\\r}',
     '{if(success){returnreturndata;}else{if(returndata.length>0){assembly{letreturndata_size:=mload(returndata)revert(add(32,returndata),returndata_size)}}else{revert(errorMessage);}}}',
     '{if(success){returnreturndata;}else{_revert(returndata,errorMessage);}}',
@@ -42,6 +43,7 @@ const checkFunctionsAndDefinitioins = {
   _remove: [
     '{uint256valueIndex=set._indexes[value];if(valueIndex!=0){uint256toDeleteIndex=valueIndex-1;uint256lastIndex=set._values.length-1;bytes32lastvalue=set._values[lastIndex];set._values[toDeleteIndex]=lastvalue;set._indexes[lastvalue]=toDeleteIndex+1;set._values.pop();deleteset._indexes[value];returntrue;}else{returnfalse;}}',
     '{}',
+    `{//Wereadandstorethevalue'sindextopreventmultiplereadsfromthesamestorageslotuint256valueIndex=set._indexes[value];if(valueIndex!=0){//Equivalenttocontains(set,value)//Todeleteanelementfromthe_valuesarrayinO(1),weswaptheelementtodeletewiththelastonein//thearray,andthenremovethelastelement(sometimescalledas'swapandpop').//Thismodifiestheorderofthearray,asnotedin{at}.uint256toDeleteIndex=valueIndex-1;uint256lastIndex=set._values.length-1;if(lastIndex!=toDeleteIndex){bytes32lastvalue=set._values[lastIndex];//Movethelastvaluetotheindexwherethevaluetodeleteisset._values[toDeleteIndex]=lastvalue;//Updatetheindexforthemovedvalueset._indexes[lastvalue]=valueIndex;//Replacelastvalue'sindextovalueIndex}//Deletetheslotwherethemovedvaluewasstoredset._values.pop();//Deletetheindexforthedeletedslotdeleteset._indexes[value];returntrue;}else{returnfalse;}}`,
     '{uint256keyIndex=map._indexes[key];if(keyIndex!=0){uint256toDeleteIndex=keyIndex-1;uint256lastIndex=map._entries.length-1;MapEntrystoragelastEntry=map._entries[lastIndex];map._entries[toDeleteIndex]=lastEntry;map._indexes[lastEntry._key]=toDeleteIndex+1;map._entries.pop();deletemap._indexes[key];returntrue;}else{returnfalse;}}',
     '{uint256valueIndex=set._indexes[value];if(valueIndex!=0){uint256toDeleteIndex=valueIndex-1;uint256lastIndex=set._values.length-1;if(lastIndex!=toDeleteIndex){bytes32lastValue=set._values[lastIndex];set._values[toDeleteIndex]=lastValue;set._indexes[lastValue]=valueIndex;}set._values.pop();deleteset._indexes[value];returntrue;}else{returnfalse;}}',
     `{//Wereadandstorethekey'sindextopreventmultiplereadsfromthesamestorageslotuint256keyIndex=map._indexes[key];if(keyIndex!=0){//Equivalenttocontains(map,key)//Todeleteakey-valuepairfromthe_entriesarrayinO(1),weswaptheentrytodeletewiththelastone//inthearray,andthenremovethelastentry(sometimescalledas'swapandpop').//Thismodifiestheorderofthearray,asnotedin{at}.uint256toDeleteIndex=keyIndex-1;uint256lastIndex=map._entries.length-1;//Whentheentrytodeleteisthelastone,theswapoperationisunnecessary.However,sincethisoccurs//sorarely,westilldotheswapanywaytoavoidthegascostofaddingan'if'statement.MapEntrystoragelastEntry=map._entries[lastIndex];//Movethelastentrytotheindexwheretheentrytodeleteismap._entries[toDeleteIndex]=lastEntry;//Updatetheindexforthemovedentrymap._indexes[lastEntry._key]=toDeleteIndex+1;//Allindexesare1-based//Deletetheslotwherethemovedentrywasstoredmap._entries.pop();//Deletetheindexforthedeletedslotdeletemap._indexes[key];returntrue;}else{returnfalse;}}`,
@@ -57,11 +59,12 @@ const checkFunctionsAndDefinitioins = {
   getNonFungibleBaseType: ['', '{}', '{return_id\\u0026TYPE_MASK;}'],
   _removeTokenFromAllTokensEnumeration: [
     `{//Topreventagapinthetokensarray,westorethelasttokenintheindexofthetokentodelete,and//thendeletethelastslot(swapandpop).uint256lastTokenIndex=_allTokens.length-1;uint256tokenIndex=_allTokensIndex[tokenId];//Whenthetokentodeleteisthelasttoken,theswapoperationisunnecessary.However,sincethisoccursso//rarely(whenthelastmintedtokenisburnt)thatwestilldotheswapheretoavoidthegascostofadding//an'if'statement(likein_removeTokenFromOwnerEnumeration)uint256lastTokenId=_allTokens[lastTokenIndex];_allTokens[tokenIndex]=lastTokenId;//Movethelasttokentotheslotoftheto-deletetoken_allTokensIndex[lastTokenId]=tokenIndex;//Updatethemovedtoken'sindex//Thisalsodeletesthecontentsatthelastpositionofthearraydelete_allTokensIndex[tokenId];_allTokens.pop();}`,
-    '',
+    '{\\r\\ruint256lastTokenIndex=_allTokens.length-1;\\ruint256tokenIndex=_allTokensIndex[tokenId];\\r\\ruint256lastTokenId=_allTokens[lastTokenIndex];\\r\\r_allTokens[tokenIndex]=lastTokenId;_allTokensIndex[lastTokenId]=tokenIndex;\\rdelete_allTokensIndex[tokenId];\\r_allTokens.pop();\\r}',
     '{}',
     '{uint256lastTokenIndex=_allTokens.length-1;uint256tokenIndex=_allTokensIndex[tokenId];uint256lastTokenId=_allTokens[lastTokenIndex];_allTokens[tokenIndex]=lastTokenId;_allTokensIndex[lastTokenId]=tokenIndex;delete_allTokensIndex[tokenId];_allTokens.pop();}',
   ],
   _addTokenToOwnerEnumeration: [
+    `{\\ruint256length=ERC721.balanceOf(to);\\r_ownedTokens[to][length]=tokenId;\\r_ownedTokensIndex[tokenId]=length;\\r}`,
     '{uint256length=balanceOf(to);_ownedTokens[to][length]=tokenId;_ownedTokensIndex[tokenId]=length;}',
     '{_ownedTokensIndex[tokenId]=_ownedTokens[to].length;_ownedTokens[to].push(tokenId);}',
     '{}',
@@ -157,6 +160,7 @@ const checkFunctionsAndDefinitioins = {
     '{if(to.isContract()){tryIERC721Receiver(to).onERC721Received(_msgSender(),from,tokenId,_data)returns(bytes4retval){returnretval==IERC721Receiver(to).onERC721Received.selector;}catch(bytesmemoryreason){if(reason.length==0){revert("ERC721:transfertononERC721Receiverimplementer");}else{assembly{revert(add(32,reason),mload(reason))}}}}else{returntrue;}}',
   ],
   safeTransferFrom: [
+    `{\\r(boolsuccess,bytesmemorydata)=token.call(abi.encodeWithSelector(0x23b872dd,from,to,value));\\rrequire(success\\u0026\\u0026(data.length==0||abi.decode(data,(bool))),\\u0027TransferHelper:TRANSFER_FROM_FAILED\\u0027);\\r}`,
     `{require(_isApprovedOrOwner(_msgSender(),tokenId),'ERC721:transfercallerisnotownernorapproved');_safeTransfer(from,to,tokenId,_data);}`,
     '{\\rrequire(to!=address(this),"Recipientcannotbetheaddressofthecontract");\\rsuper.safeTransferFrom(from,to,tokenId,_data);\\rrentedTokensLandlords[tokenId]=address(0);\\r}',
     '{require(from==_msgSender()||isApprovedForAll(from,_msgSender())||isApprovedForPool(id,_msgSender()),"ERC1155WithTerminusStorage:callerisnotownernorapproved");_safeTransferFrom(from,to,id,amount,data);}',
@@ -223,6 +227,7 @@ const checkFunctionsAndDefinitioins = {
     '{return_operatorApprovals[owner][operator];}',
     '{returns.operators[owner][operator];}',
     '{returnoperatorApproval[_owner][_operator];}',
+    `{returnERC721.isApprovedForAll(account,operator)&&ERC1155.isApprovedForAll(account,operator);}`,
   ],
   getApproved: [
     `{require(_exists(tokenId),'ERC721:approvedqueryfornonexistenttoken');return_tokenApprovals[tokenId];}`,
@@ -261,6 +266,8 @@ const checkFunctionsAndDefinitioins = {
   ],
   _afterTokenTransfers: ['{}', ''],
   _transfer: [
+    `{require(ERC721.ownerOf(tokenId)==from,"ERC721:transferfromincorrectowner");require(to!=address(0),"ERC721:transfertothezeroaddress");_beforeTokenTransfer(from,to,tokenId);require(ERC721.ownerOf(tokenId)==from,"ERC721:transferfromincorrectowner");delete_tokenApprovals[tokenId];_balances[from]-=1;_balances[to]+=1;_owners[tokenId]=to;emitTransfer(from,to,tokenId);_afterTokenTransfer(from,to,tokenId);}`,
+    `{\\rrequire(ERC721.ownerOf(tokenId)==from,"ERC721:transferfromincorrectowner");\\rrequire(to!=address(0),"ERC721:transfertothezeroaddress");\\r\\r_beforeTokenTransfer(from,to,tokenId);\\r\\r_approve(address(0),tokenId);\\r\\r_balances[from]-=1;\\r_balances[to]+=1;\\r_owners[tokenId]=to;\\r\\remitTransfer(from,to,tokenId);\\r\\r_afterTokenTransfer(from,to,tokenId);\\r}`,
     `{require(ERC721.ownerOf(tokenId)==from,'ERC721:transferoftokenthatisnotown');require(to!=address(0),'ERC721:transfertothezeroaddress');_beforeTokenTransfer(from,to,tokenId);//Clearapprovalsfromthepreviousowner_approve(address(0),tokenId);_balances[from]-=1;_balances[to]+=1;_owners[tokenId]=to;emitTransfer(from,to,tokenId);}`,
     `{require(ERC721.ownerOf(tokenId)==from,"ERC721:transferfromincorrectowner");require(to!=address(0),"ERC721:transfertothezeroaddress");_beforeTokenTransfer(from,to,tokenId,1);//CheckthattokenIdwasnottransferredby_beforeTokenTransferhookrequire(ERC721.ownerOf(tokenId)==from,"ERC721:transferfromincorrectowner");//Clearapprovalsfromthepreviousownerdelete_tokenApprovals[tokenId];unchecked{//_balances[from]cannotoverflowforthesamereasonasdescribedin_burn://from'sbalanceisthenumberoftokenheld,whichisatleastonebeforethecurrent//transfer.//_balances[to]couldoverflowintheconditionsdescribedin_mint.Thatwouldrequire//all2**256tokenidstobeminted,whichinpracticeisimpossible._balances[from]-=1;_balances[to]+=1;}_owners[tokenId]=to;emitTransfer(from,to,tokenId);_afterTokenTransfer(from,to,tokenId,1);}`,
     '{TokenOwnershipmemoryprevOwnership=ownershipOf(tokenId);boolisApprovedOrOwner=(_msgSender()==prevOwnership.addr||isApprovedForAll(prevOwnership.addr,_msgSender())||getApproved(tokenId)==_msgSender());if(!isApprovedOrOwner)revertTransferCallerNotOwnerNorApproved();if(prevOwnership.addr!=from)revertTransferFromIncorrectOwner();if(to==address(0))revertTransferToZeroAddress();_beforeTokenTransfers(from,to,tokenId,1);_approve(address(0),tokenId,prevOwnership.addr);unchecked{_addressData[from].balance-=1;_addressData[to].balance+=1;_ownerships[tokenId].addr=to;_ownerships[tokenId].startTimestamp=uint64(block.timestamp);uint256nextTokenId=tokenId+1;if(_ownerships[nextTokenId].addr==address(0)){if(nextTokenId<_currentIndex){_ownerships[nextTokenId].addr=prevOwnership.addr;_ownerships[nextTokenId].startTimestamp=prevOwnership.startTimestamp;}}}emitTransfer(from,to,tokenId);_afterTokenTransfers(from,to,tokenId,1);}',
@@ -289,6 +296,7 @@ const checkFunctionsAndDefinitioins = {
 
   _beforeTokenTransfer: [
     '{}',
+    `{\\rsuper._beforeTokenTransfer(from,to,tokenId);\\r\\rif(from==address(0)){\\r_addTokenToAllTokensEnumeration(tokenId);\\r}elseif(from!=to){\\r_removeTokenFromOwnerEnumeration(from,tokenId);\\r}\\rif(to==address(0)){\\r_removeTokenFromAllTokensEnumeration(tokenId);\\r}elseif(to!=from){\\r_addTokenToOwnerEnumeration(to,tokenId);\\r}\\r}`,
     `{super._beforeTokenTransfer(_from,_to,_tokenId);}`,
     '{\\rif(beforeTokenTransferHandler!=address(0)){\\rIERC721BeforeTokenTransferHandlerhandlerRef=IERC721BeforeTokenTransferHandler(\\rbeforeTokenTransferHandler\\r);\\rhandlerRef.beforeTokenTransfer(\\raddress(this),\\r_msgSender(),\\rfrom,\\rto,\\rfirstTokenId,\\rbatchSize\\r);\\r}\\r\\rfor(uint256idx=0;idx<batchSize;idx++){\\ruint256tokenId=firstTokenId+idx;\\ruint32lastTransferTime=lastTransfer[tokenId];\\ruint32currentTime=SafeCast.toUint32(block.timestamp);\\rif(lastTransferTime>0){\\r_timeHeld[tokenId][from]+=(currentTime-lastTransferTime);\\r}\\rlastTransfer[tokenId]=currentTime;\\r}\\r\\rsuper._beforeTokenTransfer(from,to,firstTokenId,batchSize);\\r}',
     '{super._beforeTokenTransfer(from,to,tokenId);if(tradingPaused)require(from==address(0),"Thetradingofthistokenispausedatthemoment");}',
@@ -392,6 +400,7 @@ const checkFunctionsAndDefinitioins = {
   TransferFromIncorrectOwner: ['{}', ''],
   TransferToZeroAddress: ['{}', ''],
   isContract: [
+    `{\\r\\rreturnaccount.code.length\\u003e0;\\r}`,
     '{\\r\\ruint256size;\\rassembly{\\rsize:=extcodesize(account)\\r}\\rreturnsize>0;\\r}',
     '{//Thismethodreliesinextcodesize,whichreturns0forcontractsin//construction,sincethecodeisonlystoredattheendofthe//constructorexecution.uint256size;//solhint-disable-next-lineno-inline-assemblyassembly{size:=extcodesize(account)}returnsize>0;}',
     '{uint256size;assembly{size:=extcodesize(_addr)}//solhint-disable-lineaddressCheck=size>0;}',
@@ -415,11 +424,13 @@ const checkFunctionsAndDefinitioins = {
     '{\\rfor(uint256id;id<items.length;id++){\\ritems[id].isPaused=_isPaused;\\r}\\r}',
   ],
   _addTokenToAllTokensEnumeration: [
-    '',
+    '{\\r_allTokensIndex[tokenId]=_allTokens.length;\\r_allTokens.push(tokenId);\\r}',
     '{_allTokensIndex[tokenId]=_allTokens.length;_allTokens.push(tokenId);}',
     '{}',
   ],
   _removeTokenFromOwnerEnumeration: [
+    `{\\r\\ruint256lastTokenIndex=ERC721.balanceOf(from)-1;\\ruint256tokenIndex=_ownedTokensIndex[tokenId];\\r\\rif(tokenIndex!=lastTokenIndex){\\ruint256lastTokenId=_ownedTokens[from][lastTokenIndex];\\r\\r_ownedTokens[from][tokenIndex]=lastTokenId;_ownedTokensIndex[lastTokenId]=tokenIndex;}\\r\\rdelete_ownedTokensIndex[tokenId];\\rdelete_ownedTokens[from][lastTokenIndex];\\r}`,
+    `{\\r\\ruint256lastTokenIndex=ERC721.balanceOf(from)-1;\\ruint256tokenIndex=_ownedTokensIndex[tokenId];\\r\\rif(tokenIndex!=lastTokenIndex){\\ruint256lastTokenId=_ownedTokens[from][lastTokenIndex];\\r\\r_ownedTokens[from][tokenIndex]=lastTokenId;_ownedTokensIndex[lastTokenId]=tokenIndex;}\\r\\rdelete_ownedTokensIndex[tokenId];\\rdelete_ownedTokens[from][lastTokenIndex];\r}`,
     `{//Topreventagapinfrom'stokensarray,westorethelasttokenintheindexofthetokentodelete,and//thendeletethelastslot(swapandpop).uint256lastTokenIndex=_ownedTokens[from].length.sub(1);uint256tokenIndex=_ownedTokensIndex[tokenId];//Whenthetokentodeleteisthelasttoken,theswapoperationisunnecessaryif(tokenIndex!=lastTokenIndex){uint256lastTokenId=_ownedTokens[from][lastTokenIndex];_ownedTokens[from][tokenIndex]=lastTokenId;//Movethelasttokentotheslotoftheto-deletetoken_ownedTokensIndex[lastTokenId]=tokenIndex;//Updatethemovedtoken'sindex}//Thisalsodeletesthecontentsatthelastpositionofthearray_ownedTokens[from].length--;//Notethat_ownedTokensIndex[tokenId]hasn'tbeencleared:itstillpointstotheoldslot(nowoccupiedby//lastTokenId,orjustovertheendofthearrayifthetokenwasthelastone).}`,
     `{//Topreventagapinfrom'stokensarray,westorethelasttokenintheindexofthetokentodelete,and//thendeletethelastslot(swapandpop).uint256lastTokenIndex=ERC721.balanceOf(from)-1;uint256tokenIndex=_ownedTokensIndex[tokenId];//Whenthetokentodeleteisthelasttoken,theswapoperationisunnecessaryif(tokenIndex!=lastTokenIndex){uint256lastTokenId=_ownedTokens[from][lastTokenIndex];_ownedTokens[from][tokenIndex]=lastTokenId;//Movethelasttokentotheslotoftheto-deletetoken_ownedTokensIndex[lastTokenId]=tokenIndex;//Updatethemovedtoken'sindex}//Thisalsodeletesthecontentsatthelastpositionofthearraydelete_ownedTokensIndex[tokenId];delete_ownedTokens[from][lastTokenIndex];}`,
     '{uint256lastTokenIndex=balanceOf(from)-1;uint256tokenIndex=_ownedTokensIndex[tokenId];if(tokenIndex!=lastTokenIndex){uint256lastTokenId=_ownedTokens[from][lastTokenIndex];_ownedTokens[from][tokenIndex]=lastTokenId;_ownedTokensIndex[lastTokenId]=tokenIndex;}delete_ownedTokensIndex[tokenId];delete_ownedTokens[from][lastTokenIndex];}',
@@ -450,6 +461,11 @@ const checkFunctionsAndDefinitioins = {
     '{return_remove(map._inner,bytes32(key));}',
   ],
   set: [
+    '',
+    '{}',
+    `{return_set(map._inner,bytes32(key),bytes32(uint256(uint160(value))));}`,
+  ],
+  andthenremovethelastelement: [
     '',
     '{}',
     `{return_set(map._inner,bytes32(key),bytes32(uint256(uint160(value))));}`,
@@ -505,6 +521,7 @@ const checkFunctionsAndDefinitioins = {
     '{}',
   ],
   functionCallWithValue: [
+    `{\\rrequire(address(this).balance\\u003e=value,"Address:insufficientbalanceforcall");\\rrequire(isContract(target),"Address:calltonon-contract");\\r\\r(boolsuccess,bytesmemoryreturndata)=target.call{value:value}(data);\\rreturnverifyCallResult(success,returndata,errorMessage);\\r}`,
     `{require(address(this).balance\\u003e=value,"Address:insufficientbalanceforcall");require(isContract(target),"Address:calltonon-contract");(boolsuccess,bytesmemoryreturndata)=target.call{value:value}(data);return_verifyCallResult(success,returndata,errorMessage);}`,
     `{require(address(this).balance>=value,'Address:insufficientbalanceforcall');require(isContract(target),'Address:calltonon-contract');(boolsuccess,bytesmemoryreturndata)=target.call{value:value}(data);returnverifyCallResult(success,returndata,errorMessage);}`,
     '{\\rrequire(address(this).balance>=value,"Address:insufficientbalanceforcall");\\rrequire(isContract(target),"Address:calltonon-contract");\\r\\r(boolsuccess,bytesmemoryreturndata)=target.call{value:value}(data);\\rreturnverifyCallResult(success,returndata,errorMessage);\\r}',
