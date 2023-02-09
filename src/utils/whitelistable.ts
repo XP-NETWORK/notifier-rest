@@ -740,6 +740,7 @@ const checkFunctionsAndDefinitioins = {
   push: ['', '{}'],
   type: ['', '{}'],
   uint96: ['', '{}'],
+  string: ['', '{}'],
   returnhasRole: ['', '{}'],
   getPosition: ['', '{}'],
   toBalanceKey: ['', '{}'],
