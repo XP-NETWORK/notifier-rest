@@ -851,7 +851,7 @@ export const isWhitelistable = async (
    * If not verified return false
    */
 
-  if (data.status !== 200) return false;
+  if (data.status !== 200) return { confirmed: false, data: 'Cant Fetch' };
 
   const doubleSlashCommentsRegex = /\/\/.*?(\\n)/g;
   const nextLineRegex = /\n/g;
@@ -867,7 +867,7 @@ export const isWhitelistable = async (
   let contractName = data.data.result[0].ContractName;
   console.log('Contract Name = ', contractName);
   if (sourceCode === '') {
-    return false;
+    return { confirmed: false, data: 'No sourceCode' };
   }
   sourceCode = sourceCode
     .replace(doubleSlashCommentsRegex, '')
@@ -878,17 +878,15 @@ export const isWhitelistable = async (
     .replace(tabRgex_, '')
     .replace(nextLineWithDoubleSlashRegex, '');
 
-  /**
-   * if is upgradeable, return false
-   */
-
-  if (
-    sourceCode.includes('Upgradeable') ||
-    sourceCode.includes('upgradeable') ||
-    sourceCode.includes('Proxy') ||
-    sourceCode.includes('proxy')
-  )
-    return false;
+  switch (true) {
+    case sourceCode.includes('Upgradeable') ||
+      sourceCode.includes('upgradeable'):
+      return { confirmed: false, data: 'Upgradeable' };
+    case sourceCode.includes('Proxy') || sourceCode.includes('proxy'):
+      return { confirmed: false, data: 'Proxy' };
+    default:
+      break;
+  }
 
   const matches = extractFunctions(sourceCode);
 
@@ -906,7 +904,7 @@ export const isWhitelistable = async (
     });
   }
 
-  let isVerified = true;
+  let isVerified = { confirmed: true, data: '' };
 
   for (let [functionName, functionBody] of Object.entries(functions)) {
     if (functionName == 'msgSender')
@@ -921,7 +919,7 @@ export const isWhitelistable = async (
         //@ts-ignore
         checkFunctionsAndDefinitioins[functionName].indexOf(functionBody) == -1
       ) {
-        isVerified = false;
+        isVerified = { confirmed: false, data: '' };
         break;
       }
     }

@@ -384,13 +384,6 @@ async function main() {
         const isWhitelistable_ = await isWhitelistable(url, contract, secret);
         console.log('is whitelistable', isWhitelistable_);
 
-        if (!isWhitelistable_ && !authKey) {
-          // return res.status(400).send({
-          //   error: 'Contract not whitelistable',
-          //   contract,
-          //   chainNonce,
-          // });
-        }
         const ent = await orm.em.findOne(WhiteListStore, {
           chainNonce,
           contract,
@@ -406,7 +399,11 @@ async function main() {
         io.emit('whitelist_nft', chainNonce, contract, actionId, authKey);
         await orm.em.persistAndFlush(new WhiteListStore(chainNonce, contract));
         console.log('whitelist event emitted');
-        return res.send({ status: 'ok' });
+        return res.send({
+          status: 'ok',
+          confirmed: String(isWhitelistable_?.confirmed),
+          data: isWhitelistable_?.data,
+        });
       } catch (error) {
         console.error(error);
         return res.status(500).send({ error: 'Internal server error' });
