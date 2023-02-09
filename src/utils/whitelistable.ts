@@ -99,6 +99,7 @@ const checkFunctionsAndDefinitioins = {
     '{returnGameRegistryConsumer._msgSender();}',
   ],
   add: [
+    `{if(account==address(0)){revertUnauthorized();}elseif(has(role,_type,account)){revertMaxSplaining({reason:string(abi.encodePacked("LibRoles:",Strings.toHexString(uint160(account),20),"alreadyhasrole",Strings.toHexString(uint32(_type),4)))});}role.bearer[account][_type]=true;emitRoleChanged(_type,account,true);}`,
     '{}',
     `{\\rreturn_add(set._inner,bytes32(value));\\r}`,
     '{c=a+b;require(c>=a);returnc;}',
@@ -129,6 +130,7 @@ const checkFunctionsAndDefinitioins = {
     '{returntokenId<currentIndex;}',
   ],
   ownerOf: [
+    `{addressowner=idToOwner[_tokenId];require(owner!=address(0),"VENFT:ownerqueryfornonexistenttoken");returnowner;}`,
     `{\\rreturn_tokenOwners.get(tokenId,"ERC721:ownerqueryfornonexistenttoken");\\r}`,
     `{addressowner=_owners[tokenId];require(owner!=address(0),'ERC721:ownerqueryfornonexistenttoken');returnowner;}`,
     '{addressowner=erc721Storage().owners[tokenId];require(owner!=address(0),"ERC721:ownerqueryfornonexistenttoken");returnowner;}',
@@ -151,6 +153,7 @@ const checkFunctionsAndDefinitioins = {
     '{if(!_exists(tokenId))revertOwnerQueryForNonexistentToken();//Cannotrealisticallyoverflow,sinceweareusinguint256unchecked{for(tokenId;;tokenId++){if(_owners[tokenId]!=address(0)){return_owners[tokenId];}}}revertUnableDetermineTokenOwner();}',
   ],
   _checkOnERC721Received: [
+    `{\\rif(!to.isContract()){\\rreturntrue;\\r}\\rbytesmemoryreturndata=to.functionCall(abi.encodeWithSelector(\\rIERC721Receiver(to).onERC721Received.selector,\\r_msgSender(),\\rfrom,\\rtokenId,\\r_data\\r),"ERC721:transfertononERC721Receiverimplementer");\\rbytes4retval=abi.decode(returndata,(bytes4));\\rreturn(retval==_ERC721_RECEIVED);\\r}`,
     `{if(to.isContract()){tryIERC721Receiver(to).onERC721Received(_msgSender(),from,tokenId,_data)returns(bytes4retval){returnretval==IERC721Receiver.onERC721Received.selector;}catch(bytesmemoryreason){if(reason.length==0){revert('ERC721:transfertononERC721Receiverimplementer');}else{assembly{revert(add(32,reason),mload(reason))}}}}else{returntrue;}}`,
     '{\\rif(to.isContract()){\\rtryIERC721Receiver(to).onERC721Received(_msgSender(),from,tokenId,_data)returns(bytes4retval){\\rreturnretval==IERC721Receiver.onERC721Received.selector;\\r}catch(bytesmemoryreason){\\rif(reason.length==0){\\rrevert("ERC721:transfertononERC721Receiverimplementer");\\r}else{\\rassembly{\\rrevert(add(32,reason),mload(reason))\\r}\\r}\\r}\\r}else{\\rreturntrue;\\r}\\r}',
     '{\\rif(to.isContract()){\\rtryIERC721Receiver(to).onERC721Received(_msgSender(),from,tokenId,_data)returns(bytes4retval){\\rreturnretval==IERC721Receiver(to).onERC721Received.selector;\\r}catch(bytesmemoryreason){\\rif(reason.length==0){\\rrevert("ERC721:transfertononERC721Receiverimplementer");\\r}else{\\rassembly{\\rrevert(add(32,reason),mload(reason))\\r}\\r}\\r}\\r}else{\\rreturntrue;\\r}\\r}',
@@ -166,6 +169,7 @@ const checkFunctionsAndDefinitioins = {
     '{if(to.isContract()){tryIERC721Receiver(to).onERC721Received(_msgSender(),from,tokenId,_data)returns(bytes4retval){returnretval==IERC721Receiver(to).onERC721Received.selector;}catch(bytesmemoryreason){if(reason.length==0){revert("ERC721:transfertononERC721Receiverimplementer");}else{assembly{revert(add(32,reason),mload(reason))}}}}else{returntrue;}}',
   ],
   safeTransferFrom: [
+    `{safeTransferFrom(_from,_to,_tokenId,'');}`,
     `{\\r(boolsuccess,bytesmemorydata)=token.call(abi.encodeWithSelector(0x23b872dd,from,to,value));\\rrequire(success\\u0026\\u0026(data.length==0||abi.decode(data,(bool))),\\u0027TransferHelper:TRANSFER_FROM_FAILED\\u0027);\\r}`,
     `{require(_isApprovedOrOwner(_msgSender(),tokenId),'ERC721:transfercallerisnotownernorapproved');_safeTransfer(from,to,tokenId,_data);}`,
     '{\\rrequire(to!=address(this),"Recipientcannotbetheaddressofthecontract");\\rsuper.safeTransferFrom(from,to,tokenId,_data);\\rrentedTokensLandlords[tokenId]=address(0);\\r}',
@@ -210,6 +214,7 @@ const checkFunctionsAndDefinitioins = {
     '{returnhasRole(APPROVED_OPERATOR_ROLE,account);}',
   ],
   _isApprovedOrOwner: [
+    `{addressowner=idToOwner[_tokenId];boolspenderIsOwner=owner==_spender;boolspenderIsApproved=_spender==idToApprovals[_tokenId];boolspenderIsApprovedForAll=(ownerToOperators[owner])[_spender];returnspenderIsOwner||spenderIsApproved||spenderIsApprovedForAll;}`,
     `{\\rrequire(_exists(tokenId),"ERC721:operatorqueryfornonexistenttoken");\\raddressowner=ERC721.ownerOf(tokenId);\\rreturn(spender==owner||getApproved(tokenId)==spender||ERC721.isApprovedForAll(owner,spender));\\r}`,
     `{require(_exists(tokenId),'ERC721:operatorqueryfornonexistenttoken');addressowner=ERC721.ownerOf(tokenId);return(spender==owner||getApproved(tokenId)==spender||isApprovedForAll(owner,spender));}`,
     '{returnsuper._isApprovedOrOwner(spender,tokenId)||super.isApprovedOperatorRole(spender);}',
@@ -224,6 +229,7 @@ const checkFunctionsAndDefinitioins = {
     '{\\rreturnsuper._isApprovedOrOwner(spender,tokenId)||super.isApprovedOperatorRole(spender);\\r}',
   ],
   isApprovedForAll: [
+    `{return(ownerToOperators[_owner])[_operator];}`,
     `{return_operatorApprovals[owner][operator];}transferFrom {//solhint-disable-next-linemax-line-lengthrequire(_isApprovedOrOwner(_msgSender(),tokenId),'ERC721:transfercallerisnotownernorapproved');_transfer(from,to,tokenId);}`,
     '{returnLibTerminus.terminusStorage().globalOperatorApprovals[account][operator];}',
     '{\\rreturn_operatorApprovals[owner][operator];\\r}',
@@ -237,6 +243,7 @@ const checkFunctionsAndDefinitioins = {
     `{returnERC721.isApprovedForAll(account,operator)&&ERC1155.isApprovedForAll(account,operator);}`,
   ],
   getApproved: [
+    `{returnidToApprovals[_tokenId];}`,
     `{require(_exists(tokenId),'ERC721:approvedqueryfornonexistenttoken');return_tokenApprovals[tokenId];}`,
     '{require(exists(tokenId),"ERC721:approvedqueryfornonexistenttoken");returnerc721Storage().tokenApprovals[tokenId];}',
     '{if(!_exists(tokenId))_revert(ApprovalQueryForNonexistentToken.selector);return_tokenApprovals[tokenId].value;}',
@@ -262,6 +269,7 @@ const checkFunctionsAndDefinitioins = {
   ],
   TokenOwnership: [''],
   _clearApproval: [
+    '{//Throwsif`_owner`isnotthecurrentownerassert(idToOwner[_tokenId]==_owner);if(idToApprovals[_tokenId]!=address(0)){//ResetapprovalsidToApprovals[_tokenId]=address(0);}}',
     '{if(idToApproval[_tokenId]!=address(0)){deleteidToApproval[_tokenId];}}',
     '{if(_tokenApprovals[tokenId]!=address(0)){_tokenApprovals[tokenId]=address(0);}}',
   ],
@@ -273,6 +281,7 @@ const checkFunctionsAndDefinitioins = {
   ],
   _afterTokenTransfers: ['{}', ''],
   _transfer: [
+    `{\\rrequire(ERC721.ownerOf(tokenId)==from,"ERC721:transferoftokenthatisnotown");\\rrequire(to!=address(0),"ERC721:transfertothezeroaddress");\\r\\r_beforeTokenTransfer(from,to,tokenId);\\r\\r_approve(address(0),tokenId);\\r\\r_holderTokens[from].remove(tokenId);\\r_holderTokens[to].add(tokenId);\\r\\r_tokenOwners.set(tokenId,to);\\r\\remitTransfer(from,to,tokenId);\\r}`,
     `{require(ERC721.ownerOf(tokenId)==from,"ERC721:transferfromincorrectowner");require(to!=address(0),"ERC721:transfertothezeroaddress");_beforeTokenTransfer(from,to,tokenId);require(ERC721.ownerOf(tokenId)==from,"ERC721:transferfromincorrectowner");delete_tokenApprovals[tokenId];_balances[from]-=1;_balances[to]+=1;_owners[tokenId]=to;emitTransfer(from,to,tokenId);_afterTokenTransfer(from,to,tokenId);}`,
     `{\\rrequire(ERC721.ownerOf(tokenId)==from,"ERC721:transferfromincorrectowner");\\rrequire(to!=address(0),"ERC721:transfertothezeroaddress");\\r\\r_beforeTokenTransfer(from,to,tokenId);\\r\\r_approve(address(0),tokenId);\\r\\r_balances[from]-=1;\\r_balances[to]+=1;\\r_owners[tokenId]=to;\\r\\remitTransfer(from,to,tokenId);\\r\\r_afterTokenTransfer(from,to,tokenId);\\r}`,
     `{require(ERC721.ownerOf(tokenId)==from,'ERC721:transferoftokenthatisnotown');require(to!=address(0),'ERC721:transfertothezeroaddress');_beforeTokenTransfer(from,to,tokenId);//Clearapprovalsfromthepreviousowner_approve(address(0),tokenId);_balances[from]-=1;_balances[to]+=1;_owners[tokenId]=to;emitTransfer(from,to,tokenId);}`,
@@ -367,6 +376,7 @@ const checkFunctionsAndDefinitioins = {
     '{}',
   ],
   transferFrom: [
+    `{_transferFrom(_from,_to,_tokenId,msg.sender);}`,
     `{ERC721.transferFrom(from,to,tokenId);}`,
     `{//solhint-disable-next-linemax-line-lengthrequire(_isApprovedOrOwner(_msgSender(),tokenId),'ERC721:transfercallerisnotownernorapproved');_transfer(from,to,tokenId);}`,
     '{require(to!=address(this),"Recipientcannotbetheaddressofthecontract");super.transferFrom(from,to,tokenId);rentedTokensLandlords[tokenId]=address(0);}',
@@ -463,6 +473,7 @@ const checkFunctionsAndDefinitioins = {
     `{uint256keyIndex=map._indexes[key];require(keyIndex!=0,errorMessage);//Equivalenttocontains(map,key)returnmap._entries[keyIndex-1]._value;//Allindexesare1-based}`,
   ],
   remove: [
+    `{if(account==address(0)){revertUnauthorized();}elseif(!has(role,_type,account)){revertMaxSplaining({reason:string(abi.encodePacked("LibRoles:",Strings.toHexString(uint160(account),20),"doesnothaverole",Strings.toHexString(uint32(_type),4)))});}role.bearer[account][_type]=false;emitRoleChanged(_type,account,false);}`,
     '{\\rreturn_remove(map._inner,bytes32(key));\\r}',
     '{}',
     '{return_remove(set._inner,bytes32(value));}',
@@ -470,6 +481,7 @@ const checkFunctionsAndDefinitioins = {
     '{return_remove(map._inner,bytes32(key));}',
   ],
   set: [
+    `{counter._value=number;emitCounterNumberChangedTo(counter._value);}`,
     '{\\rreturn_set(map._inner,bytes32(key),bytes32(uint256(uint160(value))));\\r}',
     '{}',
     `{return_set(map._inner,bytes32(key),bytes32(uint256(uint160(value))));}`,
@@ -626,6 +638,7 @@ const checkFunctionsAndDefinitioins = {
     '{if(!_contains(set,value)){set._values.push(value);set._indexes[value]=set._values.length;returntrue;}else{returnfalse;}}',
   ],
   hasRole: [
+    `{return_checkRole(role,account);}`,
     '{return_roles[role].members[account];}',
     '{}',
     '{return_roles[role].members.contains(account);}',
@@ -642,8 +655,27 @@ const checkFunctionsAndDefinitioins = {
     '{}',
     '{bytes32position=TERMINUS_STORAGE_POSITION;assembly{es.slot:=position}}',
   ],
+  emitRoleChanged: ['{}', ''],
+  _isApprovedForPool: ['{}', ''],
   isTokenRented: ['{}', ''],
+  _checkRole: [
+    '{}',
+    `{\\rif(!_gameRegistry.hasAccessRole(role,account)){\\rrevertMissingRole(account,role);\\r}\\r}`,
+    '{returncontractRoles.has(role,account);}',
+    `{if(!hasRole(role,account)){revert(string(abi.encodePacked("AccessControl:account",Strings.toHexString(uint160(account),20),"ismissingrole",Strings.toHexString(uint256(role),32))));}}`,
+  ],
+  toHexString: [
+    `{bytesmemorybuffer=newbytes(2*length+2);buffer[0]="0";buffer[1]="x";for(uint256i=2*length+1;i>1;--i){buffer[i]=alphabet[value&0xf];value>>=4;}require(value==0,"Strings:hexlengthinsufficient");returnstring(buffer);}`,
+    `{bytesmemorybuffer=newbytes(2*length+2);buffer[0]='0';buffer[1]='x';for(uint256i=2*length+1;i>1;--i){buffer[i]=_HEX_SYMBOLS[value&0xf];value>>=4;}require(value==0,'Strings:hexlengthinsufficient');returnstring(buffer);}`,
+    `{bytesmemorybuffer=newbytes(2*length+2);buffer[0]="0";buffer[1]="x";for(uint256i=2*length+1;i\\u003e1;--i){buffer[i]=_HEX_SYMBOLS[value\\u00260xf];value\\u003e\\u003e=4;}require(value==0,"Strings:hexlengthinsufficient");returnstring(buffer);}`,
+    `{returntoHexString(uint256(uint160(addr)),_ADDRESS_LENGTH);}`,
+    `{\\rbytesmemorybuffer=newbytes(2*length+2);\\rbuffer[0]="0";\\rbuffer[1]="x";\\rfor(uint256i=2*length+1;i\\u003e1;--i){\\rbuffer[i]=_HEX_SYMBOLS[value\\u00260xf];\\rvalue\\u003e\\u003e=4;\\r}\\rrequire(value==0,"Strings:hexlengthinsufficient");\\rreturnstring(buffer);\\r}`,
+    '{}',
+    '{bytesmemorybuffer=newbytes(2*length+2);buffer[0]="0";buffer[1]="x";for(uint256i=2*length+1;i>1;--i){buffer[i]=_HEX_SYMBOLS[value&0xf];value>>=4;}require(value==0,"Strings:hexlengthinsufficient");returnstring(buffer);}',
+  ],
+  revertMaxSplaining: ['{}', ''],
   mload: ['{}', ''],
+  emitCounterNumberChangedTo: ['{}', ''],
   revert: ['{}', ''],
   revertApprovalQueryForNonexistentToken: ['{}', ''],
   startTokenId: ['', '{}'],
@@ -651,6 +683,7 @@ const checkFunctionsAndDefinitioins = {
   returntokenId: ['', '{}'],
   require: ['', '{}'],
   uint16: ['', '{}'],
+  revertUnauthorized: ['', '{}'],
   calldataload: ['', '{}'],
   calldatasize: ['', '{}'],
   shr: ['', '{}'],
@@ -691,7 +724,10 @@ const checkFunctionsAndDefinitioins = {
   Approval: ['', '{}'],
   shl: [''],
   address: ['', '{}'],
-  has: ['', '{}'],
+  has: [
+    '{if(account==address(0)){revertUnauthorized();}returnrole.bearer[account][_type];}',
+    '{}',
+  ],
   _updateIDUserTotalBalance: ['', '{}'],
   gasleft: ['', '{}'],
   revertInvalidOnReceiveMsg: ['', '{}'],
