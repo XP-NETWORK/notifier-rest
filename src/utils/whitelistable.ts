@@ -16,12 +16,13 @@ const checkFunctionsAndDefinitioins = {
     '{returnallowances[_owner][_spender][_id];}',
   ],
   _contains: [
-    '',
+    '{\\rreturnmap._indexes[key]!=0;\\r}',
     '{}',
     '{returnset._indexes[value]!=0;}',
     '{returnmap._indexes[key]!=0;}',
   ],
   _verifyCallResult: [
+    `{\\rif(success){\\rreturnreturndata;\\r}else{\\rif(returndata.length>0){\\r\\rassembly{\\rletreturndata_size:=mload(returndata)\\rrevert(add(32,returndata),returndata_size)\\r}\\r}else{\\rrevert(errorMessage);\\r}\\r}\\r}`,
     `{if(success){returnreturndata;}else{if(returndata.length\\u003e0){assembly{letreturndata_size:=mload(returndata)revert(add(32,returndata),returndata_size)}}else{revert(errorMessage);}}}`,
     `{if(success){returnreturndata;}else{//Lookforrevertreasonandbubbleitupifpresentif(returndata.length>0){//Theeasiestwaytobubbletherevertreasonisusingmemoryviaassembly//solhint-disable-next-lineno-inline-assemblyassembly{letreturndata_size:=mload(returndata)revert(add(32,returndata),returndata_size)}}else{revert(errorMessage);}}}`,
     '{if(success){returnreturndata;}else{//Lookforrevertreasonandbubbleitupifpresentif(returndata.length>0){//Theeasiestwaytobubbletherevertreasonisusingmemoryviaassemblyassembly{letreturndata_size:=mload(returndata)revert(add(32,returndata),returndata_size)}}else{revert(errorMessage);}}}',
@@ -41,6 +42,7 @@ const checkFunctionsAndDefinitioins = {
     `{if(success){returnreturndata;}else{//Lookforrevertreasonandbubbleitupifpresentif(returndata.length>0){//Theeasiestwaytobubbletherevertreasonisusingmemoryviaassemblyassembly{letreturndata_size:=mload(returndata)revert(add(32,returndata),returndata_size)}}else{revert(errorMessage);}}}`,
   ],
   _remove: [
+    `{\\ruint256keyIndex=map._indexes[key];\\r\\rif(keyIndex!=0){\\ruint256toDeleteIndex=keyIndex-1;\\ruint256lastIndex=map._entries.length-1;\\r\\r\\rMapEntrystoragelastEntry=map._entries[lastIndex];\\r\\rmap._entries[toDeleteIndex]=lastEntry;\\rmap._indexes[lastEntry._key]=toDeleteIndex+1;\\r\\rmap._entries.pop();\\r\\rdeletemap._indexes[key];\\r\\rreturntrue;\\r}else{\\rreturnfalse;\\r}\\r}`,
     '{uint256valueIndex=set._indexes[value];if(valueIndex!=0){uint256toDeleteIndex=valueIndex-1;uint256lastIndex=set._values.length-1;bytes32lastvalue=set._values[lastIndex];set._values[toDeleteIndex]=lastvalue;set._indexes[lastvalue]=toDeleteIndex+1;set._values.pop();deleteset._indexes[value];returntrue;}else{returnfalse;}}',
     '{}',
     `{//Wereadandstorethevalue'sindextopreventmultiplereadsfromthesamestorageslotuint256valueIndex=set._indexes[value];if(valueIndex!=0){//Equivalenttocontains(set,value)//Todeleteanelementfromthe_valuesarrayinO(1),weswaptheelementtodeletewiththelastonein//thearray,andthenremovethelastelement(sometimescalledas'swapandpop').//Thismodifiestheorderofthearray,asnotedin{at}.uint256toDeleteIndex=valueIndex-1;uint256lastIndex=set._values.length-1;if(lastIndex!=toDeleteIndex){bytes32lastvalue=set._values[lastIndex];//Movethelastvaluetotheindexwherethevaluetodeleteisset._values[toDeleteIndex]=lastvalue;//Updatetheindexforthemovedvalueset._indexes[lastvalue]=valueIndex;//Replacelastvalue'sindextovalueIndex}//Deletetheslotwherethemovedvaluewasstoredset._values.pop();//Deletetheindexforthedeletedslotdeleteset._indexes[value];returntrue;}else{returnfalse;}}`,
@@ -51,7 +53,7 @@ const checkFunctionsAndDefinitioins = {
   ],
   isNonFungible: ['', '{}', '{return_id\\u0026TYPE_NF_BIT==TYPE_NF_BIT;}'],
   contains: [
-    '',
+    '{\\rreturn_contains(map._inner,bytes32(key));\\r}',
     '{}',
     '{return_contains(set._inner,bytes32(value));}',
     '{return_contains(map._inner,bytes32(key));}',
@@ -85,6 +87,7 @@ const checkFunctionsAndDefinitioins = {
     '{assembly{sender:=shr(96,calldataload(sub(calldatasize(),20)))}}',
   ],
   _msgSender: [
+    `{\\rreturnpayable(msg.sender);\\r}`,
     '{returnERC2771Context._msgSender();}',
     '{\\rreturnmsg.sender;\\r}',
     '{\\rreturnGameRegistryConsumer._msgSender();\\r}',
@@ -97,6 +100,7 @@ const checkFunctionsAndDefinitioins = {
   ],
   add: [
     '{}',
+    `{\\rreturn_add(set._inner,bytes32(value));\\r}`,
     '{c=a+b;require(c>=a);returnc;}',
     '{minters[_minter]=true;emitMinterRoleGranted(_minter);}',
     '{require(value<type(uint240).max,"Outofrange");uint256amountPos=BalanceAmount.unwrap(b);uint240amount=uint240(amountPos>>16);uint16position=uint16(amountPos&0xffff);amount+=uint240(value);amountPos=(uint256(amount)<<16)|position;returnBalanceAmount.wrap(amountPos);}',
@@ -109,6 +113,7 @@ const checkFunctionsAndDefinitioins = {
     '{require(!has(role,account),"Roles:accountalreadyhasrole");role.bearer[account]=true;}',
   ],
   _exists: [
+    `{\\rreturn_tokenOwners.contains(tokenId);\\r}`,
     '{return_ownerOf(tokenId)!=address(0);}',
     '{return_startTokenId()\\u003c=tokenId\\u0026\\u0026tokenId\\u003c_currentIndex\\u0026\\u0026_packedOwnerships[tokenId]\\u0026_BITMASK_BURNED==0;}',
     '{\\rreturn_owners[tokenId]!=address(0);\\r}',
@@ -124,6 +129,7 @@ const checkFunctionsAndDefinitioins = {
     '{returntokenId<currentIndex;}',
   ],
   ownerOf: [
+    `{\\rreturn_tokenOwners.get(tokenId,"ERC721:ownerqueryfornonexistenttoken");\\r}`,
     `{addressowner=_owners[tokenId];require(owner!=address(0),'ERC721:ownerqueryfornonexistenttoken');returnowner;}`,
     '{addressowner=erc721Storage().owners[tokenId];require(owner!=address(0),"ERC721:ownerqueryfornonexistenttoken");returnowner;}',
     '{addressowner=_tokenOwner[tokenId];require(owner!=address(0),"ERC721:ownerqueryfornonexistenttoken");returnowner;}',
@@ -204,6 +210,7 @@ const checkFunctionsAndDefinitioins = {
     '{returnhasRole(APPROVED_OPERATOR_ROLE,account);}',
   ],
   _isApprovedOrOwner: [
+    `{\\rrequire(_exists(tokenId),"ERC721:operatorqueryfornonexistenttoken");\\raddressowner=ERC721.ownerOf(tokenId);\\rreturn(spender==owner||getApproved(tokenId)==spender||ERC721.isApprovedForAll(owner,spender));\\r}`,
     `{require(_exists(tokenId),'ERC721:operatorqueryfornonexistenttoken');addressowner=ERC721.ownerOf(tokenId);return(spender==owner||getApproved(tokenId)==spender||isApprovedForAll(owner,spender));}`,
     '{returnsuper._isApprovedOrOwner(spender,tokenId)||super.isApprovedOperatorRole(spender);}',
     '{\\rrequire(_exists(tokenId),"ERC721:operatorqueryfornonexistenttoken");\\raddressowner=ERC721.ownerOf(tokenId);\\rreturn(spender==owner||getApproved(tokenId)==spender||isApprovedForAll(owner,spender));\\r}',
@@ -400,6 +407,7 @@ const checkFunctionsAndDefinitioins = {
   TransferFromIncorrectOwner: ['{}', ''],
   TransferToZeroAddress: ['{}', ''],
   isContract: [
+    `{\\r\\ruint256size;\\rassembly{size:=extcodesize(account)}\\rreturnsize>0;\\r}`,
     `{\\r\\rreturnaccount.code.length\\u003e0;\\r}`,
     '{\\r\\ruint256size;\\rassembly{\\rsize:=extcodesize(account)\\r}\\rreturnsize>0;\\r}',
     '{//Thismethodreliesinextcodesize,whichreturns0forcontractsin//construction,sincethecodeisonlystoredattheendofthe//constructorexecution.uint256size;//solhint-disable-next-lineno-inline-assemblyassembly{size:=extcodesize(account)}returnsize>0;}',
@@ -444,24 +452,25 @@ const checkFunctionsAndDefinitioins = {
     '{require(tokenId<type(uint96).max,"Outofrange");BalanceKeykey=toBalanceKey(account,tokenId);BalanceAmountcurrentBalance=_balanceOf[key];if(currentBalance.getPosition()>0){//Simpleadd_balanceOf[key]=currentBalance.add(amount);}else{uint96[]storagerefTokenIds=tokensHeld[account];uint256length=refTokenIds.length;if(length==0){//AddemptyzeroitemrefTokenIds.push();refTokenIds.push(uint96(tokenId));_balanceOf[key]=BalanceAmount.wrap((uint256(amount)<<16)|1);}else{require(length<type(uint16).max,"Toomanytypes");uint16position=uint16(length);refTokenIds.push(uint96(tokenId));_balanceOf[key]=BalanceAmount.wrap((uint256(amount)<<16)|position);}}totalSupply+=amount;}',
   ],
   get: [
-    '',
+    '{\\rreturnaddress(uint160(uint256(_get(map._inner,bytes32(key),errorMessage))));\\r}',
     '{}',
     `{returnaddress(uint160(uint256(_get(map._inner,bytes32(key),errorMessage))));}`,
   ],
   _get: [
     '{uint256keyIndex=map._indexes[key];require(keyIndex!=0,errorMessage);returnmap._entries[keyIndex-1]._value;}',
     '{}',
+    `{\\ruint256keyIndex=map._indexes[key];\\rrequire(keyIndex!=0,errorMessage);\\rreturnmap._entries[keyIndex-1]._value;\\r}`,
     `{uint256keyIndex=map._indexes[key];require(keyIndex!=0,errorMessage);//Equivalenttocontains(map,key)returnmap._entries[keyIndex-1]._value;//Allindexesare1-based}`,
   ],
   remove: [
-    '',
+    '{\\rreturn_remove(map._inner,bytes32(key));\\r}',
     '{}',
     '{return_remove(set._inner,bytes32(value));}',
     '{deleteminters[_minter];emitMinterRoleRevoked(_minter);}',
     '{return_remove(map._inner,bytes32(key));}',
   ],
   set: [
-    '',
+    '{\\rreturn_set(map._inner,bytes32(key),bytes32(uint256(uint160(value))));\\r}',
     '{}',
     `{return_set(map._inner,bytes32(key),bytes32(uint256(uint160(value))));}`,
   ],
@@ -471,6 +480,7 @@ const checkFunctionsAndDefinitioins = {
     `{return_set(map._inner,bytes32(key),bytes32(uint256(uint160(value))));}`,
   ],
   _set: [
+    `{\\ruint256keyIndex=map._indexes[key];\\r\\rif(keyIndex==0){map._entries.push(MapEntry({_key:key,_value:value}));\\rmap._indexes[key]=map._entries.length;\\rreturntrue;\\r}else{\\rmap._entries[keyIndex-1]._value=value;\\rreturnfalse;\\r}\\r}`,
     '{uint256keyIndex=map._indexes[key];if(keyIndex==0){map._entries.push(MapEntry({_key:key,_value:value}));map._indexes[key]=map._entries.length;returntrue;}else{map._entries[keyIndex-1]._value=value;returnfalse;}}',
     '{}',
     `{return_set(map._inner,bytes32(key),bytes32(uint256(uint160(value))));}`,
@@ -492,6 +502,7 @@ const checkFunctionsAndDefinitioins = {
     '{//Checkifrecipientiscontractif(_to.isContract()){bytes4retval=IERC1155TokenReceiver(_to).onERC1155Received{gas:_gasLimit}(msg.sender,_from,_id,_amount,_data);if(retval!=ERC1155_RECEIVED_VALUE)revertInvalidOnReceiveMsg();}}',
   ],
   sub: [
+    `{\\rrequire(b<=a,errorMessage);\\rreturna-b;\\r}`,
     '{require(b<=a,errorMessage);uint256c=a-b;returnc;}',
     '{require(b<=a);returna-b;}',
     '{require(b<=a,"SafeMath:subtractionoverflow");uint256c=a-b;returnc;}',
@@ -521,6 +532,8 @@ const checkFunctionsAndDefinitioins = {
     '{}',
   ],
   functionCallWithValue: [
+    `{\\rrequire(address(this).balance>=value,"Address:insufficientbalanceforcall");\\rrequire(isContract(target),"Address:calltonon-contract");\\r\\r(boolsuccess,bytesmemoryreturndata)=target.call{value:value}(data);\\rreturn_verifyCallResult(success,returndata,errorMessage);\\r}_verifyCallResult {\\rif(success){\\rreturnreturndata;\\r}else{\\rif(returndata.length>0){\\r\\rassembly{\\rletreturndata_size:=mload(returndata)\\rrevert(add(32,returndata),returndata_size)\\r}\\r}else{\\rrevert(errorMessage);\\r}\\r}\\r}`,
+    `{\\rrequire(address(this).balance>=value,"Address:insufficientbalanceforcall");\\rrequire(isContract(target),"Address:calltonon-contract");\\r\\r(boolsuccess,bytesmemoryreturndata)=target.call{value:value}(data);\\rreturn_verifyCallResult(success,returndata,errorMessage);\\r}`,
     `{\\rrequire(address(this).balance\\u003e=value,"Address:insufficientbalanceforcall");\\rrequire(isContract(target),"Address:calltonon-contract");\\r\\r(boolsuccess,bytesmemoryreturndata)=target.call{value:value}(data);\\rreturnverifyCallResult(success,returndata,errorMessage);\\r}`,
     `{require(address(this).balance\\u003e=value,"Address:insufficientbalanceforcall");require(isContract(target),"Address:calltonon-contract");(boolsuccess,bytesmemoryreturndata)=target.call{value:value}(data);return_verifyCallResult(success,returndata,errorMessage);}`,
     `{require(address(this).balance>=value,'Address:insufficientbalanceforcall');require(isContract(target),'Address:calltonon-contract');(boolsuccess,bytesmemoryreturndata)=target.call{value:value}(data);returnverifyCallResult(success,returndata,errorMessage);}`,
@@ -606,6 +619,7 @@ const checkFunctionsAndDefinitioins = {
     '{}',
   ],
   _add: [
+    `{\\rif(!_contains(set,value)){\\rset._values.push(value);\\rset._indexes[value]=set._values.length;\\rreturntrue;\\r}else{\\rreturnfalse;\\r}\\r}`,
     '{if(!_contains(set,value)){set._values.push(value);//Thevalueisstoredatlength-1,butweadd1toallindexes//anduse0asasentinelvalueset._indexes[value]=set._values.length;returntrue;}else{returnfalse;}}',
     '',
     '{}',
