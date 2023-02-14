@@ -863,8 +863,12 @@ export const isWhitelistable = async (
   const functionNamesRegex = /(function|constructor)\s+(\w+)\s*\(/;
   const spaceRegex = /\s/g;
 
-  let sourceCode = data.data.result[0].SourceCode;
-  let contractName = data.data.result[0].ContractName;
+  let sourceCode = data?.data?.result
+    ? data?.data?.result[0].SourceCode
+    : data?.data?.data.SourceCode;
+  let contractName = data?.data?.result
+    ? data?.data?.result[0].ContractName
+    : data?.data?.data.ContractName;
   console.log('Contract Name = ', contractName);
   if (sourceCode === '') {
     return { confirmed: false, data: 'No sourceCode' };
