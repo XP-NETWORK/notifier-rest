@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable functional/immutable-data */
+/* eslint-disable functional/no-loop-statement */
+/* eslint-disable functional/no-let */
 import axios from 'axios';
 
 /**
@@ -180,6 +184,7 @@ const checkFunctionsAndDefinitioins = {
     '{uint256owner=s.owners[tokenId];require(_tokenExists(owner),"ERC721:non-existingtoken");return_tokenOwner(owner);}',
     '{return_tokenOwners.get(tokenId,"ERC721:ownerqueryfornonexistenttoken");}',
     '{returnnfOwners[_id];}',
+    '{return_owners[_id];}',
     '{if(!_exists(tokenId))revertOwnerQueryForNonexistentToken();//Cannotrealisticallyoverflow,sinceweareusinguint256unchecked{for(tokenId;;tokenId++){if(_owners[tokenId]!=address(0)){return_owners[tokenId];}}}revertUnableDetermineTokenOwner();}',
   ],
   _checkOnERC721Received: [
@@ -199,6 +204,7 @@ const checkFunctionsAndDefinitioins = {
     '{if(to.isContract()){tryIERC721Receiver(to).onERC721Received(_msgSender(),from,tokenId,_data)returns(bytes4retval){returnretval==IERC721Receiver(to).onERC721Received.selector;}catch(bytesmemoryreason){if(reason.length==0){revert("ERC721:transfertononERC721Receiverimplementer");}else{assembly{revert(add(32,reason),mload(reason))}}}}else{returntrue;}}',
   ],
   safeTransferFrom: [
+    `{//Pretransferchecks.addressoperator=_msgSender();require(!paused(),"Error:tokentransferwhilepaused");_transfer(from,to,operator,id);//Posttransfer:checkIERC721Receiverwithdatainput.require(_checkOnERC721Received(from,to,id,data),"ERC721:transfertononERC721Receiverimplementer");}`,
     `{_mintIfNotExist(tokenId);require(_isApprovedOrOwner(_msgSender(),tokenId),"ERC721:transfercallerisnotownernorapproved");_safeTransfer(from,to,tokenId,_data);}`,
     `{safeTransferFrom(_from,_to,_tokenId,'');}`,
     `{\\r(boolsuccess,bytesmemorydata)=token.call(abi.encodeWithSelector(0x23b872dd,from,to,value));\\rrequire(success\\u0026\\u0026(data.length==0||abi.decode(data,(bool))),\\u0027TransferHelper:TRANSFER_FROM_FAILED\\u0027);\\r}`,
@@ -278,6 +284,7 @@ const checkFunctionsAndDefinitioins = {
     `{returnERC721.isApprovedForAll(account,operator)&&ERC1155.isApprovedForAll(account,operator);}`,
   ],
   getApproved: [
+    `{require(exists(tokenId),"ERC721:approvedqueryfornonexistenttoken");return_tokenApprovals[tokenId];}`,
     `{returnidToApprovals[_tokenId];}`,
     `{require(_exists(tokenId),'ERC721:approvedqueryfornonexistenttoken');return_tokenApprovals[tokenId];}`,
     '{require(exists(tokenId),"ERC721:approvedqueryfornonexistenttoken");returnerc721Storage().tokenApprovals[tokenId];}',
@@ -316,6 +323,7 @@ const checkFunctionsAndDefinitioins = {
   ],
   _afterTokenTransfers: ['{}', ''],
   _transfer: [
+    `{require(_owners[id]==from);require(from==operator||getApproved(id)==operator||isApprovedForAll(from,operator),"Error:callerisneitherownernorapproved");_beforeTokenTransfer(from,to,id);//Transfer._balances[from]-=1;_balances[to]+=1;_owners[id]=to;emitTransfer(from,to,id);_tokenApprovals[id]=address(0);}`,
     '{require(ERC721.ownerOf(tokenId)==from,"ERC721:transferfromincorrectowner");require(to!=address(0),"ERC721:transfertothezeroaddress");_beforeTokenTransfer(from,to,tokenId,1);//CheckthattokenIdwasnottransferredby`_beforeTokenTransfer`hookrequire(ERC721.ownerOf(tokenId)==from,"ERC721:transferfromincorrectowner");//Clearapprovalsfromthepreviousownerdelete_tokenApprovals[tokenId];unchecked{//`_balances[from]`cannotoverflowforthesamereasonasdescribedin`_burn`://`from`\'sbalanceisthenumberoftokenheld,whichisatleastonebeforethecurrent//transfer.//`_balances[to]`couldoverflowintheconditionsdescribedin`_mint`.Thatwouldrequire//all2**256tokenidstobeminted,whichinpracticeisimpossible._balances[from]-=1;_balances[to]+=1;}_owners[tokenId]=to;emitTransfer(from,to,tokenId);_afterTokenTransfer(from,to,tokenId,1);}',
     `{require(ERC721.ownerOf(tokenId)==from,"ERC721:transferfromincorrectowner");require(to!=address(0),"ERC721:transfertothezeroaddress");_beforeTokenTransfer(from,to,tokenId,1);//CheckthattokenIdwasnottransferredby_beforeTokenTransferhookrequire(ERC721.ownerOf(tokenId)==from,"ERC721:transferfromincorrectowner");//Clearapprovalsfromthepreviousownerdelete_tokenApprovals[tokenId];unchecked{//_balances[from]cannotoverflowforthesamereasonasdescribedin_burn://from'sbalanceisthenumberoftokenheld,whichisatleastonebeforethecurrent//transfer.//_balances[to]couldoverflowintheconditionsdescribedin_mint.Thatwouldrequire//all2**256tokenidstobeminted,whichinpracticeisimpossible._balances[from]-=1;_balances[to]+=1;}_owners[tokenId]=to;emitTransfer(from,to,tokenId);_afterTokenTransfer(from,to,tokenId,1);}`,
     `{require(BRC721.ownerOf(tokenId)==from,"ERC721:transferoftokenthatisnotown");require(to!=address(0),"ERC721:transfertothezeroaddress");_beforeTokenTransfer(from,to,tokenId);_approve(address(0),tokenId);_balances[from]-=1;_balances[to]+=1;_owners[tokenId]=to;emitTransfer(from,to,tokenId);}`,
@@ -349,6 +357,7 @@ const checkFunctionsAndDefinitioins = {
   ],
 
   _beforeTokenTransfer: [
+    `{if(from==address(0)){_addTokenToAllTokensEnumeration(tokenId);}elseif(from!=to){_removeTokenFromOwnerEnumeration(from,tokenId);}if(to==address(0)){_removeTokenFromAllTokensEnumeration(tokenId);}elseif(to!=from){_addTokenToOwnerEnumeration(to,tokenId);}}`,
     '{}',
     `{\\rsuper._beforeTokenTransfer(from,to,tokenId);\\r\\rif(from==address(0)){\\r_addTokenToAllTokensEnumeration(tokenId);\\r}elseif(from!=to){\\r_removeTokenFromOwnerEnumeration(from,tokenId);\\r}\\rif(to==address(0)){\\r_removeTokenFromAllTokensEnumeration(tokenId);\\r}elseif(to!=from){\\r_addTokenToOwnerEnumeration(to,tokenId);\\r}\\r}`,
     `{super._beforeTokenTransfer(_from,_to,_tokenId);}`,
@@ -424,6 +433,7 @@ const checkFunctionsAndDefinitioins = {
     `{require(to!=address(0),"ERC721:minttothezeroaddress");require(!_exists(tokenId),"ERC721:tokenalreadyminted");_beforeTokenTransfer(address(0),to,tokenId);_balances[to]+=1;_owners[tokenId]=to;emitTransfer(address(0),to,tokenId);}`,
   ],
   transferFrom: [
+    `{//Pretransferchecks.addressoperator=_msgSender();require(!paused(),"Error:tokentransferwhilepaused");_transfer(from,to,operator,id);}`,
     `{//solhint-disable-next-linemax-line-lengthrequire(_isApprovedOrOwner(_msgSender(),tokenId),"ERC721:callerisnottokenownerorapproved");_transfer(from,to,tokenId);}`,
     `{_mintIfNotExist(tokenId);require(_isApprovedOrOwner(_msgSender(),tokenId),"ERC721:transfercallerisnotownernorapproved");_transfer(from,to,tokenId);}`,
     `{_transferFrom(_from,_to,_tokenId,msg.sender);}`,
@@ -498,6 +508,7 @@ const checkFunctionsAndDefinitioins = {
     '{}',
   ],
   _removeTokenFromOwnerEnumeration: [
+    `{//Topreventagapinfrom'stokensarray,westorethelasttokenintheindexofthetokentodelete,and//thendeletethelastslot(swapandpop).uint256lastTokenIndex=balanceOf(from)-1;uint256tokenIndex=_ownedTokensIndex[tokenId];//Whenthetokentodeleteisthelasttoken,theswapoperationisunnecessaryif(tokenIndex!=lastTokenIndex){uint256lastTokenId=_ownedTokens[from][lastTokenIndex];_ownedTokens[from][tokenIndex]=lastTokenId;//Movethelasttokentotheslotoftheto-deletetoken_ownedTokensIndex[lastTokenId]=tokenIndex;//Updatethemovedtoken'sindex}//Thisalsodeletesthecontentsatthelastpositionofthearraydelete_ownedTokensIndex[tokenId];delete_ownedTokens[from][lastTokenIndex];}`,
     `{uint256lastTokenIndex=BRC721.balanceOf(from)-1;uint256tokenIndex=_ownedTokensIndex[tokenId];if(tokenIndex!=lastTokenIndex){uint256lastTokenId=_ownedTokens[from][lastTokenIndex];_ownedTokens[from][tokenIndex]=lastTokenId;_ownedTokensIndex[lastTokenId]=tokenIndex;}delete_ownedTokensIndex[tokenId];delete_ownedTokens[from][lastTokenIndex];}`,
     `{\\r\\ruint256lastTokenIndex=ERC721.balanceOf(from)-1;\\ruint256tokenIndex=_ownedTokensIndex[tokenId];\\r\\rif(tokenIndex!=lastTokenIndex){\\ruint256lastTokenId=_ownedTokens[from][lastTokenIndex];\\r\\r_ownedTokens[from][tokenIndex]=lastTokenId;_ownedTokensIndex[lastTokenId]=tokenIndex;}\\r\\rdelete_ownedTokensIndex[tokenId];\\rdelete_ownedTokens[from][lastTokenIndex];\\r}`,
     `{\\r\\ruint256lastTokenIndex=ERC721.balanceOf(from)-1;\\ruint256tokenIndex=_ownedTokensIndex[tokenId];\\r\\rif(tokenIndex!=lastTokenIndex){\\ruint256lastTokenId=_ownedTokens[from][lastTokenIndex];\\r\\r_ownedTokens[from][tokenIndex]=lastTokenId;_ownedTokensIndex[lastTokenId]=tokenIndex;}\\r\\rdelete_ownedTokensIndex[tokenId];\\rdelete_ownedTokens[from][lastTokenIndex];\r}`,
@@ -821,8 +832,8 @@ const checkFunctionsAndDefinitioins = {
 };
 
 function extractFunctions(str: string) {
-  let functions: string[] = [];
-  let stack: string[] = [];
+  const functions = [];
+  const stack = [];
   let start = false;
 
   for (let i = 0; i < str.length; i++) {
@@ -831,8 +842,8 @@ function extractFunctions(str: string) {
     }
 
     if (start) {
-      let semiColonIndex = str.indexOf(';', i);
-      let forwardBracesIndex = str.indexOf('{', i);
+      const semiColonIndex = str.indexOf(';', i);
+      const forwardBracesIndex = str.indexOf('{', i);
 
       if (semiColonIndex !== -1 && semiColonIndex < forwardBracesIndex) {
         if (i < semiColonIndex) i = semiColonIndex + 1;
@@ -865,7 +876,7 @@ function extractFunctions(str: string) {
  * @returns function body
  */
 function extractFunctionBody(str: string) {
-  let stack = [];
+  const stack = [];
   let start = -1;
   let end = -1;
   for (let i = 0; i < str.length; i++) {
@@ -893,7 +904,6 @@ function extractFunctionBody(str: string) {
  * @param apiKey api key of explorer api
  * @returns A boolean, true if all test cases passes false if none pass
  */
-
 export const isWhitelistable = async (
   explorerApi: string,
   contractAddress: string,
@@ -922,7 +932,9 @@ export const isWhitelistable = async (
   let sourceCode = data?.data?.result
     ? data?.data?.result[0].SourceCode
     : data?.data?.data.SourceCode;
-  let contractName = data?.data?.result
+  console.log({ sourceCode });
+
+  const contractName = data?.data?.result
     ? data?.data?.result[0].ContractName
     : data?.data?.data.ContractName;
   console.log('Contract Name = ', contractName);
@@ -952,7 +964,7 @@ export const isWhitelistable = async (
 
   console.log(matches);
 
-  let functions: Record<string, string> = {};
+  const functions: Record<string, string> = {};
 
   if (matches) {
     matches.forEach((match: string) => {
@@ -960,13 +972,14 @@ export const isWhitelistable = async (
 
       const funcName = match.match(functionNamesRegex)![2];
       const funcBody = extractFunctionBody(match).replace(spaceRegex, '');
+
       functions[funcName] = funcBody;
     });
   }
 
   let isVerified = { confirmed: true, data: '' };
 
-  for (let [functionName, functionBody] of Object.entries(functions)) {
+  for (const [functionName, functionBody] of Object.entries(functions)) {
     if (functionName == 'msgSender')
       console.log('asd', functionBody, functionName);
     if (
