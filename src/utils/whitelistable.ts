@@ -66,6 +66,7 @@ const checkFunctionsAndDefinitioins = {
     '{uint256lastTokenIndex=_allTokens.length-1;uint256tokenIndex=_allTokensIndex[tokenId];uint256lastTokenId=_allTokens[lastTokenIndex];_allTokens[tokenIndex]=lastTokenId;_allTokensIndex[lastTokenId]=tokenIndex;delete_allTokensIndex[tokenId];_allTokens.pop();}',
   ],
   _addTokenToOwnerEnumeration: [
+    `{uint256length=BRC721.balanceOf(to);_ownedTokens[to][length]=tokenId;_ownedTokensIndex[tokenId]=length;}`,
     `{\\ruint256length=ERC721.balanceOf(to);\\r_ownedTokens[to][length]=tokenId;\\r_ownedTokensIndex[tokenId]=length;\\r}`,
     '{uint256length=balanceOf(to);_ownedTokens[to][length]=tokenId;_ownedTokensIndex[tokenId]=length;}',
     '{_ownedTokensIndex[tokenId]=_ownedTokens[to].length;_ownedTokens[to].push(tokenId);}',
@@ -73,6 +74,7 @@ const checkFunctionsAndDefinitioins = {
     '{uint256length=ERC721.balanceOf(to);_ownedTokens[to][length]=tokenId;_ownedTokensIndex[tokenId]=length;}',
   ],
   _approve: [
+    `{_tokenApprovals[tokenId]=to;emitApproval(BRC721.ownerOf(tokenId),to,tokenId);}`,
     `{\\r_tokenApprovals[tokenId]=to;\\remitApproval(ERC721.ownerOf(tokenId),to,tokenId);\\r}_checkOnERC721Received {\\rif(to.isContract()){\\rtryIERC721Receiver(to).onERC721Received(_msgSender(),from,tokenId,_data)returns(bytes4retval){\\rreturnretval==IERC721Receiver.onERC721Received.selector;\\r}catch(bytesmemoryreason){\\rif(reason.length==0){\\rrevert("ERC721:transfertononERC721Receiverimplementer");\\r}else{\\rassembly{\\rrevert(add(32,reason),mload(reason))\\r}\\r}\\r}\\r}else{\\rreturntrue;\\r}\\r}`,
     '{addressowner=ownerOf(tokenId);if(approvalCheck&&_msgSenderERC721A()!=owner)if(!isApprovedForAll(owner,_msgSenderERC721A())){_revert(ApprovalCallerNotOwnerNorApproved.selector);}_tokenApprovals[tokenId].value=to;emitApproval(owner,to,tokenId);}',
     '{\\r_tokenApprovals[tokenId]=to;\\remitApproval(ERC721.ownerOf(tokenId),to,tokenId);\\r}',
@@ -87,6 +89,7 @@ const checkFunctionsAndDefinitioins = {
     '{assembly{sender:=shr(96,calldataload(sub(calldatasize(),20)))}}',
   ],
   _msgSender: [
+    `{returnBaseRelayRecipient._msgSender();}`,
     `{\\rreturnpayable(msg.sender);\\r}`,
     '{returnERC2771Context._msgSender();}',
     '{\\rreturnmsg.sender;\\r}',
@@ -98,7 +101,33 @@ const checkFunctionsAndDefinitioins = {
     '{returnForwarderRegistryContextBase._msgSender();}',
     '{returnGameRegistryConsumer._msgSender();}',
   ],
+  emitPoolAdded: [],
+  emitPoolUpdated: [],
+  PoolAdded: [],
+  PoolUpdated: [],
+  PoolRemoved: [],
+  min: [`{returna<b?a:b;}`],
+  div: [`{require(b>0,errorMessage);returna/b;}`],
+  getDistribution: [
+    `{uint256from=Math.max(startTime,_from);uint256to=Math.min(_to,contractDisabledAt==0?endTime:contractDisabledAt);if(from>to)returnuint256(0);from=from.sub(startTime);to=to.sub(startTime);//d(t1,t2)=(t2-t1)*(2*ds-(-m)*(t2+t1))/2returnto.sub(from).mul(startDistribution.mul(2).sub(distributionSlope.mul(from.add(to))))/2;}`,
+  ],
+  mul: [
+    `{//Gasoptimization:thisischeaperthanrequiring'a'notbeingzero,butthe//benefitislostif'b'isalsotested.//See:https://github.com/OpenZeppelin/openzeppelin-solidity/pull/522if(a==0){return0;}uint256c=a*b;require(c/a==b);returnc;}`,
+    `{if(a==0)return0;uint256c=a*b;require(c/a==b,"SafeMath:multiplicationoverflow");returnc;}`,
+  ],
+  at: [
+    `{(bytes32key,bytes32value)=_at(map._inner,index);return(uint256(key),address(uint160(uint256(value))));}`,
+  ],
+  updatePool: [
+    `{PoolInfostoragepool=poolInfo[_poolToken];if(block.timestamp<=pool.lastRewardTimestamp){return;}uint256totalShares=pool.totalShares;if(totalShares==0){pool.lastRewardTimestamp=block.timestamp;return;}uint256dist=getDistribution(pool.lastRewardTimestamp,block.timestamp);uint256hsfReward=dist.mul(pool.allocation).div(totalAllocationPoints);uint256poolScaledRewards=hsfReward.div(totalShares);pool.accHsfPerShare=pool.accHsfPerShare.add(poolScaledRewards);pool.lastRewardTimestamp=block.timestamp;}`,
+  ],
+  massUpdatePools: [
+    `{uint256length=pools.length();for(uint256pid=0;pid<length;pid++){updatePool(IERC20(pools.at(pid)));}}`,
+  ],
+  max: [`{returna>b?a:b;}`, `{returna>=b?a:b;}`],
   add: [
+    `{uint256c=a+b;require(c>=a);returnc;}`,
+    `{require(address(rewardManager)!=address(0),"HF:RewardManagernotsetupyet");require(_allocation>0,"HF:Toolowallocation");massUpdatePools();require(pools.add(address(_lpToken)),"HF:LPpoolalreadyexists");uint256lastRewardTimestamp=Math.max(block.timestamp,startTime);totalAllocationPoints=totalAllocationPoints.add(_allocation);poolInfo[_lpToken]=PoolInfo({allocation:_allocation,lastRewardTimestamp:lastRewardTimestamp,accHsfPerShare:0,totalShares:0});emitPoolAdded(_lpToken,_allocation);}`,
     `{if(account==address(0)){revertUnauthorized();}elseif(has(role,_type,account)){revertMaxSplaining({reason:string(abi.encodePacked("LibRoles:",Strings.toHexString(uint160(account),20),"alreadyhasrole",Strings.toHexString(uint32(_type),4)))});}role.bearer[account][_type]=true;emitRoleChanged(_type,account,true);}`,
     '{}',
     `{\\rreturn_add(set._inner,bytes32(value));\\r}`,
@@ -130,6 +159,7 @@ const checkFunctionsAndDefinitioins = {
     '{returntokenId<currentIndex;}',
   ],
   ownerOf: [
+    `{addressowner=_owners[tokenId];if(owner==address(0)){return_admin;}returnowner;}`,
     `{addressowner=idToOwner[_tokenId];require(owner!=address(0),"VENFT:ownerqueryfornonexistenttoken");returnowner;}`,
     `{\\rreturn_tokenOwners.get(tokenId,"ERC721:ownerqueryfornonexistenttoken");\\r}`,
     `{addressowner=_owners[tokenId];require(owner!=address(0),'ERC721:ownerqueryfornonexistenttoken');returnowner;}`,
@@ -169,6 +199,7 @@ const checkFunctionsAndDefinitioins = {
     '{if(to.isContract()){tryIERC721Receiver(to).onERC721Received(_msgSender(),from,tokenId,_data)returns(bytes4retval){returnretval==IERC721Receiver(to).onERC721Received.selector;}catch(bytesmemoryreason){if(reason.length==0){revert("ERC721:transfertononERC721Receiverimplementer");}else{assembly{revert(add(32,reason),mload(reason))}}}}else{returntrue;}}',
   ],
   safeTransferFrom: [
+    `{_mintIfNotExist(tokenId);require(_isApprovedOrOwner(_msgSender(),tokenId),"ERC721:transfercallerisnotownernorapproved");_safeTransfer(from,to,tokenId,_data);}`,
     `{safeTransferFrom(_from,_to,_tokenId,'');}`,
     `{\\r(boolsuccess,bytesmemorydata)=token.call(abi.encodeWithSelector(0x23b872dd,from,to,value));\\rrequire(success\\u0026\\u0026(data.length==0||abi.decode(data,(bool))),\\u0027TransferHelper:TRANSFER_FROM_FAILED\\u0027);\\r}`,
     `{require(_isApprovedOrOwner(_msgSender(),tokenId),'ERC721:transfercallerisnotownernorapproved');_safeTransfer(from,to,tokenId,_data);}`,
@@ -214,6 +245,7 @@ const checkFunctionsAndDefinitioins = {
     '{returnhasRole(APPROVED_OPERATOR_ROLE,account);}',
   ],
   _isApprovedOrOwner: [
+    `{require(_exists(tokenId),"ERC721:operatorqueryfornonexistenttoken");addressowner=BRC721.ownerOf(tokenId);return(spender==owner||getApproved(tokenId)==spender||isApprovedForAll(owner,spender));}`,
     `{addressowner=idToOwner[_tokenId];boolspenderIsOwner=owner==_spender;boolspenderIsApproved=_spender==idToApprovals[_tokenId];boolspenderIsApprovedForAll=(ownerToOperators[owner])[_spender];returnspenderIsOwner||spenderIsApproved||spenderIsApprovedForAll;}`,
     `{\\rrequire(_exists(tokenId),"ERC721:operatorqueryfornonexistenttoken");\\raddressowner=ERC721.ownerOf(tokenId);\\rreturn(spender==owner||getApproved(tokenId)==spender||ERC721.isApprovedForAll(owner,spender));\\r}`,
     `{require(_exists(tokenId),'ERC721:operatorqueryfornonexistenttoken');addressowner=ERC721.ownerOf(tokenId);return(spender==owner||getApproved(tokenId)==spender||isApprovedForAll(owner,spender));}`,
@@ -229,6 +261,9 @@ const checkFunctionsAndDefinitioins = {
     '{\\rreturnsuper._isApprovedOrOwner(spender,tokenId)||super.isApprovedOperatorRole(spender);\\r}',
   ],
   isApprovedForAll: [
+    `{return_operatorApprovals[owner][operator];}
+    transferFrom {//solhint-disable-next-linemax-line-lengthrequire(_isApprovedOrOwner(_msgSender(),tokenId),"ERC721:callerisnottokenownerorapproved");_transfer(from,to,tokenId);}`,
+    `{return_operatorApprovals[owner][operator];}transferFrom {//solhint-disable-next-linemax-line-lengthrequire(_isApprovedOrOwner(_msgSender(),tokenId),"ERC721:callerisnottokenownerorapproved");_transfer(from,to,tokenId);}`,
     `{return(ownerToOperators[_owner])[_operator];}`,
     `{return_operatorApprovals[owner][operator];}transferFrom {//solhint-disable-next-linemax-line-lengthrequire(_isApprovedOrOwner(_msgSender(),tokenId),'ERC721:transfercallerisnotownernorapproved');_transfer(from,to,tokenId);}`,
     '{returnLibTerminus.terminusStorage().globalOperatorApprovals[account][operator];}',
@@ -281,6 +316,9 @@ const checkFunctionsAndDefinitioins = {
   ],
   _afterTokenTransfers: ['{}', ''],
   _transfer: [
+    '{require(ERC721.ownerOf(tokenId)==from,"ERC721:transferfromincorrectowner");require(to!=address(0),"ERC721:transfertothezeroaddress");_beforeTokenTransfer(from,to,tokenId,1);//CheckthattokenIdwasnottransferredby`_beforeTokenTransfer`hookrequire(ERC721.ownerOf(tokenId)==from,"ERC721:transferfromincorrectowner");//Clearapprovalsfromthepreviousownerdelete_tokenApprovals[tokenId];unchecked{//`_balances[from]`cannotoverflowforthesamereasonasdescribedin`_burn`://`from`\'sbalanceisthenumberoftokenheld,whichisatleastonebeforethecurrent//transfer.//`_balances[to]`couldoverflowintheconditionsdescribedin`_mint`.Thatwouldrequire//all2**256tokenidstobeminted,whichinpracticeisimpossible._balances[from]-=1;_balances[to]+=1;}_owners[tokenId]=to;emitTransfer(from,to,tokenId);_afterTokenTransfer(from,to,tokenId,1);}',
+    `{require(ERC721.ownerOf(tokenId)==from,"ERC721:transferfromincorrectowner");require(to!=address(0),"ERC721:transfertothezeroaddress");_beforeTokenTransfer(from,to,tokenId,1);//CheckthattokenIdwasnottransferredby_beforeTokenTransferhookrequire(ERC721.ownerOf(tokenId)==from,"ERC721:transferfromincorrectowner");//Clearapprovalsfromthepreviousownerdelete_tokenApprovals[tokenId];unchecked{//_balances[from]cannotoverflowforthesamereasonasdescribedin_burn://from'sbalanceisthenumberoftokenheld,whichisatleastonebeforethecurrent//transfer.//_balances[to]couldoverflowintheconditionsdescribedin_mint.Thatwouldrequire//all2**256tokenidstobeminted,whichinpracticeisimpossible._balances[from]-=1;_balances[to]+=1;}_owners[tokenId]=to;emitTransfer(from,to,tokenId);_afterTokenTransfer(from,to,tokenId,1);}`,
+    `{require(BRC721.ownerOf(tokenId)==from,"ERC721:transferoftokenthatisnotown");require(to!=address(0),"ERC721:transfertothezeroaddress");_beforeTokenTransfer(from,to,tokenId);_approve(address(0),tokenId);_balances[from]-=1;_balances[to]+=1;_owners[tokenId]=to;emitTransfer(from,to,tokenId);}`,
     `{\\rrequire(ERC721.ownerOf(tokenId)==from,"ERC721:transferoftokenthatisnotown");\\rrequire(to!=address(0),"ERC721:transfertothezeroaddress");\\r\\r_beforeTokenTransfer(from,to,tokenId);\\r\\r_approve(address(0),tokenId);\\r\\r_holderTokens[from].remove(tokenId);\\r_holderTokens[to].add(tokenId);\\r\\r_tokenOwners.set(tokenId,to);\\r\\remitTransfer(from,to,tokenId);\\r}`,
     `{require(ERC721.ownerOf(tokenId)==from,"ERC721:transferfromincorrectowner");require(to!=address(0),"ERC721:transfertothezeroaddress");_beforeTokenTransfer(from,to,tokenId);require(ERC721.ownerOf(tokenId)==from,"ERC721:transferfromincorrectowner");delete_tokenApprovals[tokenId];_balances[from]-=1;_balances[to]+=1;_owners[tokenId]=to;emitTransfer(from,to,tokenId);_afterTokenTransfer(from,to,tokenId);}`,
     `{\\rrequire(ERC721.ownerOf(tokenId)==from,"ERC721:transferfromincorrectowner");\\rrequire(to!=address(0),"ERC721:transfertothezeroaddress");\\r\\r_beforeTokenTransfer(from,to,tokenId);\\r\\r_approve(address(0),tokenId);\\r\\r_balances[from]-=1;\\r_balances[to]+=1;\\r_owners[tokenId]=to;\\r\\remitTransfer(from,to,tokenId);\\r\\r_afterTokenTransfer(from,to,tokenId);\\r}`,
@@ -375,7 +413,19 @@ const checkFunctionsAndDefinitioins = {
     '{assembly{owner:=and(owner,_BITMASK_ADDRESS)result:=or(owner,or(shl(_BITPOS_START_TIMESTAMP,timestamp()),flags))}}',
     '{}',
   ],
+  _mintIfNotExist: [
+    `{if(msg.sender==_admin){if(!_exists(tokenId)){_mint(_admin,tokenId);}}}`,
+    '{}',
+  ],
+  hookrequire: ['{}'],
+  _mint: [
+    '{require(to!=address(0),"ERC721:minttothezeroaddress");require(!_exists(tokenId),"ERC721:tokenalreadyminted");_beforeTokenTransfer(address(0),to,tokenId,1);//CheckthattokenIdwasnotmintedby`_beforeTokenTransfer`hookrequire(!_exists(tokenId),"ERC721:tokenalreadyminted");unchecked{//Willnotoverflowunlessall2**256tokenidsaremintedtothesameowner.//Giventhattokensaremintedonebyone,itisimpossibleinpracticethat//thiseverhappens.Mightchangeifweallowbatchminting.//TheERCfailstodescribethiscase._balances[to]+=1;}_owners[tokenId]=to;emitTransfer(address(0),to,tokenId);_afterTokenTransfer(address(0),to,tokenId,1);}',
+    `{require(to!=address(0),"ERC721:minttothezeroaddress");require(!_exists(tokenId),"ERC721:tokenalreadyminted");_beforeTokenTransfer(address(0),to,tokenId);_holderTokens[to].add(tokenId);_tokenOwners.set(tokenId,to);emitTransfer(address(0),to,tokenId);}`,
+    `{require(to!=address(0),"ERC721:minttothezeroaddress");require(!_exists(tokenId),"ERC721:tokenalreadyminted");_beforeTokenTransfer(address(0),to,tokenId);_balances[to]+=1;_owners[tokenId]=to;emitTransfer(address(0),to,tokenId);}`,
+  ],
   transferFrom: [
+    `{//solhint-disable-next-linemax-line-lengthrequire(_isApprovedOrOwner(_msgSender(),tokenId),"ERC721:callerisnottokenownerorapproved");_transfer(from,to,tokenId);}`,
+    `{_mintIfNotExist(tokenId);require(_isApprovedOrOwner(_msgSender(),tokenId),"ERC721:transfercallerisnotownernorapproved");_transfer(from,to,tokenId);}`,
     `{_transferFrom(_from,_to,_tokenId,msg.sender);}`,
     `{ERC721.transferFrom(from,to,tokenId);}`,
     `{//solhint-disable-next-linemax-line-lengthrequire(_isApprovedOrOwner(_msgSender(),tokenId),'ERC721:transfercallerisnotownernorapproved');_transfer(from,to,tokenId);}`,
@@ -407,6 +457,7 @@ const checkFunctionsAndDefinitioins = {
     '{if(_startTokenId()<=tokenId){packed=_packedOwnerships[tokenId];if(packed&_BITMASK_BURNED==0){if(packed==0){if(tokenId>=_currentIndex)_revert(OwnerQueryForNonexistentToken.selector);for(;;){unchecked{packed=_packedOwnerships[--tokenId];}if(packed==0)continue;returnpacked;}}returnpacked;}}_revert(OwnerQueryForNonexistentToken.selector);}',
     '{uint256curr=tokenId;unchecked{if(_startTokenId()<=curr)if(curr<_currentIndex){uint256packed=_packedOwnerships[curr];if(packed&_BITMASK_BURNED==0){while(packed==0){packed=_packedOwnerships[--curr];}returnpacked;}}}revertOwnerQueryForNonexistentToken();}',
   ],
+  OwnerQueryForNonexistentToken: ['{}', ''],
   skipthistopreventunderflowif: ['{}', ''],
   _ownershipOf: [
     '{return_unpackedOwnership(_packedOwnershipOf(tokenId));}',
@@ -447,6 +498,7 @@ const checkFunctionsAndDefinitioins = {
     '{}',
   ],
   _removeTokenFromOwnerEnumeration: [
+    `{uint256lastTokenIndex=BRC721.balanceOf(from)-1;uint256tokenIndex=_ownedTokensIndex[tokenId];if(tokenIndex!=lastTokenIndex){uint256lastTokenId=_ownedTokens[from][lastTokenIndex];_ownedTokens[from][tokenIndex]=lastTokenId;_ownedTokensIndex[lastTokenId]=tokenIndex;}delete_ownedTokensIndex[tokenId];delete_ownedTokens[from][lastTokenIndex];}`,
     `{\\r\\ruint256lastTokenIndex=ERC721.balanceOf(from)-1;\\ruint256tokenIndex=_ownedTokensIndex[tokenId];\\r\\rif(tokenIndex!=lastTokenIndex){\\ruint256lastTokenId=_ownedTokens[from][lastTokenIndex];\\r\\r_ownedTokens[from][tokenIndex]=lastTokenId;_ownedTokensIndex[lastTokenId]=tokenIndex;}\\r\\rdelete_ownedTokensIndex[tokenId];\\rdelete_ownedTokens[from][lastTokenIndex];\\r}`,
     `{\\r\\ruint256lastTokenIndex=ERC721.balanceOf(from)-1;\\ruint256tokenIndex=_ownedTokensIndex[tokenId];\\r\\rif(tokenIndex!=lastTokenIndex){\\ruint256lastTokenId=_ownedTokens[from][lastTokenIndex];\\r\\r_ownedTokens[from][tokenIndex]=lastTokenId;_ownedTokensIndex[lastTokenId]=tokenIndex;}\\r\\rdelete_ownedTokensIndex[tokenId];\\rdelete_ownedTokens[from][lastTokenIndex];\r}`,
     `{//Topreventagapinfrom'stokensarray,westorethelasttokenintheindexofthetokentodelete,and//thendeletethelastslot(swapandpop).uint256lastTokenIndex=_ownedTokens[from].length.sub(1);uint256tokenIndex=_ownedTokensIndex[tokenId];//Whenthetokentodeleteisthelasttoken,theswapoperationisunnecessaryif(tokenIndex!=lastTokenIndex){uint256lastTokenId=_ownedTokens[from][lastTokenIndex];_ownedTokens[from][tokenIndex]=lastTokenId;//Movethelasttokentotheslotoftheto-deletetoken_ownedTokensIndex[lastTokenId]=tokenIndex;//Updatethemovedtoken'sindex}//Thisalsodeletesthecontentsatthelastpositionofthearray_ownedTokens[from].length--;//Notethat_ownedTokensIndex[tokenId]hasn'tbeencleared:itstillpointstotheoldslot(nowoccupiedby//lastTokenId,orjustovertheendofthearrayifthetokenwasthelastone).}`,
@@ -473,6 +525,7 @@ const checkFunctionsAndDefinitioins = {
     `{uint256keyIndex=map._indexes[key];require(keyIndex!=0,errorMessage);//Equivalenttocontains(map,key)returnmap._entries[keyIndex-1]._value;//Allindexesare1-based}`,
   ],
   remove: [
+    `{require(account!=address(0));require(has(role,account));role.bearer[account]=false;}`,
     `{if(account==address(0)){revertUnauthorized();}elseif(!has(role,_type,account)){revertMaxSplaining({reason:string(abi.encodePacked("LibRoles:",Strings.toHexString(uint160(account),20),"doesnothaverole",Strings.toHexString(uint32(_type),4)))});}role.bearer[account][_type]=false;emitRoleChanged(_type,account,false);}`,
     '{\\rreturn_remove(map._inner,bytes32(key));\\r}',
     '{}',
@@ -481,6 +534,7 @@ const checkFunctionsAndDefinitioins = {
     '{return_remove(map._inner,bytes32(key));}',
   ],
   set: [
+    `{require(pools.contains(address(_poolToken)),"HF:Non-existantpool");massUpdatePools();totalAllocationPoints=totalAllocationPoints.sub(poolInfo[_poolToken].allocation).add(_allocation);poolInfo[_poolToken].allocation=_allocation;emitPoolUpdated(_poolToken,_allocation);if(_allocation==0){pools.remove(address(_poolToken));emitPoolRemoved(_poolToken);}}`,
     `{counter._value=number;emitCounterNumberChangedTo(counter._value);}`,
     '{\\rreturn_set(map._inner,bytes32(key),bytes32(uint256(uint160(value))));\\r}',
     '{}',
@@ -526,7 +580,7 @@ const checkFunctionsAndDefinitioins = {
     '{unchecked{require(b<=a,errorMessage);returna-b;}}',
   ],
   ownershipOf: [
-    '',
+    '{if(!_exists(tokenId))revertOwnerQueryForNonexistentToken();unchecked{for(uint256curr=tokenId;;curr--){TokenOwnershipmemoryownership=_ownerships[curr];if(ownership.addr!=address(0)){returnownership;}}}}',
     '{}',
     '{uint256curr=tokenId;unchecked{if(_startTokenId()<=curr&&curr<_currentIndex){TokenOwnershipmemoryownership=_ownerships[curr];if(!ownership.burned){if(ownership.addr!=address(0)){returnownership;}while(true){curr--;ownership=_ownerships[curr];if(ownership.addr!=address(0)){returnownership;}}}}}revertOwnerQueryForNonexistentToken();}',
     '{uint256curr=tokenId;unchecked{if(_startTokenId()<=curr&&curr<currentIndex){TokenOwnershipmemoryownership=_ownerships[curr];if(ownership.addr!=address(0)){returnownership;}//Invariant://Therewillalwaysbeanownershipthathasanaddressandisnotburned//beforeanownershipthatdoesnothaveanaddressandisnotburned.//Hence,currwillnotunderflow.while(true){curr--;ownership=_ownerships[curr];if(ownership.addr!=address(0)){returnownership;}}}}revert("ERC721A:unabletodeterminetheowneroftoken");}',
@@ -571,6 +625,7 @@ const checkFunctionsAndDefinitioins = {
     '{if(returndata.length>0){assembly{letreturndata_size:=mload(returndata)revert(add(32,returndata),returndata_size)}}else{revert(errorMessage);}}',
   ],
   _callOptionalReturn: [
+    `{//Weneedtoperformalowlevelcallhere,tobypassSolidity'sreturndatasizecheckingmechanism,since//we'reimplementingitourselves.Weuse{Address.functionCall}toperformthiscall,whichverifiesthat//thetargetaddresscontainscontractcodeandalsoassertsforsuccessinthelow-levelcall.bytesmemoryreturndata=address(token).functionCall(data,"SafeERC20:low-levelcallfailed");if(returndata.length>0){//Returndataisoptional//solhint-disable-next-linemax-line-lengthrequire(abi.decode(returndata,(bool)),"SafeERC20:ERC20operationdidnotsucceed");}}`,
     `{//Weneedtoperformalowlevelcallhere,tobypassSolidity'sreturndatasizecheckingmechanism,since//we'reimplementingitourselves.Weuse{Address.functionCall}toperformthiscall,whichverifiesthat//thetargetaddresscontainscontractcodeandalsoassertsforsuccessinthelow-levelcall.bytesmemoryreturndata=address(token).functionCall(data,"SafeERC20:low-levelcallfailed");if(returndata.length>0){//Returndataisoptionalrequire(abi.decode(returndata,(bool)),"SafeERC20:ERC20operationdidnotsucceed");}}`,
     `{//Weneedtoperformalowlevelcallhere,tobypassSolidity'sreturndatasizecheckingmechanism,since//we'reimplementingitourselves.Weuse{Address-functionCall}toperformthiscall,whichverifiesthat//thetargetaddresscontainscontractcodeandalsoassertsforsuccessinthelow-levelcall.bytesmemoryreturndata=address(token).functionCall(data,"SafeERC20:low-levelcallfailed");if(returndata.length>0){//Returndataisoptionalrequire(abi.decode(returndata,(bool)),"SafeERC20:ERC20operationdidnotsucceed");}}`,
     '{bytesmemoryreturndata=address(token).functionCall(data,"SafeERC20:low-levelcallfailed");if(returndata.length>0){require(abi.decode(returndata,(bool)),"SafeERC20:ERC20operationdidnotsucceed");}}',
@@ -727,6 +782,7 @@ const checkFunctionsAndDefinitioins = {
   has: [
     '{if(account==address(0)){revertUnauthorized();}returnrole.bearer[account][_type];}',
     '{}',
+    `{require(account!=address(0));returnrole.bearer[account];}`,
   ],
   _updateIDUserTotalBalance: ['', '{}'],
   gasleft: ['', '{}'],
