@@ -403,7 +403,7 @@ async function main() {
             isWhitelistable_ = await isWhitelistable(url, contract, secret);
             console.log('is whitelistable', isWhitelistable_);
           } catch (error) {
-            isWhitelistable_ = { success: false, reason: 'unknown error' };
+            isWhitelistable_ = { success: false, reason: 'Something went wrong please try again later!'};
           }
         }
 
