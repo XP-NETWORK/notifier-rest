@@ -9,7 +9,7 @@ const keysToNotCheck = ['toString'];
  * Add function body without spaces here which we want to allow
  * Empty string is to ignore interface
  */
-let checkFunctionsAndDefinitioins = {
+const checkFunctionsAndDefinitioins = {
   allowance: [
     '',
     '{}',
@@ -903,10 +903,6 @@ export const isWhitelistable = async (
   for (const [functionName, functionBody] of Object.entries(functions)) {
     if (!checkFunctionsAndDefinitioins[functionName]) {
       notAllowedFunctions.push(functionName);
-      isVerified = {
-        status: false,
-        reason: `Functions not allowed : ${notAllowedFunctions}`,
-      };
       // and with all not allowed funtions in test
       if (environment === 'PRODUCTION') break;
     } else if (!keysToNotCheck.includes(functionName)) {
@@ -914,21 +910,21 @@ export const isWhitelistable = async (
         checkFunctionsAndDefinitioins[functionName].indexOf(functionBody) == -1
       ) {
         notFoundFunctions.push(functionName);
-        isVerified = {
-          status: false,
-          reason: `Functions not found : ${notFoundFunctions}`,
-        };
         // and with all not allowed funtions in test
         if (environment === 'PRODUCTION') break;
       }
     }
   }
   if (notAllowedFunctions.length > 0 && notFoundFunctions.length > 0) {
-    isVerified = {
-      status: false,
-      reason: `Functions not found : ${notFoundFunctions} \n`,
-    };
+    isVerified.status = false;
+    isVerified.reason = `Functions not found : ${notFoundFunctions} \n`;
     isVerified.reason += `Functions not allowed : ${notAllowedFunctions}`;
+  } else if (notAllowedFunctions.length > 0 || notFoundFunctions.length > 0) {
+    isVerified.status = false;
+    isVerified.reason =
+      notAllowedFunctions.length > 0
+        ? `Functions not allowed : ${notAllowedFunctions}`
+        : `Functions not found : ${notFoundFunctions}`;
   }
   return isVerified;
 };
