@@ -874,7 +874,7 @@ export const isWhitelistable = async (
   const contractName = data.data.result[0].ContractName;
   console.log('Contract Name = ', contractName);
   if (sourceCode === '') {
-    isVerified = { success: false, reason: "Couldn't retrieve source code" };
+    isVerified = { success: false, reason: 'Contract not verified' };
     return isVerified;
   }
   sourceCode = sourceCode
