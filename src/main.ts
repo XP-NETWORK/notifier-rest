@@ -395,21 +395,22 @@ async function main() {
 
         const { secret = '', url = '' } = explorerConfig;
         console.log({ secret, url });
-        let isWhitelistable_: boolean;
+        let isWhitelistable_: { status: boolean; reason?: string };
         if (!url.trim()) {
-          isWhitelistable_ = false;
+          isWhitelistable_ = { status: false, reason: 'url not valid' };
         } else {
           try {
             isWhitelistable_ = await isWhitelistable(url, contract, secret);
             console.log('is whitelistable', isWhitelistable_);
           } catch (error) {
-            isWhitelistable_ = false;
+            isWhitelistable_ = { status: false, reason: error };
           }
         }
 
         if (!isWhitelistable_ && !authKey) {
           return res.status(400).send({
             error: 'Contract not whitelistable',
+            reason: isWhitelistable_.reason,
             contract,
             chainNonce,
           });
