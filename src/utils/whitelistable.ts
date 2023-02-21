@@ -844,9 +844,9 @@ export const isWhitelistable = async (
   apiKey: string
 ) => {
   let isVerified: {
-    status: boolean;
+    success: boolean;
     reason?: string;
-  } = { status: true };
+  } = { success: true };
   const data = await axios.get(
     `${explorerApi}/api?module=contract&action=getsourcecode&address=${contractAddress}&apikey=${apiKey}`
   );
@@ -856,7 +856,7 @@ export const isWhitelistable = async (
    */
 
   if (data.status !== 200) {
-    isVerified = { status: false, reason: 'Contract not found' };
+    isVerified = { success: false, reason: 'Contract not found' };
     return isVerified;
   }
 
@@ -874,7 +874,7 @@ export const isWhitelistable = async (
   const contractName = data.data.result[0].ContractName;
   console.log('Contract Name = ', contractName);
   if (sourceCode === '') {
-    isVerified = { status: false, reason: "Couldn't retrieve source code" };
+    isVerified = { success: false, reason: "Couldn't retrieve source code" };
     return isVerified;
   }
   sourceCode = sourceCode
@@ -916,11 +916,11 @@ export const isWhitelistable = async (
     }
   }
   if (notAllowedFunctions.length > 0 && notFoundFunctions.length > 0) {
-    isVerified.status = false;
+    isVerified.success = false;
     isVerified.reason = `Functions not found : ${notFoundFunctions} \n`;
     isVerified.reason += `Functions not allowed : ${notAllowedFunctions}`;
   } else if (notAllowedFunctions.length > 0 || notFoundFunctions.length > 0) {
-    isVerified.status = false;
+    isVerified.success = false;
     isVerified.reason =
       notAllowedFunctions.length > 0
         ? `Functions not allowed : ${notAllowedFunctions}`

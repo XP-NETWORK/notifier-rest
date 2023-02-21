@@ -395,15 +395,15 @@ async function main() {
 
         const { secret = '', url = '' } = explorerConfig;
         console.log({ secret, url });
-        let isWhitelistable_: { status: boolean; reason?: string };
+        let isWhitelistable_: { success: boolean; reason?: string };
         if (!url.trim()) {
-          isWhitelistable_ = { status: false, reason: 'url not valid' };
+          isWhitelistable_ = { success: false, reason: 'url not valid' };
         } else {
           try {
             isWhitelistable_ = await isWhitelistable(url, contract, secret);
             console.log('is whitelistable', isWhitelistable_);
           } catch (error) {
-            isWhitelistable_ = { status: false, reason: error };
+            isWhitelistable_ = { success: false, reason: error };
           }
         }
 
