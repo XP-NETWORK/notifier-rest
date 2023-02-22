@@ -392,7 +392,7 @@ async function main() {
 
         const explorerConfig: TExplorerConfig = config_scan[chainNonce] || {};
         console.log({ explorerConfig });
-
+        //test
         const { secret = '', url = '' } = explorerConfig;
         console.log({ secret, url });
         let isWhitelistable_: { success: boolean; reason?: string };
@@ -403,7 +403,10 @@ async function main() {
             isWhitelistable_ = await isWhitelistable(url, contract, secret);
             console.log('is whitelistable', isWhitelistable_);
           } catch (error) {
-            isWhitelistable_ = { success: false, reason: 'Something went wrong please try again later!'};
+            isWhitelistable_ = {
+              success: false,
+              reason: 'Something went wrong please try again later!',
+            };
           }
         }
 
