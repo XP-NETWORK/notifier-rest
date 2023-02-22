@@ -1009,29 +1009,50 @@ export const isWhitelistable = async (
   const notFoundFunctions = [];
   for (const [functionName, functionBody] of Object.entries(functions)) {
     if (!checkFunctionsAndDefinitioins[functionName]) {
-      notAllowedFunctions.push(functionName);
       // and with all not allowed funtions in test
-      if (environment === 'PRODUCTION') break;
+      if (environment === 'PRODUCTION') {
+        notAllowedFunctions.push(functionName);
+      } else {
+        notAllowedFunctions.push({ [functionName]: functionBody });
+      }
     } else if (!keysToNotCheck.includes(functionName)) {
       if (
         checkFunctionsAndDefinitioins[functionName].indexOf(functionBody) == -1
       ) {
-        notFoundFunctions.push(functionName);
+        notFoundFunctions.push({ [functionName]: functionBody });
         // and with all not allowed funtions in test
-        if (environment === 'PRODUCTION') break;
+        if (environment === '263+') break;
       }
     }
   }
   if (notAllowedFunctions.length > 0 && notFoundFunctions.length > 0) {
     isVerified.success = false;
-    isVerified.reason = `Functions not found : ${notFoundFunctions} \n`;
-    isVerified.reason += `Functions not allowed : ${notAllowedFunctions}`;
+
+    console.log(`---------------------------------------------------------------
+                \nFunctions not found :`);
+    console.dir(notFoundFunctions, {});
+    console.log(`---------------------------------------------------------------
+                \nFunctions not allowed :`);
+    console.dir(notAllowedFunctions);
+
+    isVerified.reason = `Functions not found : ${JSON.stringify(
+      notFoundFunctions
+    )} \n`;
+    isVerified.reason += `Functions not allowed : ${JSON.stringify(
+      notAllowedFunctions
+    )}`;
   } else if (notAllowedFunctions.length > 0 || notFoundFunctions.length > 0) {
+    console.log(`---------------------------------------------------------------
+    \nFunctions not found :`);
+    console.dir(notFoundFunctions, {});
+    console.log(`---------------------------------------------------------------
+    \nFunctions not allowed :`);
+    console.dir(notAllowedFunctions);
     isVerified.success = false;
     isVerified.reason =
       notAllowedFunctions.length > 0
-        ? `Functions not allowed : ${notAllowedFunctions}`
-        : `Functions not found : ${notFoundFunctions}`;
+        ? `Functions not allowed : ${JSON.stringify(notAllowedFunctions)}`
+        : `Functions not found : ${JSON.stringify(notFoundFunctions)}`;
   }
   return isVerified;
 };
