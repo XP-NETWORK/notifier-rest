@@ -968,6 +968,7 @@ export const isWhitelistable = async (
   }
 
   const doubleSlashCommentsRegex = /\/\/.*?(\\n)/g;
+  const doubleSlashCommentsRegexForNextLine = /\/\/.*$/gm;
   const nextLineRegex = /\n/g;
   const nextLineWithDoubleSlashRegex = /\\n/g;
   const tabRgex = /\r/g;
@@ -986,6 +987,7 @@ export const isWhitelistable = async (
   }
   sourceCode = sourceCode
     .replace(doubleSlashCommentsRegex, '')
+    .replace(doubleSlashCommentsRegexForNextLine, '')
     .replace(blockCommentsRegex, '')
     .replace(nextLineRegex, '')
     .replace(escapeSlashRegex, '"')
