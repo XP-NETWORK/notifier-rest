@@ -3,6 +3,7 @@
 /* eslint-disable functional/no-loop-statement */
 /* eslint-disable functional/no-let */
 import axios from 'axios';
+import { environment } from '../config';
 
 /**
  * function keys to ignore eg : `toString` function if exists in solidity code
@@ -876,8 +877,8 @@ const checkFunctionsAndDefinitioins = {
 };
 
 function extractFunctions(str: string) {
-  const functions = [];
-  const stack = [];
+  const functions: string[] = [];
+  const stack: string[] = [];
   let start = false;
 
   for (let i = 0; i < str.length; i++) {
@@ -928,7 +929,6 @@ function extractFunctionBody(str: string) {
       if (stack.length === 0) {
         start = i;
       }
-      //   @ts-ignore
       stack.push(str[i]);
     } else if (str[i] === '}') {
       stack.pop();
@@ -953,6 +953,10 @@ export const isWhitelistable = async (
   contractAddress: string,
   apiKey: string
 ) => {
+  let isVerified: {
+    success: boolean;
+    reason?: string;
+  } = { success: true };
   const data = await axios.get(
     `${explorerApi}/api?module=contract&action=getsourcecode&address=${contractAddress}&apikey=${apiKey}`
   );
@@ -961,7 +965,10 @@ export const isWhitelistable = async (
    * If not verified return false
    */
 
-  if (data.status !== 200) return { confirmed: false, data: 'Cant Fetch' };
+  if (data.status !== 200) {
+    isVerified = { success: false, reason: 'Contract not found' };
+    return isVerified;
+  }
 
   const doubleSlashCommentsRegex = /\/\/.*?(\\n)/g;
   const nextLineRegex = /\n/g;
@@ -973,17 +980,12 @@ export const isWhitelistable = async (
   const functionNamesRegex = /(function|constructor)\s+(\w+)\s*\(/;
   const spaceRegex = /\s/g;
 
-  let sourceCode = data?.data?.result
-    ? data?.data?.result[0].SourceCode
-    : data?.data?.data.SourceCode;
-  console.log({ sourceCode });
-
-  const contractName = data?.data?.result
-    ? data?.data?.result[0].ContractName
-    : data?.data?.data.ContractName;
+  let sourceCode = data.data.result[0].SourceCode;
+  const contractName = data.data.result[0].ContractName;
   console.log('Contract Name = ', contractName);
   if (sourceCode === '') {
-    return { confirmed: false, data: 'No sourceCode' };
+    isVerified = { success: false, reason: 'Contract not verified' };
+    return isVerified;
   }
   sourceCode = sourceCode
     .replace(doubleSlashCommentsRegex, '')
@@ -994,53 +996,46 @@ export const isWhitelistable = async (
     .replace(tabRgex_, '')
     .replace(nextLineWithDoubleSlashRegex, '');
 
-  switch (true) {
-    case sourceCode.includes('Upgradeable') ||
-      sourceCode.includes('upgradeable'):
-      return { confirmed: false, data: 'Upgradeable' };
-    case sourceCode.includes('Proxy') || sourceCode.includes('proxy'):
-      return { confirmed: false, data: 'Proxy' };
-    default:
-      break;
-  }
-
   const matches = extractFunctions(sourceCode);
-
-  console.log(matches);
 
   const functions: Record<string, string> = {};
 
   if (matches) {
     matches.forEach((match: string) => {
-      console.log({ match });
-
-      const funcName = match.match(functionNamesRegex)![2];
+      const funcName = match.match(functionNamesRegex)[2];
       const funcBody = extractFunctionBody(match).replace(spaceRegex, '');
 
       functions[funcName] = funcBody;
     });
   }
 
-  let isVerified = { confirmed: true, data: '' };
-
+  const notAllowedFunctions = [];
+  const notFoundFunctions = [];
   for (const [functionName, functionBody] of Object.entries(functions)) {
-    if (functionName == 'msgSender')
-      console.log('asd', functionBody, functionName);
-    if (
-      //@ts-ignore
-      checkFunctionsAndDefinitioins[functionName] &&
-      !keysToNotCheck.includes(functionName)
-    ) {
-      console.log(functionName, functionBody);
+    if (!checkFunctionsAndDefinitioins[functionName]) {
+      notAllowedFunctions.push(functionName);
+      // and with all not allowed funtions in test
+      if (environment === 'PRODUCTION') break;
+    } else if (!keysToNotCheck.includes(functionName)) {
       if (
-        //@ts-ignore
         checkFunctionsAndDefinitioins[functionName].indexOf(functionBody) == -1
       ) {
-        isVerified = { confirmed: false, data: '' };
-        break;
+        notFoundFunctions.push(functionName);
+        // and with all not allowed funtions in test
+        if (environment === 'PRODUCTION') break;
       }
     }
   }
-
+  if (notAllowedFunctions.length > 0 && notFoundFunctions.length > 0) {
+    isVerified.success = false;
+    isVerified.reason = `Functions not found : ${notFoundFunctions} \n`;
+    isVerified.reason += `Functions not allowed : ${notAllowedFunctions}`;
+  } else if (notAllowedFunctions.length > 0 || notFoundFunctions.length > 0) {
+    isVerified.success = false;
+    isVerified.reason =
+      notAllowedFunctions.length > 0
+        ? `Functions not allowed : ${notAllowedFunctions}`
+        : `Functions not found : ${notFoundFunctions}`;
+  }
   return isVerified;
 };

@@ -1,13 +1,15 @@
+import http from 'http';
 import { HttpAgent } from '@dfinity/agent';
 import { PipeArrayBuffer, safeReadUint8 } from '@dfinity/candid';
 import { encode, Nat } from '@dfinity/candid/lib/cjs/idl';
 import { Principal } from '@dfinity/principal';
 import { MikroORM, RequestContext } from '@mikro-orm/core';
 import { EntityManager, MongoDriver } from '@mikro-orm/mongodb';
+import { Mutex } from 'async-mutex';
 import axios from 'axios';
+import BN from 'bignumber.js';
 import cors from 'cors';
 import express, { Request } from 'express';
-import http from 'http';
 import {
   config_scan,
   dfinity_bridge,
@@ -17,13 +19,12 @@ import {
   port,
 } from './config';
 import { TxStore } from './db/TxStore';
+import { WhiteListStore } from './db/WhiteListStore';
 import mikroConf from './mikro-orm';
 import * as socket from './socket';
-import BN from 'bignumber.js';
-import { WhiteListStore } from './db/WhiteListStore';
-import { Mutex } from 'async-mutex';
-import { isWhitelistable } from './utils';
 import { TExplorerConfig } from './types';
+import { isWhitelistable } from './utils';
+import { getRandomArbitrary } from './utils/getRandomArbitrary';
 
 const mutex = new Mutex();
 
@@ -56,15 +57,15 @@ async function emitEvent(
 }
 
 type TxRespMin = {
-  data?: {
-    transaction?: {
-      smartContractResults?: {
-        data: string;
-        hash: string;
-        receiver: string;
-        sender: string;
+  readonly data?: {
+    readonly transaction?: {
+      readonly smartContractResults?: readonly {
+        readonly data: string;
+        readonly hash: string;
+        readonly receiver: string;
+        readonly sender: string;
       }[];
-      logs?: unknown[];
+      readonly logs?: readonly unknown[];
     };
   };
 };
@@ -196,7 +197,7 @@ function dfinitySetup(orm: MikroORM<MongoDriver>) {
 
   app.post(
     '/tx/dfinity',
-    async (req: Request<{}, {}, { action_id: string }>, res) => {
+    async (req: Request<{}, {}, { readonly action_id: string }>, res) => {
       let act: BigInt;
       try {
         act = BigInt(req.body.action_id);
@@ -328,29 +329,38 @@ async function main() {
     res.json({ status });
   });
 
-  app.post('/tx/tezos', (req: Request<{}, {}, { tx_hash: string }>, res) => {
-    emitEvent(orm.em, 0x12, req.body.tx_hash, (_, txHash) =>
-      io.emit('tezos:bridge_tx', txHash)
-    );
+  app.post(
+    '/tx/tezos',
+    (req: Request<{}, {}, { readonly tx_hash: string }>, res) => {
+      emitEvent(orm.em, 0x12, req.body.tx_hash, (_, txHash) =>
+        io.emit('tezos:bridge_tx', txHash)
+      );
 
-    res.send({ status: 'ok' });
-  });
+      res.send({ status: 'ok' });
+    }
+  );
 
-  app.post('/tx/scrt', (req: Request<{}, {}, { tx_hash: string }>, res) => {
-    emitEvent(orm.em, 0x18, req.body.tx_hash, (_, txHash) =>
-      io.emit('secret:bridge_tx', txHash)
-    );
+  app.post(
+    '/tx/scrt',
+    (req: Request<{}, {}, { readonly tx_hash: string }>, res) => {
+      emitEvent(orm.em, 0x18, req.body.tx_hash, (_, txHash) =>
+        io.emit('secret:bridge_tx', txHash)
+      );
 
-    res.send({ status: 'ok' });
-  });
+      res.send({ status: 'ok' });
+    }
+  );
 
-  app.post('/tx/solana', (req: Request<{}, {}, { tx_hash: string }>, res) => {
-    emitEvent(orm.em, 0x1a, req.body.tx_hash, (_, txHash) =>
-      io.emit('solana:bridge_tx', txHash)
-    );
+  app.post(
+    '/tx/solana',
+    (req: Request<{}, {}, { readonly tx_hash: string }>, res) => {
+      emitEvent(orm.em, 0x1a, req.body.tx_hash, (_, txHash) =>
+        io.emit('solana:bridge_tx', txHash)
+      );
 
-    res.send({ status: 'ok' });
-  });
+      res.send({ status: 'ok' });
+    }
+  );
 
   app.post(
     '/whitelist',
@@ -359,7 +369,11 @@ async function main() {
       req: Request<
         {},
         {},
-        { chain_nonce: number; contract: string; authKey: string }
+        {
+          readonly chain_nonce: number;
+          readonly contract: string;
+          readonly authKey: string;
+        }
       >,
       res
     ) => {
@@ -381,9 +395,29 @@ async function main() {
 
         const { secret = '', url = '' } = explorerConfig;
         console.log({ secret, url });
-        const isWhitelistable_ = await isWhitelistable(url, contract, secret);
-        console.log('is whitelistable', isWhitelistable_);
+        let isWhitelistable_: { success: boolean; reason?: string };
+        if (!url.trim()) {
+          isWhitelistable_ = { success: false, reason: 'url not valid' };
+        } else {
+          try {
+            isWhitelistable_ = await isWhitelistable(url, contract, secret);
+            console.log('is whitelistable', isWhitelistable_);
+          } catch (error) {
+            isWhitelistable_ = {
+              success: false,
+              reason: 'Something went wrong please try again later!',
+            };
+          }
+        }
 
+        if (!isWhitelistable_ && !authKey) {
+          return res.status(400).send({
+            error: 'Contract not whitelistable',
+            reason: isWhitelistable_.reason,
+            contract,
+            chainNonce,
+          });
+        }
         const ent = await orm.em.findOne(WhiteListStore, {
           chainNonce,
           contract,
@@ -395,7 +429,10 @@ async function main() {
             chainNonce,
           });
         }
-        const actionId = BN(parseInt(contract, 16)).plus(BN(chainNonce));
+        const randomNonce = getRandomArbitrary();
+        const actionId = BN(parseInt(contract, 16))
+          .plus(BN(chainNonce))
+          .plus(randomNonce);
         io.emit('whitelist_nft', chainNonce, contract, actionId, authKey);
         await orm.em.persistAndFlush(new WhiteListStore(chainNonce, contract));
         console.log('whitelist event emitted');
