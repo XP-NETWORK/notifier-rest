@@ -401,13 +401,16 @@ async function main() {
         } else {
           try {
             isWhitelistable_ = await isWhitelistable(url, contract, secret);
-            console.log('is whitelistable', isWhitelistable_);
+            // console.log('is whitelistable', isWhitelistable_);
           } catch (error) {
-            isWhitelistable_ = { success: false, reason: 'Something went wrong please try again later!'};
+            isWhitelistable_ = {
+              success: false,
+              reason: 'Something went wrong please try again later!',
+            };
           }
         }
 
-        if (!isWhitelistable_ && !authKey) {
+        if (!isWhitelistable_.success && !authKey) {
           return res.status(400).send({
             error: 'Contract not whitelistable',
             reason: isWhitelistable_.reason,
