@@ -1019,9 +1019,12 @@ export const isWhitelistable = async (
       if (
         checkFunctionsAndDefinitioins[functionName].indexOf(functionBody) == -1
       ) {
-        notFoundFunctions.push({ [functionName]: functionBody });
         // and with all not allowed funtions in test
-        if (environment === '263+') break;
+        if (environment === 'PRODUCTION') {
+          notFoundFunctions.push(functionName);
+        } else {
+          notFoundFunctions.push({ [functionName]: functionBody });
+        }
       }
     }
   }
