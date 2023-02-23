@@ -976,6 +976,7 @@ export const isWhitelistable = async (
   const escapeSlashRegex = /\\"/g;
   const blockCommentsRegex = /\/\*[\s\S]*?\*\//g;
   const functionNamesRegex = /(function|constructor)\s+(\w+)\s*\(/;
+  const requireErrorString = /(\brequire[(][^,]*,[(...)]*)[^)]+(\))/g;
   const spaceRegex = /\s/g;
 
   let sourceCode = data.data.result[0].SourceCode;
@@ -990,6 +991,7 @@ export const isWhitelistable = async (
     .replace(doubleSlashCommentsRegexForNextLine, '')
     .replace(blockCommentsRegex, '')
     .replace(nextLineRegex, '')
+    .replace(requireErrorString, '$1""$2')
     .replace(escapeSlashRegex, '"')
     .replace(tabRgex, '')
     .replace(tabRgex_, '')
