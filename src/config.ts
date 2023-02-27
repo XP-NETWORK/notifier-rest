@@ -1,4 +1,5 @@
 import { config } from 'dotenv';
+import { ChainFactoryConfigs } from 'xp.network';
 import { TExplorerConfig } from './types';
 config();
 
@@ -15,158 +16,119 @@ export const config_scan: TExplorerConfig =
   JSON.parse(process.env.EVM_WHITELIST_CONFIG);
 export interface ChainConfig {
   name: string;
-  node: string;
-  contract: string;
+  chainFactory: any;
   nonce: string;
-  id: string;
-  actionIdOffset?: number;
 }
 interface Config {
   web3: ChainConfig[];
 }
 
+export const getChainFactory = async (chain: string) => {
+  const con = await ChainFactoryConfigs.MainNet();
+  return con[chain];
+};
+
 const chainData: Config = {
   web3: [
     {
       name: 'ABEYCHAIN',
-      node: getOrThrow('ABEYCHAIN_RPC_URL'),
-      contract: getOrThrow('ABEYCHAIN_MINTER_ADDRESS'),
+      chainFactory: getChainFactory('abeyChainParams'),
       nonce: getOrThrow('ABEYCHAIN_NONCE'),
-      id: 'abey',
     },
     {
       name: 'AURORA',
-      node: getOrThrow('AURORA_RPC_URL'),
-      contract: getOrThrow('AURORA_MINTER_ADDRESS'),
+      chainFactory: getChainFactory('auroraParams'),
       nonce: getOrThrow('AURORA_NONCE'),
-      id: 'aurora-near',
     },
     {
       name: 'BSC',
-      node: getOrThrow('BSC_RPC_URL'),
-      contract: getOrThrow('BSC_MINTER_ADDRESS'),
+      chainFactory: getChainFactory('bscParams'),
       nonce: getOrThrow('BSC_NONCE'),
-      id: 'binancecoin',
     },
     {
       name: 'ETHEREUM',
-      node: getOrThrow('ETHEREUM_RPC_URL'),
-      contract: getOrThrow('ETHEREUM_MINTER_ADDRESS'),
+      chainFactory: getChainFactory('ropstenParams'),
       nonce: getOrThrow('ETHEREUM_NONCE'),
-      id: 'ethereum',
     },
     {
       name: 'VELAS',
-      node: getOrThrow('VELAS_RPC_URL'),
-      contract: getOrThrow('VELAS_MINTER_ADDRESS'),
+      chainFactory: getChainFactory('velasParams'),
       nonce: getOrThrow('VELAS_NONCE'),
-      id: 'velas',
     },
     {
       name: 'POLYGON',
-      node: getOrThrow('POLYGON_RPC_URL'),
-      contract: getOrThrow('POLYGON_MINTER_ADDRESS'),
+      chainFactory: getChainFactory('polygonParams'),
       nonce: getOrThrow('POLYGON_NONCE'),
-      id: 'matic-network',
     },
     {
       name: 'AVALANCHE',
-      node: getOrThrow('AVALANCHE_RPC_URL'),
-      contract: getOrThrow('AVALANCHE_MINTER_ADDRESS'),
+      chainFactory: getChainFactory('avalancheParams'),
       nonce: getOrThrow('AVALANCHE_NONCE'),
-      id: 'avalanche-2',
     },
     {
       name: 'IOTEX',
-      node: getOrThrow('IOTEX_RPC_URL'),
-      contract: getOrThrow('IOTEX_MINTER_ADDRESS'),
+      chainFactory: getChainFactory('iotexParams'),
       nonce: getOrThrow('IOTEX_NONCE'),
-      id: 'iotex',
-      actionIdOffset: 10,
     },
     {
       name: 'FANTOM',
-      node: getOrThrow('FANTOM_RPC_URL'),
-      contract: getOrThrow('FANTOM_MINTER_ADDRESS'),
+      chainFactory: getChainFactory('fantomParams'),
       nonce: getOrThrow('FANTOM_NONCE'),
-      id: 'fantom',
     },
     {
       name: 'HARMONY',
-      node: getOrThrow('HARMONY_RPC_URL'),
-      contract: getOrThrow('HARMONY_MINTER_ADDRESS'),
+      chainFactory: getChainFactory('harmonyParams'),
       nonce: getOrThrow('HARMONY_NONCE'),
-      id: 'harmony',
     },
     {
       name: 'GNOSIS',
-      node: getOrThrow('GNOSIS_RPC_URL'),
-      contract: getOrThrow('GNOSIS_MINTER_ADDRESS'),
+      chainFactory: getChainFactory('xDaiParams'),
       nonce: getOrThrow('GNOSIS_NONCE'),
-      id: 'gnosis',
     },
     {
       name: 'FUSE',
-      node: getOrThrow('FUSE_RPC_URL'),
-      contract: getOrThrow('FUSE_MINTER_ADDRESS'),
+      chainFactory: getChainFactory('fuseParams'),
       nonce: getOrThrow('FUSE_NONCE'),
-      id: 'fuse-network-token',
     },
     {
       name: 'GATECHAIN',
-      node: getOrThrow('GATECHAIN_RPC_URL'),
-      contract: getOrThrow('GATECHAIN_MINTER_ADDRESS'),
+      chainFactory: getChainFactory('gateChainParams'),
       nonce: getOrThrow('GATECHAIN_NONCE'),
-      id: 'gatechain-wormhole',
     },
     {
       name: 'VECHAIN',
-      node: getOrThrow('VECHAIN_RPC_URL'),
-      contract: getOrThrow('VECHAIN_MINTER_ADDRESS'),
+      chainFactory: getChainFactory('vechainParams'),
       nonce: getOrThrow('VECHAIN_NONCE'),
-      id: 'vechain',
     },
     {
       name: 'GODWOKEN',
-      node: getOrThrow('GODWOKEN_RPC_URL'),
-      contract: getOrThrow('GODWOKEN_MINTER_ADDRESS'),
+      chainFactory: getChainFactory('godwokenParams'),
       nonce: getOrThrow('GODWOKEN_NONCE'),
-      id: 'godwoken',
     },
     {
       name: 'MOONBEAM',
-      node: getOrThrow('MOONBEAM_RPC_URL'),
-      contract: getOrThrow('MOONBEAM_MINTER_ADDRESS'),
+      chainFactory: getChainFactory('moonbeamParams'),
       nonce: getOrThrow('MOONBEAM_NONCE'),
-      id: 'moonbeam',
     },
     {
       name: 'CADUCEUS',
-      node: getOrThrow('CADUCEUS_RPC_URL'),
-      contract: getOrThrow('CADUCEUS_MINTER_ADDRESS'),
+      chainFactory: getChainFactory('caduceusParams'),
       nonce: getOrThrow('CADUCEUS_NONCE'),
-      id: 'caduceus',
     },
     {
       name: 'OKC',
-      node: getOrThrow('OKC_RPC_URL'),
-      contract: getOrThrow('OKC_MINTER_ADDRESS'),
+      chainFactory: getChainFactory('okcParams'),
       nonce: getOrThrow('OKC_NONCE'),
-      id: 'abey',
     },
     {
       name: 'SKALE',
-      node: getOrThrow('SKALE_RPC_URL'),
-      contract: getOrThrow('SKALE_MINTER_ADDRESS'),
+      chainFactory: getChainFactory('okcParams'),
       nonce: getOrThrow('SKALE_NONCE'),
-      id: 'abey',
     },
     {
       name: 'ARBITRUM',
-      node: getOrThrow('ARBITRUM_RPC_URL'),
-      contract: getOrThrow('ARBITRUM_MINTER_ADDRESS'),
+      chainFactory: getChainFactory('arbitrumParams'),
       nonce: getOrThrow('ARBITRUM_NONCE'),
-      id: 'abey',
     },
   ],
 };

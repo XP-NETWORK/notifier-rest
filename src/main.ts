@@ -10,7 +10,6 @@ import { Mutex } from 'async-mutex';
 import axios from 'axios';
 import BN from 'bignumber.js';
 import cors from 'cors';
-import { ethers } from 'ethers';
 import express, { Request } from 'express';
 import { Minter__factory } from 'xpnet-web3-contracts';
 import {
@@ -393,14 +392,16 @@ async function main() {
             .send({ error: 'Invalid request body', contract, chainNonce });
         }
         const chainConfig = getChain(String(chainNonce));
-        const provider = new ethers.providers.JsonRpcProvider(chainConfig.node);
+        const chainFactory = await chainConfig.chainFactory;
         const minterContract = Minter__factory.connect(
-          chainConfig.contract,
-          provider
+          chainFactory['minter_addr'],
+          chainFactory['provider']
         );
-        const resp = await minterContract.functions.nftWhitelist(contract);
+        const nftWhitelist = await minterContract.functions.nftWhitelist(
+          contract
+        );
 
-        if (resp[0]) {
+        if (nftWhitelist[0]) {
           return res.send({ status: 'ok' });
         }
 
