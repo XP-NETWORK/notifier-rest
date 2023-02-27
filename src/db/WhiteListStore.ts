@@ -15,9 +15,23 @@ export class WhiteListStore {
   @Property()
   isWhiteListed: boolean;
 
-  constructor(chainNonce: number, contract: string) {
+  @Property()
+  isOpenSeaCollection: boolean;
+
+  @Property()
+  openSeaCollectionIdentifier: string;
+
+  constructor(
+    chainNonce: number,
+    contract: string,
+    isWhiteListed: boolean,
+    isOpenSeaCollection: boolean,
+    openSeaCollectionIdentifier: string
+  ) {
     this.chainNonce = chainNonce;
     this.contract = contract;
-    this.isWhiteListed = false;
+    this.isWhiteListed = isWhiteListed;
+    this.isOpenSeaCollection = isOpenSeaCollection;
+    this.openSeaCollectionIdentifier = openSeaCollectionIdentifier;
   }
 }

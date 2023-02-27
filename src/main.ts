@@ -22,7 +22,7 @@ import { TxStore } from './db/TxStore';
 import { WhiteListStore } from './db/WhiteListStore';
 import mikroConf from './mikro-orm';
 import * as socket from './socket';
-import { TExplorerConfig } from './types';
+import { IRequest, IWhiteListBody, TExplorerConfig } from './types';
 import { isWhitelistable } from './utils';
 import { getRandomArbitrary } from './utils/getRandomArbitrary';
 
@@ -365,23 +365,15 @@ async function main() {
   app.post(
     '/whitelist',
     requireAuth,
-    async (
-      req: Request<
-        {},
-        {},
-        {
-          readonly chain_nonce: number;
-          readonly contract: string;
-          readonly authKey: string;
-        }
-      >,
-      res
-    ) => {
+    async (req: IRequest<IWhiteListBody, {}, {}>, res) => {
       const release = await mutex.acquire();
       try {
         const chainNonce = req?.body?.chain_nonce;
         const contract = req?.body?.contract;
         const authKey = req?.body?.authKey;
+        const isOpenSeaCollection = req.body.isOpenSeaCollection;
+        const openSeaCollectionIdentifier =
+          req.body.openSeaCollectionIdentifier;
         console.log('notifier', { contract, chainNonce });
         if (!chainNonce || chainNonce < 0 || !contract) {
           return res
@@ -418,10 +410,21 @@ async function main() {
             chainNonce,
           });
         }
-        const ent = await orm.em.findOne(WhiteListStore, {
-          chainNonce,
-          contract,
-        });
+        let ent: WhiteListStore;
+        console.log('isOpenSeaCollection', isOpenSeaCollection);
+        if (isOpenSeaCollection) {
+          ent = await orm.em.findOne(WhiteListStore, {
+            chainNonce,
+            contract,
+            isOpenSeaCollection,
+            openSeaCollectionIdentifier,
+          });
+        } else {
+          ent = await orm.em.findOne(WhiteListStore, {
+            chainNonce,
+            contract,
+          });
+        }
         if (ent != null) {
           return res.status(400).send({
             error: 'Chain nonce and contract combination already exists',
@@ -434,7 +437,21 @@ async function main() {
           .plus(BN(chainNonce))
           .plus(randomNonce);
         io.emit('whitelist_nft', chainNonce, contract, actionId, authKey);
-        await orm.em.persistAndFlush(new WhiteListStore(chainNonce, contract));
+        if (isOpenSeaCollection) {
+          await orm.em.persistAndFlush(
+            new WhiteListStore(
+              chainNonce,
+              contract,
+              false,
+              isOpenSeaCollection,
+              openSeaCollectionIdentifier
+            )
+          );
+        } else {
+          await orm.em.persistAndFlush(
+            new WhiteListStore(chainNonce, contract, false, false, '')
+          );
+        }
         console.log('whitelist event emitted');
         return res.send({ status: 'ok' });
       } catch (error) {
@@ -472,7 +489,9 @@ async function main() {
           status: 'failed',
         });
       }
-      await orm.em.persistAndFlush(new WhiteListStore(chainNonce, contract));
+      await orm.em.persistAndFlush(
+        new WhiteListStore(chainNonce, contract, false, false, '')
+      );
       return res.status(200).json({
         error: null,
         status: 'success',
