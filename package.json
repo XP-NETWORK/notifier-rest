@@ -32,8 +32,10 @@
     "cross-fetch": "^3.1.5",
     "crypto": "^1.0.1",
     "dotenv": "^10.0.0",
+    "ethers": "^5.7.0",
     "express": "^4.17.1",
-    "socket.io": "^4.1.2"
+    "socket.io": "^4.1.2",
+    "xpnet-web3-contracts": "git+https://github.com/xp-network/XP.network-HECO-Migration#aa9473ea3b0f748bba54f5755abcfd17e3548237"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.0.1",

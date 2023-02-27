@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import http from 'http';
 import { HttpAgent } from '@dfinity/agent';
 import { PipeArrayBuffer, safeReadUint8 } from '@dfinity/candid';
@@ -9,13 +10,16 @@ import { Mutex } from 'async-mutex';
 import axios from 'axios';
 import BN from 'bignumber.js';
 import cors from 'cors';
+import { ethers } from 'ethers';
 import express, { Request } from 'express';
+import { Minter__factory } from 'xpnet-web3-contracts';
 import {
   config_scan,
   dfinity_bridge,
   dfinity_uri,
   elrond_minter,
   elrond_uri,
+  getChain,
   port,
 } from './config';
 import { TxStore } from './db/TxStore';
@@ -388,13 +392,20 @@ async function main() {
             .status(400)
             .send({ error: 'Invalid request body', contract, chainNonce });
         }
-        console.log({ config_scan });
+        const chainConfig = getChain(String(chainNonce));
+        const provider = new ethers.providers.JsonRpcProvider(chainConfig.node);
+        const minterContract = Minter__factory.connect(
+          chainConfig.contract,
+          provider
+        );
+        const resp = await minterContract.functions.nftWhitelist(contract);
+
+        if (resp[0]) {
+          return res.send({ status: 'ok' });
+        }
 
         const explorerConfig: TExplorerConfig = config_scan[chainNonce] || {};
-        console.log({ explorerConfig });
-
         const { secret = '', url = '' } = explorerConfig;
-        console.log({ secret, url });
         let isWhitelistable_: { success: boolean; reason?: string };
         if (!url.trim()) {
           isWhitelistable_ = { success: false, reason: 'url not valid' };
