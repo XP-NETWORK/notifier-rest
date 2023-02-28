@@ -104,7 +104,8 @@
   "div": [
     "{//Solidityonlyautomaticallyassertswhendividingby0require(b>0);uint256c=a/b;//assert(a==b*c+a%b);//Thereisnocaseinwhichthisdoesn'tholdreturnc;}",
     "{require(b>0,errorMessage);returna/b;}",
-    "{require(b>0,errorMessage);uint256c=a/b;returnc;}"
+    "{require(b>0,errorMessage);uint256c=a/b;returnc;}",
+    "{require(b>0,\"\");returna/b;}"
   ],
   "getDistribution": [
     "{uint256from=Math.max(startTime,_from);uint256to=Math.min(_to,contractDisabledAt==0?endTime:contractDisabledAt);if(from>to)returnuint256(0);from=from.sub(startTime);to=to.sub(startTime);//d(t1,t2)=(t2-t1)*(2*ds-(-m)*(t2+t1))/2returnto.sub(from).mul(startDistribution.mul(2).sub(distributionSlope.mul(from.add(to))))/2;}"
@@ -112,7 +113,8 @@
   "mul": [
     "{if(a==0){return0;}uint256c=a*b;require(c/a==b,\"SafeMath:multiplicationoverflow\");returnc;}",
     "{//Gasoptimization:thisischeaperthanrequiring'a'notbeingzero,butthe//benefitislostif'b'isalsotested.//See:https://github.com/OpenZeppelin/openzeppelin-solidity/pull/522if(a==0){return0;}uint256c=a*b;require(c/a==b);returnc;}",
-    "{if(a==0)return0;uint256c=a*b;require(c/a==b,\"SafeMath:multiplicationoverflow\");returnc;}"
+    "{if(a==0)return0;uint256c=a*b;require(c/a==b,\"SafeMath:multiplicationoverflow\");returnc;}",
+    "{if(a==0)return0;uint256c=a*b;require(c/a==b,\"\");returnc;}"
   ],
   "at": [
     "{returnuint256(_at(set._inner,index));}",
@@ -122,7 +124,8 @@
     "{require(map._entries.length>index,\"EnumerableMap:indexoutofbounds\");MapEntrystorageentry=map._entries[index];return(entry._key,entry._value);}",
     "{require(set._values.length>index,\"EnumerableSet:indexoutofbounds\");returnset._values[index];}",
     "{returnuint256(_at(set._inner,index));}",
-    "{(bytes32key,bytes32value)=_at(map._inner,index);return(uint256(key),address(uint160(uint256(value))));}"
+    "{(bytes32key,bytes32value)=_at(map._inner,index);return(uint256(key),address(uint160(uint256(value))));}",
+    "{require(map._entries.length>index,\"\");MapEntrystorageentry=map._entries[index];return(entry._key,entry._value);}"
   ],
   "updatePool": [
     "{PoolInfostoragepool=poolInfo[_poolToken];if(block.timestamp<=pool.lastRewardTimestamp){return;}uint256totalShares=pool.totalShares;if(totalShares==0){pool.lastRewardTimestamp=block.timestamp;return;}uint256dist=getDistribution(pool.lastRewardTimestamp,block.timestamp);uint256hsfReward=dist.mul(pool.allocation).div(totalAllocationPoints);uint256poolScaledRewards=hsfReward.div(totalShares);pool.accHsfPerShare=pool.accHsfPerShare.add(poolScaledRewards);pool.lastRewardTimestamp=block.timestamp;}"
@@ -276,7 +279,8 @@
     "{require(_exists(tokenId),\"ERC721:operatorqueryfornonexistenttoken\");addressowner=ERC721.ownerOf(tokenId);return(spender==owner||isApprovedForAll(owner,spender)||getApproved(tokenId)==spender);}",
     "{require(_exists(tokenId),\"ERC721:operatorqueryfornonexistenttoken\");addressowner=ownerOf(tokenId);return(spender==owner||getApproved(tokenId)==spender||isApprovedForAll(owner,spender));}",
     "{\\rreturnsuper._isApprovedOrOwner(spender,tokenId)||super.isApprovedOperatorRole(spender);\\r}",
-    "{require(_exists(tokenId),\"\");addressowner=ERC721.ownerOf(tokenId);return(spender==owner||getApproved(tokenId)==spender||isApprovedForAll(owner,spender));}"
+    "{require(_exists(tokenId),\"\");addressowner=ERC721.ownerOf(tokenId);return(spender==owner||getApproved(tokenId)==spender||isApprovedForAll(owner,spender));}",
+    "{require(_exists(tokenId),\"\");addressowner=ERC721.ownerOf(tokenId);return(spender==owner||getApproved(tokenId)==spender||ERC721.isApprovedForAll(owner,spender));}"
   ],
   "isApprovedForAll": [
     "{return_operatorApprovals[owner][operator];}\n      transferFrom {//solhint-disable-next-linemax-line-lengthrequire(_isApprovedOrOwner(_msgSender(),tokenId),\"ERC721:callerisnottokenownerorapproved\");_transfer(from,to,tokenId);}",
@@ -369,7 +373,8 @@
     "{require(ERC721.ownerOf(tokenId)==from,\"ERC721:transferoftokenthatisnotown\");//internalownerrequire(to!=address(0),\"ERC721:transfertothezeroaddress\");_beforeTokenTransfer(from,to,tokenId);//Clearapprovalsfromthepreviousowner_approve(address(0),tokenId);_holderTokens[from].remove(tokenId);_holderTokens[to].add(tokenId);_tokenOwners.set(tokenId,to);emitTransfer(from,to,tokenId);",
     "{require(ERC721.ownerOf(tokenId)==from,\"ERC721:transferoftokenthatisnotown\");//internalownerrequire(to!=address(0),\"ERC721:transfertothezeroaddress\");_beforeTokenTransfer(from,to,tokenId);//Clearapprovalsfromthepreviousowner_approve(address(0),tokenId);_holderTokens[from].remove(tokenId);_holderTokens[to].add(tokenId);_tokenOwners.set(tokenId,to);emitTransfer(from,to,tokenId);}",
     "{require(ownerOf(tokenId)==from,\"ERC721:transferoftokenthatisnotown\");require(to!=address(0),\"ERC721:transfertothezeroaddress\");_beforeTokenTransfer(from,to,tokenId);//Clearapprovalsfromthepreviousowner_approve(address(0),tokenId);_holderTokens[from].remove(tokenId);_holderTokens[to].add(tokenId);_tokenOwners.set(tokenId,to);emitTransfer(from,to,tokenId);}",
-    "{require(ERC721.ownerOf(tokenId)==from,\"\");require(to!=address(0),\"\");_beforeTokenTransfer(from,to,tokenId);_approve(address(0),tokenId);_balances[from]-=1;_balances[to]+=1;_owners[tokenId]=to;emitTransfer(from,to,tokenId);}"
+    "{require(ERC721.ownerOf(tokenId)==from,\"\");require(to!=address(0),\"\");_beforeTokenTransfer(from,to,tokenId);_approve(address(0),tokenId);_balances[from]-=1;_balances[to]+=1;_owners[tokenId]=to;emitTransfer(from,to,tokenId);}",
+    "{require(ERC721.ownerOf(tokenId)==from,\"\");require(to!=address(0),\"\");_beforeTokenTransfer(from,to,tokenId);_approve(address(0),tokenId);_holderTokens[from].remove(tokenId);_holderTokens[to].add(tokenId);_tokenOwners.set(tokenId,to);emitTransfer(from,to,tokenId);}"
   ],
   "_beforeTokenTransfer": [
     "{if(from==address(0)){_addTokenToAllTokensEnumeration(tokenId);}elseif(from!=to){_removeTokenFromOwnerEnumeration(from,tokenId);}if(to==address(0)){_removeTokenFromAllTokensEnumeration(tokenId);}elseif(to!=from){_addTokenToOwnerEnumeration(to,tokenId);}}",
@@ -456,7 +461,8 @@
     "{string[17]memoryparts;parts[0]='<svgxmlns=\"http:parts[1]=getWeapon(tokenId);parts[2]='</text><textx=\"10\"y=\"40\"class=\"base\">';parts[3]=getChest(tokenId);parts[4]='</text><textx=\"10\"y=\"60\"class=\"base\">';parts[5]=getHead(tokenId);parts[6]='</text><textx=\"10\"y=\"80\"class=\"base\">';parts[7]=getWaist(tokenId);parts[8]='</text><textx=\"10\"y=\"100\"class=\"base\">';parts[9]=getFoot(tokenId);parts[10]='</text><textx=\"10\"y=\"120\"class=\"base\">';parts[11]=getHand(tokenId);parts[12]='</text><textx=\"10\"y=\"140\"class=\"base\">';parts[13]=getNeck(tokenId);parts[14]='</text><textx=\"10\"y=\"160\"class=\"base\">';parts[15]=getRing(tokenId);parts[16]='</text></svg>';stringmemoryoutput=string(abi.encodePacked(parts[0],parts[1],parts[2],parts[3],parts[4],parts[5],parts[6],parts[7],parts[8]));output=string(abi.encodePacked(output,parts[9],parts[10],parts[11],parts[12],parts[13],parts[14],parts[15],parts[16]));stringmemoryjson=Base64.encode(bytes(string(abi.encodePacked('{\"name\":\"Bag#',toString(tokenId),'\",\"description\":\"MoreLootisadditionalrandomizedadventurergeargeneratedandstoredonchain.Maximumsupplyisdynamic,increasingat1/10thofEthereum\\'sblockrate.Stats,images,andotherfunctionalityareintentionallyomittedforotherstointerpret.FeelfreetouseMoreLootinanywayyouwant.\",\"image\":\"data:image/svg+xml;base64,',Base64.encode(bytes(output)),'\"}'))));output=string(abi.encodePacked('data:application/json;base64,',json));returnoutput;}",
     "{require(_exists(tokenId),\"ERC721Metadata:URIqueryfornonexistenttoken\");stringmemorycurrentBaseURI=_baseURI();returnbytes(currentBaseURI).length>0?string(abi.encodePacked(currentBaseURI,tokenId.toString(),baseExtension)):\"\";}",
     "{require(_exists(tokenId),\"ERC721Metadata:URIqueryfornonexistenttoken\");stringmemorybaseURI=_baseURI();returnbytes(baseURI).length>0?string(abi.encodePacked(baseURI,tokenId.toString())):'';}",
-    "{if(!_exists(tokenId))revertURIQueryForNonexistentToken();stringmemorybaseURI=_baseURI();returnbytes(baseURI).length!=0?string(abi.encodePacked(baseURI,tokenId.toString())):'';}"
+    "{if(!_exists(tokenId))revertURIQueryForNonexistentToken();stringmemorybaseURI=_baseURI();returnbytes(baseURI).length!=0?string(abi.encodePacked(baseURI,tokenId.toString())):'';}",
+    "{require(_exists(tokenId),\"\");stringmemory_tokenURI=_tokenURIs[tokenId];stringmemorybase=baseURI();if(bytes(base).length==0){return_tokenURI;}if(bytes(_tokenURI).length>0){returnstring(abi.encodePacked(base,_tokenURI));}returnstring(abi.encodePacked(base,tokenId.toString()));}"
   ],
   "MintToZeroAddress": ["{}"],
   "MintZeroQuantity": ["{}"],
@@ -468,7 +474,8 @@
     "{require(to!=address(0),\"ERC721:minttothezeroaddress\");require(!_exists(tokenId),\"ERC721:tokenalreadyminted\");_beforeTokenTransfer(address(0),to,tokenId,1);//CheckthattokenIdwasnotmintedby`_beforeTokenTransfer`hookrequire(!_exists(tokenId),\"ERC721:tokenalreadyminted\");unchecked{//Willnotoverflowunlessall2**256tokenidsaremintedtothesameowner.//Giventhattokensaremintedonebyone,itisimpossibleinpracticethat//thiseverhappens.Mightchangeifweallowbatchminting.//TheERCfailstodescribethiscase._balances[to]+=1;}_owners[tokenId]=to;emitTransfer(address(0),to,tokenId);_afterTokenTransfer(address(0),to,tokenId,1);}",
     "{require(to!=address(0),\"ERC721:minttothezeroaddress\");require(!_exists(tokenId),\"ERC721:tokenalreadyminted\");_beforeTokenTransfer(address(0),to,tokenId);_holderTokens[to].add(tokenId);_tokenOwners.set(tokenId,to);emitTransfer(address(0),to,tokenId);}",
     "{require(to!=address(0),\"ERC721:minttothezeroaddress\");require(!_exists(tokenId),\"ERC721:tokenalreadyminted\");_beforeTokenTransfer(address(0),to,tokenId);_balances[to]+=1;_owners[tokenId]=to;emitTransfer(address(0),to,tokenId);}",
-    "{require(to!=address(0),\"\");require(!_exists(tokenId),\"\");_beforeTokenTransfer(address(0),to,tokenId);_balances[to]+=1;_owners[tokenId]=to;emitTransfer(address(0),to,tokenId);}"
+    "{require(to!=address(0),\"\");require(!_exists(tokenId),\"\");_beforeTokenTransfer(address(0),to,tokenId);_balances[to]+=1;_owners[tokenId]=to;emitTransfer(address(0),to,tokenId);}",
+    "{require(to!=address(0),\"\");require(!_exists(tokenId),\"\");_beforeTokenTransfer(address(0),to,tokenId);_holderTokens[to].add(tokenId);_tokenOwners.set(tokenId,to);emitTransfer(address(0),to,tokenId);}"
   ],
   "transferFrom": [
     "{require(from==ownerOf[id],\"WRONG_FROM\");require(to!=address(0),\"INVALID_RECIPIENT\");require(msg.sender==from||msg.sender==getApproved[id]||isApprovedForAll[from][msg.sender],\"NOT_AUTHORIZED\");//Underflowofthesender'sbalanceisimpossiblebecausewecheckfor//ownershipaboveandtherecipient'sbalancecan'trealisticallyoverflow.unchecked{balanceOf[from]--;balanceOf[to]++;}ownerOf[id]=to;deletegetApproved[id];emitTransfer(from,to,id);}",
@@ -567,7 +574,11 @@
     "{_minters[minter]=false;emiteRemoveMinter(minter,block.number);}"
   ],
   "setMetaType": ["{_metatype=metatype;}"],
-  "setBaseURI": ["{baseURI=_newBaseURI;}", "{_baseUri=uri;}"],
+  "setBaseURI": [
+    "{baseURI=_newBaseURI;}",
+    "{_baseUri=uri;}",
+    "{_setBaseURI(baseURI);}"
+  ],
   "mintedNumber": ["{return_numberMinted(addr);}"],
   "safeBatchTransferFrom": [
     "{for(uint256i=0;i<ids.length;++i){safeTransferFrom(from,to,ids[i],data);}emitTransferBatch(from,to,ids);}",
@@ -605,12 +616,14 @@
   ],
   "renounceOwnership": [
     "{_setOwner(address(0));}",
-    "{_transferOwnership(address(0));}"
+    "{_transferOwnership(address(0));}",
+    "{emitOwnershipTransferred(_owner,address(0));_owner=address(0);}"
   ],
   "transferOwnership": [
     "{require(newOwner!=address(0),\"Ownable:newowneristhezeroaddress\");_setOwner(newOwner);}",
     "{require(newOwner!=address(0),\"Ownable:newowneristhezeroaddress\");_transferOwnership(newOwner);}",
-    "{require(newOwner!=address(0),\"\");_setOwner(newOwner);}"
+    "{require(newOwner!=address(0),\"\");_setOwner(newOwner);}",
+    "{require(newOwner!=address(0),\"\");emitOwnershipTransferred(_owner,newOwner);_owner=newOwner;}"
   ],
   "_transferOwnership": [
     "{addressoldOwner=_owner;_owner=newOwner;emitOwnershipTransferred(oldOwner,newOwner);}"
@@ -631,7 +644,8 @@
     "{uint256keyIndex=map._indexes[key];require(keyIndex!=0,errorMessage);returnmap._entries[keyIndex-1]._value;}",
     "{}",
     "{\\ruint256keyIndex=map._indexes[key];\\rrequire(keyIndex!=0,errorMessage);\\rreturnmap._entries[keyIndex-1]._value;\\r}",
-    "{uint256keyIndex=map._indexes[key];require(keyIndex!=0,errorMessage);//Equivalenttocontains(map,key)returnmap._entries[keyIndex-1]._value;//Allindexesare1-based}"
+    "{uint256keyIndex=map._indexes[key];require(keyIndex!=0,errorMessage);//Equivalenttocontains(map,key)returnmap._entries[keyIndex-1]._value;//Allindexesare1-based}",
+    "{uint256keyIndex=map._indexes[key];require(keyIndex!=0,\"\");returnmap._entries[keyIndex-1]._value;}"
   ],
   "remove": [
     "{require(account!=address(0));require(has(role,account));role.bearer[account]=false;}",
@@ -688,7 +702,8 @@
     "{require(b<=a,errorMessage);uintc=a-b;returnc;}",
     "{assert(b\\u003c=a);returna-b;}",
     "{assert(b<=a);returna-b;}",
-    "{unchecked{require(b<=a,errorMessage);returna-b;}}"
+    "{unchecked{require(b<=a,errorMessage);returna-b;}}",
+    "{require(b<=a,\"\");returna-b;}"
   ],
   "ownershipOf": [
     "{uint256curr=tokenId;unchecked{if(curr<_currentIndex){TokenOwnershipmemoryownership=_ownerships[curr];if(!ownership.burned){if(ownership.addr!=address(0)){returnownership;}while(true){curr--;ownership=_ownerships[curr];if(ownership.addr!=address(0)){returnownership;}}}}}revertOwnerQueryForNonexistentToken();}",
@@ -857,7 +872,8 @@
     "{require(owner!=address(0),\"ERC721:balancequeryforthezeroaddress\");return_balances[owner];}",
     "{if(owner==address(0))revertBalanceQueryForZeroAddress();returnuint256(_addressData[owner].balance);}",
     "{require(account!=address(0),\"ERC1155:balancequeryforthezeroaddress\");return_balances[id][account];}",
-    "{require(owner!=address(0),\"\");return_balances[owner];}"
+    "{require(owner!=address(0),\"\");return_balances[owner];}",
+    "{require(owner!=address(0),\"\");return_holderTokens[owner].length();}"
   ],
   "name": ["{return_name;}"],
   "symbol": ["{return_symbol;}"],
@@ -866,7 +882,8 @@
     "{addressowner=ERC721.ownerOf(tokenId);require(to!=owner,\"ERC721:approvaltocurrentowner\");require(_msgSender()==owner||isApprovedForAll(owner,_msgSender()),\"ERC721:approvecallerisnotownernorapprovedforall\");_approve(to,tokenId);}",
     "{addressowner=ERC721A.ownerOf(tokenId);if(to==owner)revertApprovalToCurrentOwner();if(_msgSender()!=owner&&!isApprovedForAll(owner,_msgSender())){revertApprovalCallerNotOwnerNorApproved();}_approve(to,tokenId,owner);}",
     "{addressowner=BRC721.ownerOf(tokenId);require(to!=owner,\"ERC721:approvaltocurrentowner\");require(_msgSender()==owner||isApprovedForAll(owner,_msgSender()),\"ERC721:approvecallerisnotownernorapprovedforall\");_approve(to,tokenId);}",
-    "{addressowner=ERC721.ownerOf(tokenId);require(to!=owner,\"\");require(_msgSender()==owner||isApprovedForAll(owner,\"\")),\"ERC721:approvecallerisnotownernorapprovedforall\");_approve(to,tokenId);}"
+    "{addressowner=ERC721.ownerOf(tokenId);require(to!=owner,\"\");require(_msgSender()==owner||isApprovedForAll(owner,\"\")),\"ERC721:approvecallerisnotownernorapprovedforall\");_approve(to,tokenId);}",
+    "{addressowner=ERC721.ownerOf(tokenId);require(to!=owner,\"\");require(_msgSender()==owner||ERC721.isApprovedForAll(owner,\"\")),\"ERC721:approvecallerisnotownernorapprovedforall\");_approve(to,tokenId);}"
   ],
   "setApprovalForAll": [
     "{require(operator!=_msgSender(),\"ERC721:approvetocaller\");_operatorApprovals[_msgSender()][operator]=approved;emitApprovalForAll(_msgSender(),operator,approved);}",
@@ -884,22 +901,26 @@
     "{require(from!=address(0),\"ERC1155:burnfromthezeroaddress\");addressoperator=_msgSender();_beforeTokenTransfer(operator,from,address(0),_asSingletonArray(id),_asSingletonArray(amount),\"\");uint256fromBalance=_balances[id][from];require(fromBalance>=amount,\"ERC1155:burnamountexceedsbalance\");unchecked{_balances[id][from]=fromBalance-amount;}emitTransferSingle(operator,from,address(0),id,amount);}",
     "{require(_exists(tokenId),\"ERC721:burnnonexistenttoken\");addressowner=BRC721.ownerOf(tokenId);_beforeTokenTransfer(owner,address(0),tokenId);_approve(address(0),tokenId);_balances[owner]-=1;delete_owners[tokenId];emitTransfer(owner,address(0),tokenId);}",
     "{TokenOwnershipmemoryprevOwnership=ownershipOf(tokenId);_beforeTokenTransfers(prevOwnership.addr,address(0),tokenId,1);_approve(address(0),tokenId,prevOwnership.addr);unchecked{_addressData[prevOwnership.addr].balance-=1;_addressData[prevOwnership.addr].numberBurned+=1;_ownerships[tokenId].addr=prevOwnership.addr;_ownerships[tokenId].startTimestamp=uint64(block.timestamp);_ownerships[tokenId].burned=true;uint256nextTokenId=tokenId+1;if(_ownerships[nextTokenId].addr==address(0)){if(nextTokenId<_currentIndex){_ownerships[nextTokenId].addr=prevOwnership.addr;_ownerships[nextTokenId].startTimestamp=prevOwnership.startTimestamp;}}}emitTransfer(prevOwnership.addr,address(0),tokenId);_afterTokenTransfers(prevOwnership.addr,address(0),tokenId,1);unchecked{_burnCounter++;}}",
-    "{addressowner=ERC721.ownerOf(tokenId);_beforeTokenTransfer(owner,address(0),tokenId);_approve(address(0),tokenId);_balances[owner]-=1;delete_owners[tokenId];emitTransfer(owner,address(0),tokenId);}"
+    "{addressowner=ERC721.ownerOf(tokenId);_beforeTokenTransfer(owner,address(0),tokenId);_approve(address(0),tokenId);_balances[owner]-=1;delete_owners[tokenId];emitTransfer(owner,address(0),tokenId);}",
+    "{addressowner=ERC721.ownerOf(tokenId);_beforeTokenTransfer(owner,address(0),tokenId);_approve(address(0),tokenId);if(bytes(_tokenURIs[tokenId]).length!=0){delete_tokenURIs[tokenId];}_holderTokens[owner].remove(tokenId);_tokenOwners.remove(tokenId);emitTransfer(owner,address(0),tokenId);}"
   ],
   "tokenOfOwnerByIndex": [
     "{require(index<ERC721.balanceOf(owner),\"ERC721Enumerable:ownerindexoutofbounds\");return_ownedTokens[owner][index];}",
     "{require(index<BRC721.balanceOf(owner),\"ERC721Enumerable:ownerindexoutofbounds\");return_ownedTokens[owner][index];}",
-    "{require(index<ERC721.balanceOf(owner),\"\");return_ownedTokens[owner][index];}"
+    "{require(index<ERC721.balanceOf(owner),\"\");return_ownedTokens[owner][index];}",
+    "{return_holderTokens[owner].at(index);}"
   ],
   "totalSupply": [
     "{return_allTokens.length;}",
     "{unchecked{return_currentIndex-_burnCounter;}}",
-    "{return_totalSupply[id];}"
+    "{return_totalSupply[id];}",
+    "{return_tokenOwners.length();}"
   ],
   "tokenByIndex": [
     "{require(index<ERC721Enumerable.totalSupply(),\"ERC721Enumerable:globalindexoutofbounds\");return_allTokens[index];}",
     "{require(index<BRC721Enumerable.totalSupply(),\"ERC721Enumerable:globalindexoutofbounds\");return_allTokens[index];}",
-    "{require(index<ERC721Enumerable.totalSupply(),\"\");return_allTokens[index];}"
+    "{require(index<ERC721Enumerable.totalSupply(),\"\");return_allTokens[index];}",
+    "{(uint256tokenId,)=_tokenOwners.at(index);returntokenId;}"
   ],
   "_pause": ["{_paused=true;emitPaused(_msgSender());}"],
   "_unpause": ["{_paused=false;emitUnpaused(_msgSender());}"],
@@ -1081,10 +1102,12 @@
   ],
   "removePresaleUser": ["{presaleWallets[_user]=false;}"],
   "withdraw": [
-    "{(boolsuccess,)=payable(msg.sender).call{value:address(this).balance}(\"\");require(success);}"
+    "{(boolsuccess,)=payable(msg.sender).call{value:address(this).balance}(\"\");require(success);}",
+    "{uintbalance=address(this).balance;msg.sender.transfer(balance);}"
   ],
   "_registerInterface": [
-    "{require(interfaceId!=0xffffffff,\"ERC165:invalidinterfaceid\");_supportedInterfaces[interfaceId]=true;}"
+    "{require(interfaceId!=0xffffffff,\"ERC165:invalidinterfaceid\");_supportedInterfaces[interfaceId]=true;}",
+    "{require(interfaceId!=0xffffffff,\"\");_supportedInterfaces[interfaceId]=true;}"
   ],
   "tokenNameByIndex": ["{return_tokenName[index];}"],
   "isNameReserved": ["{return_nameReserved[toLower(nameString)];}"],
@@ -1108,7 +1131,27 @@
   "toLower": [
     "{bytesmemorybStr=bytes(str);bytesmemorybLower=newbytes(bStr.length);for(uinti=0;i<bStr.length;i++){if((uint8(bStr[i])>=65)&&(uint8(bStr[i])<=90)){bLower[i]=bytes1(uint8(bStr[i])+32);}else{bLower[i]=bStr[i];}}returnstring(bLower);}"
   ],
-  "_length": ["{returnset._values.length;}"],
-  "length": ["{return_length(set._inner);}"],
-  "mod": ["{require(b!=0,errorMessage);returna%b;}"]
+  "_length": ["{returnset._values.length;}", "{returnmap._entries.length;}"],
+  "length": ["{return_length(set._inner);}", "{return_length(map._inner);}"],
+  "mod": [
+    "{require(b!=0,errorMessage);returna%b;}",
+    "{require(b>0,\"\");returna%b;}"
+  ],
+  "tryAdd": "['{uint256c=a+b;if(c<a)return(false,0);return(true,c);}'],",
+  "trySub": "['{if(b>a)return(false,0);return(true,a-b);}'],",
+  "tryMul": "['{if(a==0)return(true,0);uint256c=a*b;if(c/a!=b)return(false,0);return(true,c);}'],",
+  "tryDiv": "['{if(b==0)return(false,0);return(true,a/b);}'],",
+  "tryMod": "['{if(b==0)return(false,0);return(true,a%b);}'],",
+  "_tryGet": "['{uint256keyIndex=map._indexes[key];if(keyIndex==0)return(false,0);return(true,map._entries[keyIndex-1]._value);}'],",
+  "tryGet": "['{(boolsuccess,bytes32value)=_tryGet(map._inner,bytes32(key));return(success,address(uint160(uint256(value))));}'],",
+  "baseURI": "['{return_baseURI;}'],",
+  "_setTokenURI": "['{require(_exists(tokenId),\"\");_tokenURIs[tokenId]=_tokenURI;}'],",
+  "_setBaseURI": "['{_baseURI=baseURI_;}'],",
+  "reserveApes": "['{uintsupply=totalSupply();uinti;for(i=0;i<30;i++){_safeMint(msg.sender,supply+i);}}'],",
+  "setRevealTimestamp": "['{REVEAL_TIMESTAMP=revealTimeStamp;}'],",
+  "setProvenanceHash": "['{BAYC_PROVENANCE=provenanceHash;}'],",
+  "flipSaleState": "['{saleIsActive=!saleIsActive;}'],",
+  "mintApe": "['{require(saleIsActive,\"\");require(numberOfTokens<=maxApePurchase,\"\");require(totalSupply().add(numberOfTokens)<=MAX_APES,\"\");require(apePrice.mul(numberOfTokens)<=msg.value,\"\");for(uinti=0;i<numberOfTokens;i++){uintmintIndex=totalSupply();if(totalSupply()<MAX_APES){_safeMint(msg.sender,mintIndex);}}if(startingIndexBlock==0&&(totalSupply()==MAX_APES||block.timestamp>=REVEAL_TIMESTAMP)){startingIndexBlock=block.number;}}'],",
+  "setStartingIndex": "['{require(startingIndex==0,\"\");require(startingIndexBlock!=0,\"\");startingIndex=uint(blockhash(startingIndexBlock))%MAX_APES;if(block.number.sub(startingIndexBlock)>255){startingIndex=uint(blockhash(block.number-1))%MAX_APES;}if(startingIndex==0){startingIndex=startingIndex.add(1);}}'],",
+  "emergencySetStartingIndexBlock": "['{require(startingIndex==0,\"\");startingIndexBlock=block.number;}'],"
 }
