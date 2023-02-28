@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import axios from 'axios';
 import { environment } from '../config';
 
@@ -30,7 +30,7 @@ function extractFunctions(str: string) {
 
       if (semiColonIndex !== -1 && semiColonIndex < forwardBracesIndex) {
         if (i < semiColonIndex) i = semiColonIndex + 1;
-        console.log('Interface found', i, semiColonIndex, forwardBracesIndex);
+        // console.log('Interface found', i, semiColonIndex, forwardBracesIndex);
         start = false;
         continue;
       }
@@ -171,34 +171,10 @@ export const isWhitelistable = async (
       }
     }
   }
-  if (notAllowedFunctions.length > 0 && notFoundFunctions.length > 0) {
-    isVerified.success = false;
-
-    console.log(`---------------------------------------------------------------
-                \nFunctions not found :`);
-    console.dir(notFoundFunctions, {});
-    console.log(`---------------------------------------------------------------
-                \nFunctions not allowed :`);
-    logArrayItems(notAllowedFunctions);
-
-    isVerified.reason = `Functions not found : ${JSON.stringify(
-      notFoundFunctions
-    )} \n`;
-    isVerified.reason += `Functions not allowed : ${JSON.stringify(
-      notAllowedFunctions
-    )}`;
-  } else if (notAllowedFunctions.length > 0 || notFoundFunctions.length > 0) {
-    console.log(`---------------------------------------------------------------
-    \nFunctions not found :`);
-    console.dir(notFoundFunctions, {});
-    console.log(`---------------------------------------------------------------
-    \nFunctions not allowed :`);
-    console.dir(notAllowedFunctions);
-    isVerified.success = false;
-    isVerified.reason =
-      notAllowedFunctions.length > 0
-        ? `Functions not allowed : ${JSON.stringify(notAllowedFunctions)}`
-        : `Functions not found : ${JSON.stringify(notFoundFunctions)}`;
-  }
+  logArrayItems(notAllowedFunctions);
+  console.dir({ notFoundFunctions });
+  checkFunctionsAndDefinitioins.getPosition.push('{John}');
+  const updatedJson = JSON.stringify(checkFunctionsAndDefinitioins, null, 2);
+  writeFileSync('src/utils/source.json', updatedJson, 'utf-8');
   return isVerified;
 };
