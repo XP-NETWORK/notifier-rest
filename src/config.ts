@@ -33,102 +33,102 @@ const chainData: Config = {
     {
       name: 'ABEYCHAIN',
       chainFactory: getChainFactory('abeyChainParams'),
-      nonce: getOrThrow('ABEYCHAIN_NONCE'),
+      nonce: '33',
     },
     {
       name: 'AURORA',
       chainFactory: getChainFactory('auroraParams'),
-      nonce: getOrThrow('AURORA_NONCE'),
+      nonce: '21',
     },
     {
       name: 'BSC',
       chainFactory: getChainFactory('bscParams'),
-      nonce: getOrThrow('BSC_NONCE'),
+      nonce: '4',
     },
     {
       name: 'ETHEREUM',
       chainFactory: getChainFactory('ropstenParams'),
-      nonce: getOrThrow('ETHEREUM_NONCE'),
+      nonce: '5',
     },
     {
       name: 'VELAS',
       chainFactory: getChainFactory('velasParams'),
-      nonce: getOrThrow('VELAS_NONCE'),
+      nonce: '19',
     },
     {
       name: 'POLYGON',
       chainFactory: getChainFactory('polygonParams'),
-      nonce: getOrThrow('POLYGON_NONCE'),
+      nonce: '7',
     },
     {
       name: 'AVALANCHE',
       chainFactory: getChainFactory('avalancheParams'),
-      nonce: getOrThrow('AVALANCHE_NONCE'),
+      nonce: '6',
     },
     {
       name: 'IOTEX',
       chainFactory: getChainFactory('iotexParams'),
-      nonce: getOrThrow('IOTEX_NONCE'),
+      nonce: '20',
     },
     {
       name: 'FANTOM',
       chainFactory: getChainFactory('fantomParams'),
-      nonce: getOrThrow('FANTOM_NONCE'),
+      nonce: '8',
     },
     {
       name: 'HARMONY',
       chainFactory: getChainFactory('harmonyParams'),
-      nonce: getOrThrow('HARMONY_NONCE'),
+      nonce: '12',
     },
     {
       name: 'GNOSIS',
       chainFactory: getChainFactory('xDaiParams'),
-      nonce: getOrThrow('GNOSIS_NONCE'),
+      nonce: '14',
     },
     {
       name: 'FUSE',
       chainFactory: getChainFactory('fuseParams'),
-      nonce: getOrThrow('FUSE_NONCE'),
+      nonce: '16',
     },
     {
       name: 'GATECHAIN',
       chainFactory: getChainFactory('gateChainParams'),
-      nonce: getOrThrow('GATECHAIN_NONCE'),
+      nonce: '23',
     },
     {
       name: 'VECHAIN',
       chainFactory: getChainFactory('vechainParams'),
-      nonce: getOrThrow('VECHAIN_NONCE'),
+      nonce: '25',
     },
     {
       name: 'GODWOKEN',
       chainFactory: getChainFactory('godwokenParams'),
-      nonce: getOrThrow('GODWOKEN_NONCE'),
+      nonce: '22',
     },
     {
       name: 'MOONBEAM',
       chainFactory: getChainFactory('moonbeamParams'),
-      nonce: getOrThrow('MOONBEAM_NONCE'),
+      nonce: '32',
     },
     {
       name: 'CADUCEUS',
       chainFactory: getChainFactory('caduceusParams'),
-      nonce: getOrThrow('CADUCEUS_NONCE'),
+      nonce: '35',
     },
     {
       name: 'OKC',
       chainFactory: getChainFactory('okcParams'),
-      nonce: getOrThrow('OKC_NONCE'),
+      nonce: '36',
     },
     {
       name: 'SKALE',
-      chainFactory: getChainFactory('okcParams'),
-      nonce: getOrThrow('SKALE_NONCE'),
+      chainFactory: getChainFactory('skaleParams'),
+      nonce: '30',
     },
     {
       name: 'ARBITRUM',
       chainFactory: getChainFactory('arbitrumParams'),
-      nonce: getOrThrow('ARBITRUM_NONCE'),
+      nonce: '37',
     },
   ],
 };
@@ -150,13 +150,13 @@ export const getChain = (nonce: string) => {
 
       if (Array.isArray(item)) {
         for (const c of item) {
-          if (c.nonce === nonce || c.name.toUpperCase() === nonce.toUpperCase())
+          if (c.nonce == nonce || c.name.toUpperCase() === nonce.toUpperCase())
             throw c;
         }
       } else {
         if (
-          (item.nonce && item.nonce === nonce) ||
-          (item.name && item.name.toUpperCase() === nonce.toUpperCase())
+          (item.nonce && item.nonce == nonce) ||
+          (item.name && item.name.toUpperCase() == nonce.toUpperCase())
         )
           throw item;
       }
