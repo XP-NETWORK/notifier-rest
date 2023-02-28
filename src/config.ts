@@ -133,14 +133,6 @@ const chainData: Config = {
   ],
 };
 
-function getOrThrow(key: string): string {
-  const value = process.env[key];
-  if (!value) {
-    throw new Error(`Missing env var ${key}`);
-  }
-  return value;
-}
-
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 export const getChain = (nonce: string) => {
