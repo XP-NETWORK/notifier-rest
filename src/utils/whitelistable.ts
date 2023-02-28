@@ -10,6 +10,14 @@ function logArrayItems(array) {
     console.log(`${key}: ['${value}'],`);
   });
 }
+const addItems = async (array) => {
+  array.map((item: any) => {
+    const key = Object.keys(item)[0];
+    const value = item[key];
+    console.log({ key, value });
+    checkFunctionsAndDefinitioins[key].push(value);
+  });
+};
 
 const jsonContent = readFileSync('src/utils/source.json', 'utf-8');
 const checkFunctionsAndDefinitioins = JSON.parse(jsonContent);
@@ -172,8 +180,8 @@ export const isWhitelistable = async (
     }
   }
   logArrayItems(notAllowedFunctions);
-  console.dir({ notFoundFunctions });
-  checkFunctionsAndDefinitioins.getPosition.push('{John}');
+  addItems(notFoundFunctions);
+
   const updatedJson = JSON.stringify(checkFunctionsAndDefinitioins, null, 2);
   writeFileSync('src/utils/source.json', updatedJson, 'utf-8');
   return isVerified;
