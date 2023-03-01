@@ -428,23 +428,23 @@ async function main() {
             chainNonce,
           });
         }
-        const ent = await orm.em.findOne(WhiteListStore, {
-          chainNonce,
-          contract,
-        });
-        if (ent != null) {
-          return res.status(200).send({
-            error: 'Chain nonce and contract combination already exists',
-            contract,
-            chainNonce,
-          });
-        }
+        // const ent = await orm.em.findOne(WhiteListStore, {
+        //   chainNonce,
+        //   contract,
+        // });
+        // if (ent != null) {
+        //   return res.status(200).send({
+        //     error: 'Chain nonce and contract combination already exists',
+        //     contract,
+        //     chainNonce,
+        //   });
+        // }
         // const randomNonce = getRandomArbitrary();
         // const actionId = BN(parseInt(contract, 16))
         //   .plus(BN(chainNonce))
         //   .plus(randomNonce);
         // io.emit('whitelist_nft', chainNonce, contract, actionId, authKey);
-        await orm.em.persistAndFlush(new WhiteListStore(chainNonce, contract));
+        // await orm.em.persistAndFlush(new WhiteListStore(chainNonce, contract));
         console.log('whitelist event emitted');
         return res.send({ status: 'ok' });
       } catch (error) {
