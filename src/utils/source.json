@@ -1208,28 +1208,10 @@
   "emergencySetStartingIndexBlock": [
     "{require(startingIndex==0,\"\");startingIndexBlock=block.number;}"
   ],
-  "_implementation": ["{returnERC1967Upgrade._getImplementation();}"],
   "implementation": ["{implementation_=_implementation();}"],
   "changeAdmin": ["{_changeAdmin(newAdmin);}"],
-  "upgradeTo": [
-    "{_authorizeUpgrade(newImplementation);_upgradeToAndCallSecure(newImplementation,bytes(\"\"),false);}"
-  ],
-  "upgradeToAndCall": [
-    "{_authorizeUpgrade(newImplementation);_upgradeToAndCallSecure(newImplementation,data,true);}"
-  ],
   "_admin": ["{return_getAdmin();}"],
   "_beforeFallback": ["{}"],
-  "getProxyImplementation": [
-    "{(boolsuccess,bytesmemoryreturndata)=address(proxy).staticcall(hex\"5c60da1b\");require(success);returnabi.decode(returndata,\"\"));}"
-  ],
-  "getProxyAdmin": [
-    "{(boolsuccess,bytesmemoryreturndata)=address(proxy).staticcall(hex\"f851a440\");require(success);returnabi.decode(returndata,\"\"));}"
-  ],
-  "changeProxyAdmin": ["{proxy.changeAdmin(newAdmin);}"],
-  "upgrade": ["{proxy.upgradeTo(implementation);}"],
-  "upgradeAndCall": [
-    "{proxy.upgradeToAndCall{value:msg.value}(implementation,data);}"
-  ],
   "_delegate": [
     "{assembly{calldatacopy(0,0,calldatasize())letresult:=delegatecall(gas(),implementation,0,calldatasize(),0,0)returndatacopy(0,0,returndatasize())switchresultcase0{revert(0,returndatasize())}default{return(0,returndatasize())}}}"
   ],
@@ -1239,18 +1221,6 @@
   ],
   "_setImplementation": [
     "{require(Address.isContract(newImplementation),\"\");StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value=newImplementation;}"
-  ],
-  "_upgradeTo": [
-    "{_setImplementation(newImplementation);emitUpgraded(newImplementation);}"
-  ],
-  "_upgradeToAndCall": [
-    "{_setImplementation(newImplementation);emitUpgraded(newImplementation);if(data.length>0||forceCall){Address.functionDelegateCall(newImplementation,data);}}"
-  ],
-  "_upgradeToAndCallSecure": [
-    "{addressoldImplementation=_getImplementation();_setImplementation(newImplementation);if(data.length>0||forceCall){Address.functionDelegateCall(newImplementation,data);}StorageSlot.BooleanSlotstoragerollbackTesting=StorageSlot.getBooleanSlot(_ROLLBACK_SLOT);if(!rollbackTesting.value){rollbackTesting.value=true;Address.functionDelegateCall(newImplementation,abi.encodeWithSignature(\"upgradeTo(address)\",oldImplementation));rollbackTesting.value=false;require(oldImplementation==_getImplementation(),\"\");_setImplementation(newImplementation);emitUpgraded(newImplementation);}}"
-  ],
-  "_upgradeBeaconToAndCall": [
-    "{_setBeacon(newBeacon);emitBeaconUpgraded(newBeacon);if(data.length>0||forceCall){Address.functionDelegateCall(IBeacon(newBeacon).implementation(),data);}}"
   ],
   "_getAdmin": ["{returnStorageSlot.getAddressSlot(_ADMIN_SLOT).value;}"],
   "_setAdmin": [
@@ -1267,8 +1237,6 @@
   "getBooleanSlot": ["{assembly{r.slot:=slot}}"],
   "getBytes32Slot": ["{assembly{r.slot:=slot}}"],
   "getUint256Slot": ["{assembly{r.slot:=slot}}"],
-  "_authorizeUpgrade": ["{_beforeUpgrade(newImplementation);}"],
-  "_beforeUpgrade": ["{}"],
   "_getOwnerNFTCount": ["{returnownerToIds[_owner].length;}"],
   "tokenPayload": ["{returnidToPayload[_tokenId];}"],
   "_setTokenUri": ["{idToUri[_tokenId]=_uri;}"],
