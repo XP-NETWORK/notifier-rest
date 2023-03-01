@@ -8,17 +8,16 @@ import { MikroORM, RequestContext } from '@mikro-orm/core';
 import { EntityManager, MongoDriver } from '@mikro-orm/mongodb';
 import { Mutex } from 'async-mutex';
 import axios from 'axios';
-import BN from 'bignumber.js';
 import cors from 'cors';
 import express, { Request } from 'express';
-import { Minter__factory } from 'xpnet-web3-contracts';
+// import { Minter__factory } from 'xpnet-web3-contracts';
 import {
   config_scan,
   dfinity_bridge,
   dfinity_uri,
   elrond_minter,
   elrond_uri,
-  getChain,
+  // getChain,
   port,
 } from './config';
 import { TxStore } from './db/TxStore';
@@ -27,7 +26,6 @@ import mikroConf from './mikro-orm';
 import * as socket from './socket';
 import { TExplorerConfig } from './types';
 import { isWhitelistable } from './utils';
-import { getRandomArbitrary } from './utils/getRandomArbitrary';
 
 const mutex = new Mutex();
 
@@ -391,19 +389,19 @@ async function main() {
             .status(400)
             .send({ error: 'Invalid request body', contract, chainNonce });
         }
-        const chainConfig = getChain(String(chainNonce));
-        const chainFactory = await chainConfig.chainFactory;
-        const minterContract = Minter__factory.connect(
-          chainFactory['minter_addr'],
-          chainFactory['provider']
-        );
-        const nftWhitelist = await minterContract.functions.nftWhitelist(
-          contract
-        );
+        // const chainConfig = getChain(String(chainNonce));
+        // const chainFactory = await chainConfig.chainFactory;
+        // const minterContract = Minter__factory.connect(
+        //   chainFactory['minter_addr'],
+        //   chainFactory['provider']
+        // );
+        // const nftWhitelist = await minterContract.functions.nftWhitelist(
+        //   contract
+        // );
 
-        if (nftWhitelist[0]) {
-          return res.send({ status: 'ok' });
-        }
+        // if (nftWhitelist[0]) {
+        //   return res.send({ status: 'ok' });
+        // }
 
         const explorerConfig: TExplorerConfig = config_scan[chainNonce] || {};
         const { secret = '', url = '' } = explorerConfig;
@@ -423,7 +421,7 @@ async function main() {
         }
 
         if (!isWhitelistable_.success && !authKey) {
-          return res.status(400).send({
+          return res.status(200).send({
             error: 'Contract not whitelistable',
             reason: isWhitelistable_.reason,
             contract,
@@ -435,17 +433,17 @@ async function main() {
           contract,
         });
         if (ent != null) {
-          return res.status(400).send({
+          return res.status(200).send({
             error: 'Chain nonce and contract combination already exists',
             contract,
             chainNonce,
           });
         }
-        const randomNonce = getRandomArbitrary();
-        const actionId = BN(parseInt(contract, 16))
-          .plus(BN(chainNonce))
-          .plus(randomNonce);
-        io.emit('whitelist_nft', chainNonce, contract, actionId, authKey);
+        // const randomNonce = getRandomArbitrary();
+        // const actionId = BN(parseInt(contract, 16))
+        //   .plus(BN(chainNonce))
+        //   .plus(randomNonce);
+        // io.emit('whitelist_nft', chainNonce, contract, actionId, authKey);
         await orm.em.persistAndFlush(new WhiteListStore(chainNonce, contract));
         console.log('whitelist event emitted');
         return res.send({ status: 'ok' });

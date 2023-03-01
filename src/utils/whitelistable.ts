@@ -8,7 +8,7 @@ function logArrayItems(array) {
     const key = Object.keys(item)[0];
     const value = item[key];
     console.log(`${key}: ['${value}'],`);
-    checkFunctionsAndDefinitioins[key] = `['${value}'],`;
+    checkFunctionsAndDefinitioins[key] = [`${value}`];
   });
 }
 const addItems = async (array) => {
