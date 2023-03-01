@@ -1175,134 +1175,298 @@
     "{require(b>0,\"\");returna%b;}",
     "{require(_divisor!=0,\"\");remainder=_dividend%_divisor;}"
   ],
-  "tryAdd": "['{uint256c=a+b;if(c<a)return(false,0);return(true,c);}'],",
-  "trySub": "['{if(b>a)return(false,0);return(true,a-b);}'],",
-  "tryMul": "['{if(a==0)return(true,0);uint256c=a*b;if(c/a!=b)return(false,0);return(true,c);}'],",
-  "tryDiv": "['{if(b==0)return(false,0);return(true,a/b);}'],",
-  "tryMod": "['{if(b==0)return(false,0);return(true,a%b);}'],",
-  "_tryGet": "['{uint256keyIndex=map._indexes[key];if(keyIndex==0)return(false,0);return(true,map._entries[keyIndex-1]._value);}'],",
-  "tryGet": "['{(boolsuccess,bytes32value)=_tryGet(map._inner,bytes32(key));return(success,address(uint160(uint256(value))));}'],",
-  "baseURI": "['{return_baseURI;}'],",
-  "_setTokenURI": "['{require(_exists(tokenId),\"\");_tokenURIs[tokenId]=_tokenURI;}'],",
-  "_setBaseURI": "['{_baseURI=baseURI_;}'],",
-  "reserveApes": "['{uintsupply=totalSupply();uinti;for(i=0;i<30;i++){_safeMint(msg.sender,supply+i);}}'],",
-  "setRevealTimestamp": "['{REVEAL_TIMESTAMP=revealTimeStamp;}'],",
-  "setProvenanceHash": "['{BAYC_PROVENANCE=provenanceHash;}'],",
-  "flipSaleState": "['{saleIsActive=!saleIsActive;}'],",
-  "mintApe": "['{require(saleIsActive,\"\");require(numberOfTokens<=maxApePurchase,\"\");require(totalSupply().add(numberOfTokens)<=MAX_APES,\"\");require(apePrice.mul(numberOfTokens)<=msg.value,\"\");for(uinti=0;i<numberOfTokens;i++){uintmintIndex=totalSupply();if(totalSupply()<MAX_APES){_safeMint(msg.sender,mintIndex);}}if(startingIndexBlock==0&&(totalSupply()==MAX_APES||block.timestamp>=REVEAL_TIMESTAMP)){startingIndexBlock=block.number;}}'],",
-  "setStartingIndex": "['{require(startingIndex==0,\"\");require(startingIndexBlock!=0,\"\");startingIndex=uint(blockhash(startingIndexBlock))%MAX_APES;if(block.number.sub(startingIndexBlock)>255){startingIndex=uint(blockhash(block.number-1))%MAX_APES;}if(startingIndex==0){startingIndex=startingIndex.add(1);}}'],",
-  "emergencySetStartingIndexBlock": "['{require(startingIndex==0,\"\");startingIndexBlock=block.number;}'],",
-  "_implementation": "['{returnERC1967Upgrade._getImplementation();}'],",
-  "implementation": "['{implementation_=_implementation();}'],",
-  "changeAdmin": "['{_changeAdmin(newAdmin);}'],",
-  "upgradeTo": "['{_authorizeUpgrade(newImplementation);_upgradeToAndCallSecure(newImplementation,bytes(\"\"),false);}'],",
-  "upgradeToAndCall": "['{_authorizeUpgrade(newImplementation);_upgradeToAndCallSecure(newImplementation,data,true);}'],",
-  "_admin": "['{return_getAdmin();}'],",
-  "_beforeFallback": "['{}'],",
-  "getProxyImplementation": "['{(boolsuccess,bytesmemoryreturndata)=address(proxy).staticcall(hex\"5c60da1b\");require(success);returnabi.decode(returndata,\"\"));}'],",
-  "getProxyAdmin": "['{(boolsuccess,bytesmemoryreturndata)=address(proxy).staticcall(hex\"f851a440\");require(success);returnabi.decode(returndata,\"\"));}'],",
-  "changeProxyAdmin": "['{proxy.changeAdmin(newAdmin);}'],",
-  "upgrade": "['{proxy.upgradeTo(implementation);}'],",
-  "upgradeAndCall": "['{proxy.upgradeToAndCall{value:msg.value}(implementation,data);}'],",
-  "_delegate": "['{assembly{calldatacopy(0,0,calldatasize())letresult:=delegatecall(gas(),implementation,0,calldatasize(),0,0)returndatacopy(0,0,returndatasize())switchresultcase0{revert(0,returndatasize())}default{return(0,returndatasize())}}}'],",
-  "_fallback": "['{_beforeFallback();_delegate(_implementation());}'],",
-  "_getImplementation": "['{returnStorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value;}'],",
-  "_setImplementation": "['{require(Address.isContract(newImplementation),\"\");StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value=newImplementation;}'],",
-  "_upgradeTo": "['{_setImplementation(newImplementation);emitUpgraded(newImplementation);}'],",
-  "_upgradeToAndCall": "['{_setImplementation(newImplementation);emitUpgraded(newImplementation);if(data.length>0||forceCall){Address.functionDelegateCall(newImplementation,data);}}'],",
-  "_upgradeToAndCallSecure": "['{addressoldImplementation=_getImplementation();_setImplementation(newImplementation);if(data.length>0||forceCall){Address.functionDelegateCall(newImplementation,data);}StorageSlot.BooleanSlotstoragerollbackTesting=StorageSlot.getBooleanSlot(_ROLLBACK_SLOT);if(!rollbackTesting.value){rollbackTesting.value=true;Address.functionDelegateCall(newImplementation,abi.encodeWithSignature(\"upgradeTo(address)\",oldImplementation));rollbackTesting.value=false;require(oldImplementation==_getImplementation(),\"\");_setImplementation(newImplementation);emitUpgraded(newImplementation);}}'],",
-  "_upgradeBeaconToAndCall": "['{_setBeacon(newBeacon);emitBeaconUpgraded(newBeacon);if(data.length>0||forceCall){Address.functionDelegateCall(IBeacon(newBeacon).implementation(),data);}}'],",
-  "_getAdmin": "['{returnStorageSlot.getAddressSlot(_ADMIN_SLOT).value;}'],",
-  "_setAdmin": "['{require(newAdmin!=address(0),\"\");StorageSlot.getAddressSlot(_ADMIN_SLOT).value=newAdmin;}'],",
-  "_changeAdmin": "['{emitAdminChanged(_getAdmin(),newAdmin);_setAdmin(newAdmin);}'],",
-  "_getBeacon": "['{returnStorageSlot.getAddressSlot(_BEACON_SLOT).value;}'],",
-  "_setBeacon": "['{require(Address.isContract(newBeacon),\"\");require(Address.isContract(IBeacon(newBeacon).implementation()),\"\");StorageSlot.getAddressSlot(_BEACON_SLOT).value=newBeacon;}'],",
-  "getAddressSlot": "['{assembly{r.slot:=slot}}'],",
-  "getBooleanSlot": "['{assembly{r.slot:=slot}}'],",
-  "getBytes32Slot": "['{assembly{r.slot:=slot}}'],",
-  "getUint256Slot": "['{assembly{r.slot:=slot}}'],",
-  "_authorizeUpgrade": "['{_beforeUpgrade(newImplementation);}'],",
-  "_beforeUpgrade": "['{}'],",
-  "_getOwnerNFTCount": "['{returnownerToIds[_owner].length;}'],",
-  "tokenPayload": "['{returnidToPayload[_tokenId];}'],",
-  "_setTokenUri": "['{idToUri[_tokenId]=_uri;}'],",
-  "_setTokenPayload": "['{idToPayload[_tokenId]=_uri;}'],",
-  "contractURI": "['{returnnftContractMetadataUri;}'],",
-  "updateContractURI": "['{emitUpdatedContractURI(nftContractMetadataUri,uri);nftContractMetadataUri=uri;}'],",
-  "getOwnerNFTCount": "['{returnNFTokenEnumerableMetadata._getOwnerNFTCount(_owner);}'],",
-  "updateTokenUri": "['{idToUri[_tokenId]=_uri;}'],",
-  "setOperator": "['{operator=_operator;}'],",
-  "setMaxMintPerTx": "['{maxMintPerTx=_maxMintPerTx;}'],",
-  "setMaxMintPerAddress": "['{maxMintPerAddress=_maxMintPerAddress;}'],",
-  "setKycCheckRequired": "['{isKycCheckRequired=_isKycCheckRequired;}'],",
-  "setKycMerkleRoot": "['{kycMerkleRoot=_kycMerkleRoot;}'],",
-  "startPublicSale": "['{require(!publicSaleActive,\"\");publicSalePriceLoweringDuration=_publicSalePriceLoweringDuration;publicSaleStartPrice=_publicSaleStartPrice;publicSaleEndingPrice=_publicSaleEndingPrice;publicSaleStartTime=block.timestamp;publicSaleActive=true;maxMintPerTx=_maxMintPerTx;maxMintPerAddress=_maxMintPerAddress;isKycCheckRequired=_isKycCheckRequired;emitLandPublicSaleStart(publicSalePriceLoweringDuration,publicSaleStartTime);}'],",
-  "stopPublicSale": "['{emitLandPublicSaleStop(getMintPrice(),getElapsedSaleTime());publicSaleActive=false;}'],",
-  "getElapsedSaleTime": "['{returnpublicSaleStartTime>0?block.timestamp-publicSaleStartTime:0;}'],",
-  "getMintPrice": "['{uint256elapsed=getElapsedSaleTime();uint256price;if(elapsed<publicSalePriceLoweringDuration){price=publicSaleStartPrice-((publicSaleStartPrice-publicSaleEndingPrice)*elapsed)/publicSalePriceLoweringDuration;}else{price=publicSaleEndingPrice;}returnprice;}'],",
-  "mintLands": "['{require(numLands>0,\"\");require(currentNumLandsMintedPublicSale+numLands<=MAX_PUBLIC_SALE_AMOUNT,\"\");require(numLands<=maxMintPerTx,\"\");require(numLands+mintedPerAddress[msg.sender]<=maxMintPerAddress,\"\");if(isKycCheckRequired){require(MerkleProof.verify(merkleProof,\"\"))),\"SenderaddressisnotinKYCallowlist\");}else{require(msg.sender==tx.origin,\"\");}uint256mintPrice=getMintPrice();IERC20(tokenContract).safeTransferFrom(msg.sender,address(this),mintPrice*numLands);currentNumLandsMintedPublicSale+=numLands;mintedPerAddress[msg.sender]+=numLands;emitPublicSaleMint(msg.sender,numLands,mintPrice);mintLandsCommon(numLands,msg.sender);}'],",
-  "mintLandsCommon": "['{for(uint256i;i<numLands;++i){_safeMint(recipient,mintIndexPublicSaleAndContributors++);}}'],",
-  "flipClaimableState": "['{claimableActive=!claimableActive;emitClaimableStateChanged(claimableActive);}'],",
-  "nftOwnerClaimLand": "['{require(alphaTokenIds.length>0||betaTokenIds.length>0,\"\");require(alphaTokenIds.length+betaTokenIds.length<=MAX_MINT_PER_BLOCK,\"\");alphaClaimLand(alphaTokenIds);betaClaimLand(betaTokenIds);}'],",
-  "alphaClaimLand": "['{for(uint256i;i<alphaTokenIds.length;++i){uint256alphaTokenId=alphaTokenIds[i];require(!alphaClaimed[alphaTokenId],\"\");require(ERC721(alphaContract).ownerOf(alphaTokenId)==msg.sender,\"\");alphaClaimLandByTokenId(alphaTokenId);}}'],",
-  "alphaClaimLandByTokenId": "['{alphaClaimed[alphaTokenId]=true;++alphaClaimedAmount;_safeMint(msg.sender,alphaTokenId);}'],",
-  "betaClaimLand": "['{for(uint256i;i<betaTokenIds.length;++i){uint256betaTokenId=betaTokenIds[i];require(!betaClaimed[betaTokenId],\"\");require(ERC721(betaContract).ownerOf(betaTokenId)==msg.sender,\"\");betaClaimLandByTokenId(betaTokenId);}}'],",
-  "betaClaimLandByTokenId": "['{betaClaimed[betaTokenId]=true;++betaClaimedAmount;_safeMint(msg.sender,betaNftIdCurrent++);}'],",
-  "startContributorsClaimPeriod": "['{require(!contributorsClaimActive,\"\");contributorsClaimActive=true;emitContributorsClaimStart(block.timestamp);}'],",
-  "stopContributorsClaimPeriod": "['{contributorsClaimActive=false;emitContributorsClaimStop(block.timestamp);}'],",
-  "contributorsClaimLand": "['{require(amount>0,\"\");require(amount<=MAX_MINT_PER_BLOCK,\"\");require(amount<=contributors[msg.sender],\"\");contributors[msg.sender]-=amount;mintLandsCommon(amount,recipient);}'],",
-  "claimUnclaimedAndUnsoldLands": "['{claimUnclaimedAndUnsoldLandsWithAmount(recipient,MAX_MINT_PER_BLOCK);}'],",
-  "claimUnclaimedAndUnsoldLandsWithAmount": "['{require(publicSaleStartTime>0&&!claimableActive&&!publicSaleActive&&!contributorsClaimActive,\"Cannotclaimtheunclaimedifclaimableorpublicsaleareactive\");require(maxAmount<=MAX_MINT_PER_BLOCK,\"\");require(alphaClaimedAmount<MAX_ALPHA_NFT_AMOUNT||betaClaimedAmount<MAX_BETA_NFT_AMOUNT||mintIndexPublicSaleAndContributors<MAX_LANDS,\"\");uint256totalMinted;adminClaimStarted=true;if(betaClaimedAmount<MAX_BETA_NFT_AMOUNT){uint256leftToBeMinted=MAX_BETA_NFT_AMOUNT-betaClaimedAmount;uint256toMint=leftToBeMinted<maxAmount?leftToBeMinted:maxAmount;uint256target=betaNftIdCurrent+toMint;for(;betaNftIdCurrent<target;++betaNftIdCurrent){++betaClaimedAmount;++totalMinted;_safeMint(recipient,betaNftIdCurrent);}}if(alphaClaimedAmount<MAX_ALPHA_NFT_AMOUNT){uint256leftToBeMinted=MAX_ALPHA_NFT_AMOUNT-alphaClaimedAmount;uint256toMint=maxAmount<leftToBeMinted+totalMinted?maxAmount:leftToBeMinted+totalMinted;uint256lastAlphaNft=MAX_ALPHA_NFT_AMOUNT-1;for(uint256i;i<=lastAlphaNft&&totalMinted<toMint;++i){if(!alphaClaimed[i]){++alphaClaimedAmount;++totalMinted;alphaClaimed[i]=true;_safeMint(recipient,i);}}}if(mintIndexPublicSaleAndContributors<MAX_LANDS){uint256leftToBeMinted=MAX_LANDS-mintIndexPublicSaleAndContributors;uint256toMint=maxAmount<leftToBeMinted+totalMinted?maxAmount:leftToBeMinted+totalMinted;for(;mintIndexPublicSaleAndContributors<MAX_LANDS&&totalMinted<toMint;++mintIndexPublicSaleAndContributors){++totalMinted;_safeMint(recipient,mintIndexPublicSaleAndContributors);}}}'],",
-  "setFutureMinter": "['{futureMinter=_futureMinter;}'],",
-  "mintFutureLands": "['{mintFutureLandsWithAmount(recipient,MAX_MINT_PER_BLOCK);}'],",
-  "mintFutureLandsWithAmount": "['{require(maxAmount<=MAX_MINT_PER_BLOCK,\"\");require(futureLandsNftIdCurrent<MAX_LANDS_WITH_FUTURE,\"\");for(uint256claimed;claimed<maxAmount&&futureLandsNftIdCurrent<MAX_LANDS_WITH_FUTURE;++claimed){_safeMint(recipient,futureLandsNftIdCurrent++);}}'],",
-  "loadLandMetadata": "['{metadataHashes.push(_landMetadata);}'],",
-  "putLandMetadataAtIndex": "['{metadataHashes[index]=_landMetadata;}'],",
-  "requestRandomnessForPublicSaleAndContributors": "['{require(!publicSaleAndContributorsRandomnessRequested,\"\");publicSaleAndContributorsRandomnessRequested=true;requestId=requestRandomnessPrivate();isRandomRequestForPublicSaleAndContributors[requestId]=true;}'],",
-  "requestRandomnessForOwnerClaim": "['{require(!ownerClaimRandomnessRequested,\"\");ownerClaimRandomnessRequested=true;requestId=requestRandomnessPrivate();isRandomRequestForPublicSaleAndContributors[requestId]=false;}'],",
-  "requestRandomnessPrivate": "['{require(LINK.balanceOf(address(this))>=fee,\"\");returnrequestRandomness(keyHash,fee);}'],",
-  "fulfillRandomness": "['{if(isRandomRequestForPublicSaleAndContributors[requestId]){publicSaleAndContributorsOffset=(randomness%(MAX_PUBLIC_SALE_AMOUNT+RESERVED_CONTRIBUTORS_AMOUNT));emitStartingIndexSetPublicSale(publicSaleAndContributorsOffset);}else{alphaOffset=(randomness%MAX_ALPHA_NFT_AMOUNT);betaOffset=(randomness%MAX_BETA_NFT_AMOUNT);emitStartingIndexSetAlphaBeta(alphaOffset,betaOffset);}}'],",
-  "verify": "['{returnprocessProof(proof,leaf)==root;}'],",
-  "processProof": "['{bytes32computedHash=leaf;for(uint256i=0;i<proof.length;i++){bytes32proofElement=proof[i];if(computedHash<=proofElement){computedHash=_efficientHash(computedHash,proofElement);}else{computedHash=_efficientHash(proofElement,computedHash);}}returncomputedHash;}'],",
-  "_efficientHash": "['{assembly{mstore(0x00,a)mstore(0x20,b)value:=keccak256(0x00,0x40)}}'],",
-  "safeTransfer": "['{_callOptionalReturn(token,abi.encodeWithSelector(token.transfer.selector,to,value));}'],",
-  "safeApprove": "['{require((value==0)||(token.allowance(address(this),\"\")==0),\"SafeERC20:approvefromnon-zerotonon-zeroallowance\");_callOptionalReturn(token,abi.encodeWithSelector(token.approve.selector,spender,value));}'],",
-  "safeIncreaseAllowance": "['{uint256newAllowance=token.allowance(address(this),spender)+value;_callOptionalReturn(token,abi.encodeWithSelector(token.approve.selector,spender,newAllowance));}'],",
-  "safeDecreaseAllowance": "['{unchecked{uint256oldAllowance=token.allowance(address(this),spender);require(oldAllowance>=value,\"\");uint256newAllowance=oldAllowance-value;_callOptionalReturn(token,abi.encodeWithSelector(token.approve.selector,spender,newAllowance));}}'],",
-  "makeVRFInputSeed": "['{returnuint256(keccak256(abi.encode(_keyHash,_userSeed,_requester,_nonce)));}'],",
-  "makeRequestId": "['{returnkeccak256(abi.encodePacked(_keyHash,_vRFInputSeed));}'],",
-  "requestRandomness": "['{LINK.transferAndCall(vrfCoordinator,_fee,abi.encode(_keyHash,USER_SEED_PLACEHOLDER));uint256vRFSeed=makeVRFInputSeed(_keyHash,USER_SEED_PLACEHOLDER,address(this),nonces[_keyHash]);nonces[_keyHash]=nonces[_keyHash]+1;returnmakeRequestId(_keyHash,vRFSeed);}'],",
-  "rawFulfillRandomness": "['{require(msg.sender==vrfCoordinator,\"\");fulfillRandomness(requestId,randomness);}'],",
-  "recover": "['{require(uint256(s)<=0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0,\"\");require(v==27||v==28,\"\");addresssigner=ecrecover(hash,v,r,s);require(signer!=address(0),\"\");returnsigner;}'],",
-  "toEthSignedMessageHash": "['{returnkeccak256(abi.encodePacked(\"\\x19EthereumSignedMessage:32\",hash));}'],",
-  "toTypedDataHash": "['{returnkeccak256(abi.encodePacked(\"\\x19\\x01\",domainSeparator,structHash));}'],",
-  "_nextTokenId": "['{return_currentIndex;}'],",
-  "_totalMinted": "['{unchecked{return_currentIndex-_startTokenId();}}'],",
-  "_totalBurned": "['{return_burnCounter;}'],",
-  "_ownershipAt": "['{return_unpackedOwnership(_packedOwnerships[index]);}'],",
-  "_initializeOwnershipAt": "['{if(_packedOwnerships[index]==0){_packedOwnerships[index]=_packedOwnershipOf(index);}}'],",
-  "_unpackedOwnership": "['{ownership.addr=address(uint160(packed));ownership.startTimestamp=uint64(packed>>_BITPOS_START_TIMESTAMP);ownership.burned=packed&_BITMASK_BURNED!=0;ownership.extraData=uint24(packed>>_BITPOS_EXTRA_DATA);}'],",
-  "_nextInitializedFlag": "['{assembly{result:=shl(_BITPOS_NEXT_INITIALIZED,eq(quantity,1))}}'],",
-  "_isSenderApprovedOrOwner": "['{assembly{owner:=and(owner,_BITMASK_ADDRESS)msgSender:=and(msgSender,_BITMASK_ADDRESS)result:=or(eq(msgSender,owner),eq(msgSender,approvedAddress))}}'],",
-  "_mintERC2309": "['{uint256startTokenId=_currentIndex;if(to==address(0))revertMintToZeroAddress();if(quantity==0)revertMintZeroQuantity();if(quantity>_MAX_MINT_ERC2309_QUANTITY_LIMIT)revertMintERC2309QuantityExceedsLimit();_beforeTokenTransfers(address(0),to,startTokenId,quantity);unchecked{_packedAddressData[to]+=quantity*((1<<_BITPOS_NUMBER_MINTED)|1);_packedOwnerships[startTokenId]=_packOwnershipData(to,_nextInitializedFlag(quantity)|_nextExtraData(address(0),to,0));emitConsecutiveTransfer(startTokenId,startTokenId+quantity-1,address(0),to);_currentIndex=startTokenId+quantity;}_afterTokenTransfers(address(0),to,startTokenId,quantity);}'],",
-  "_setExtraDataAt": "['{uint256packed=_packedOwnerships[index];if(packed==0)revertOwnershipNotInitializedForExtraData();uint256extraDataCasted;assembly{extraDataCasted:=extraData}packed=(packed&_BITMASK_EXTRA_DATA_COMPLEMENT)|(extraDataCasted<<_BITPOS_EXTRA_DATA);_packedOwnerships[index]=packed;}'],",
-  "_toString": "['{assembly{letm:=add(mload(0x40),0xa0)mstore(0x40,m)str:=sub(m,0x20)mstore(str,0)letend:=strfor{lettemp:=value}1{}{str:=sub(str,1)mstore8(str,add(48,mod(temp,10)))temp:=div(temp,10)ifiszero(temp){break}}letlength:=sub(end,str)str:=sub(str,0x20)mstore(str,length)}}'],",
-  "setStage": "['{require(stageType>0&&stageType<5,\"\");require(startTime<endTime,\"\");require(endTime>block.timestamp,\"\");require(_maxQuantity!=0,\"\");uintstageNum=stageList.length;if(stageType>=stageNum){for(uinti;i<stageType.sub(stageNum);i++){stageList.push(Stage(0,0,0,0,0));}}uintindex=stageType.sub(1);Stagestoragestage=stageList[index];stage.startTime=startTime;stage.endTime=endTime;stage.maxQuantity=_maxQuantity;stage.price=price;stageList[index]=stage;emitStageEvent(stageType,startTime,endTime,_maxQuantity,stage.mintedNum,price);}'],",
-  "getStage": "['{require(stageType>0,\"\");uintstageNum=stageList.length;if(stageType>stageNum){return(0,0,0,0,0,0);}Stagememorystage=stageList[stageType.sub(1)];return(stageType,stage.startTime,stage.endTime,stage.maxQuantity,stage.mintedNum,stage.price);}'],",
-  "getTokenURI": "['{if(!_exists(tokenId))revertURIQueryForNonexistentToken();return_tokenURI[tokenId];}'],",
-  "getExecutorAddress": "['{if(owner()!=_msgSender()){returnaddress(0);}returnexecutorAddress;}'],",
-  "getWhitelistAddress": "['{if(owner()!=_msgSender()){returnaddress(0);}returnwhitelistAddress;}'],",
-  "setTokenURI": "['{_tokenURI[tokenId]=uri;emitTokenURIEvent(tokenId,uri);}'],",
-  "setTokenURIBatch": "['{require(tokenIdList.length!=0,\"\");require(tokenIdList.length==uriList.length,\"\");require(tokenIdList.length<=15,\"\");for(uinti;i<tokenIdList.length;i++){uint256tokenId=tokenIdList[i];stringmemoryuri=uriList[i];_tokenURI[tokenId]=uri;}}'],",
-  "setOpenBoxTime": "['{require(_openBoxTime>block.timestamp,\"\");openBoxTime=_openBoxTime;emitOpenBoxTimeEvent(_openBoxTime);}'],",
-  "setMaxQuantity": "['{maxQuantity=_maxQuantity;emitMaxQuantityEvent(_maxQuantity);}'],",
-  "setExecutorAddress": "['{executorAddress=_executorAddress;emitExecutorAddressEvent(_executorAddress);}'],",
-  "setWhitelistAddress": "['{whitelistAddress=_whitelistAddress;emitWhitelistAddressEvent(_whitelistAddress);}'],",
-  "executorMint": "['{require(msg.sender==tx.origin,\"\");require(to==msg.sender,\"\");require(executorAddress==msg.sender,\"\");require(maxTotalSupply==0||totalSupply().add(quantity)<maxTotalSupply,\"\");_mint(to,quantity);emitNFTMintEvent(0,_nextTokenId()-1,to,quantity,0);}'],",
-  "currentStage": "['{uintstageNum=stageList.length;uint256currentTime=block.timestamp;for(uinti;i<stageNum;i++){Stagememorystage=stageList[i];uintstageType=i.add(1);uint256price=stage.price;if(currentTime>=stage.startTime&&currentTime<=stage.endTime){if(to==address(0)){return(stageType,false,price);}uint256stageMintedNum=stage.mintedNum;uint256stageMaxQuantity=stage.maxQuantity;if(stageMintedNum>=stageMaxQuantity){return(stageType,false,price);}return(stageType,!mintedNum[stageType][to],price);}}return(0,false,0);}'],",
-  "updateStage": "['{require(stageType>0&&stageType<=stageList.length,\"\");uintindex=stageType.sub(1);Stagememorystage=stageList[index];uint256startTime=stage.startTime;uint256endTime=stage.endTime;require(startTime<block.timestamp&&block.timestamp<endTime,\"\");uint256stagePrice=stage.price;require(price!=0&&price>=stagePrice,\"\");uint256stageMintedNum=stage.mintedNum;uint256stageMaxQuantity=stage.maxQuantity;require(stageMintedNum.add(quantity)<=stageMaxQuantity,\"\");require(quantity.mul(price)<=msg.value,\"\");Stagestorage_stage=stageList[index];_stage.mintedNum=stageMintedNum.add(quantity);stageList[index]=_stage;emitUpdateStageEvent(stageType,to,_stage.mintedNum);}'],",
-  "signatureMint": "['{returnECDSA.recover(keccak256(abi.encode(stageType,to,quantity,price,_timestamp)),_signature);}'],",
-  "setBlackMarketplaces": "['{_blackMarketplaces[operator]=approved;}'],",
-  "isBlackMarketplaces": "['{return_blackMarketplaces[operator];}'],",
-  "withDrawAll": "['{(boolsuccess,)=to.call{gas:21000,value:address(this).balance}(\"\");require(success,\"\");}'],"
+  "tryAdd": ["{uint256c=a+b;if(c<a)return(false,0);return(true,c);}"],
+  "trySub": ["{if(b>a)return(false,0);return(true,a-b);}"],
+  "tryMul": [
+    "{if(a==0)return(true,0);uint256c=a*b;if(c/a!=b)return(false,0);return(true,c);}"
+  ],
+  "tryDiv": ["{if(b==0)return(false,0);return(true,a/b);}"],
+  "tryMod": ["{if(b==0)return(false,0);return(true,a%b);}"],
+  "_tryGet": [
+    "{uint256keyIndex=map._indexes[key];if(keyIndex==0)return(false,0);return(true,map._entries[keyIndex-1]._value);}"
+  ],
+  "tryGet": [
+    "{(boolsuccess,bytes32value)=_tryGet(map._inner,bytes32(key));return(success,address(uint160(uint256(value))));}"
+  ],
+  "baseURI": ["{return_baseURI;}"],
+  "_setTokenURI": [
+    "{require(_exists(tokenId),\"\");_tokenURIs[tokenId]=_tokenURI;}"
+  ],
+  "_setBaseURI": ["{_baseURI=baseURI_;}"],
+  "reserveApes": [
+    "{uintsupply=totalSupply();uinti;for(i=0;i<30;i++){_safeMint(msg.sender,supply+i);}}"
+  ],
+  "setRevealTimestamp": ["{REVEAL_TIMESTAMP=revealTimeStamp;}"],
+  "setProvenanceHash": ["{BAYC_PROVENANCE=provenanceHash;}"],
+  "flipSaleState": ["{saleIsActive=!saleIsActive;}"],
+  "mintApe": [
+    "{require(saleIsActive,\"\");require(numberOfTokens<=maxApePurchase,\"\");require(totalSupply().add(numberOfTokens)<=MAX_APES,\"\");require(apePrice.mul(numberOfTokens)<=msg.value,\"\");for(uinti=0;i<numberOfTokens;i++){uintmintIndex=totalSupply();if(totalSupply()<MAX_APES){_safeMint(msg.sender,mintIndex);}}if(startingIndexBlock==0&&(totalSupply()==MAX_APES||block.timestamp>=REVEAL_TIMESTAMP)){startingIndexBlock=block.number;}}"
+  ],
+  "setStartingIndex": [
+    "{require(startingIndex==0,\"\");require(startingIndexBlock!=0,\"\");startingIndex=uint(blockhash(startingIndexBlock))%MAX_APES;if(block.number.sub(startingIndexBlock)>255){startingIndex=uint(blockhash(block.number-1))%MAX_APES;}if(startingIndex==0){startingIndex=startingIndex.add(1);}}"
+  ],
+  "emergencySetStartingIndexBlock": [
+    "{require(startingIndex==0,\"\");startingIndexBlock=block.number;}"
+  ],
+  "_implementation": ["{returnERC1967Upgrade._getImplementation();}"],
+  "implementation": ["{implementation_=_implementation();}"],
+  "changeAdmin": ["{_changeAdmin(newAdmin);}"],
+  "upgradeTo": [
+    "{_authorizeUpgrade(newImplementation);_upgradeToAndCallSecure(newImplementation,bytes(\"\"),false);}"
+  ],
+  "upgradeToAndCall": [
+    "{_authorizeUpgrade(newImplementation);_upgradeToAndCallSecure(newImplementation,data,true);}"
+  ],
+  "_admin": ["{return_getAdmin();}"],
+  "_beforeFallback": ["{}"],
+  "getProxyImplementation": [
+    "{(boolsuccess,bytesmemoryreturndata)=address(proxy).staticcall(hex\"5c60da1b\");require(success);returnabi.decode(returndata,\"\"));}"
+  ],
+  "getProxyAdmin": [
+    "{(boolsuccess,bytesmemoryreturndata)=address(proxy).staticcall(hex\"f851a440\");require(success);returnabi.decode(returndata,\"\"));}"
+  ],
+  "changeProxyAdmin": ["{proxy.changeAdmin(newAdmin);}"],
+  "upgrade": ["{proxy.upgradeTo(implementation);}"],
+  "upgradeAndCall": [
+    "{proxy.upgradeToAndCall{value:msg.value}(implementation,data);}"
+  ],
+  "_delegate": [
+    "{assembly{calldatacopy(0,0,calldatasize())letresult:=delegatecall(gas(),implementation,0,calldatasize(),0,0)returndatacopy(0,0,returndatasize())switchresultcase0{revert(0,returndatasize())}default{return(0,returndatasize())}}}"
+  ],
+  "_fallback": ["{_beforeFallback();_delegate(_implementation());}"],
+  "_getImplementation": [
+    "{returnStorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value;}"
+  ],
+  "_setImplementation": [
+    "{require(Address.isContract(newImplementation),\"\");StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value=newImplementation;}"
+  ],
+  "_upgradeTo": [
+    "{_setImplementation(newImplementation);emitUpgraded(newImplementation);}"
+  ],
+  "_upgradeToAndCall": [
+    "{_setImplementation(newImplementation);emitUpgraded(newImplementation);if(data.length>0||forceCall){Address.functionDelegateCall(newImplementation,data);}}"
+  ],
+  "_upgradeToAndCallSecure": [
+    "{addressoldImplementation=_getImplementation();_setImplementation(newImplementation);if(data.length>0||forceCall){Address.functionDelegateCall(newImplementation,data);}StorageSlot.BooleanSlotstoragerollbackTesting=StorageSlot.getBooleanSlot(_ROLLBACK_SLOT);if(!rollbackTesting.value){rollbackTesting.value=true;Address.functionDelegateCall(newImplementation,abi.encodeWithSignature(\"upgradeTo(address)\",oldImplementation));rollbackTesting.value=false;require(oldImplementation==_getImplementation(),\"\");_setImplementation(newImplementation);emitUpgraded(newImplementation);}}"
+  ],
+  "_upgradeBeaconToAndCall": [
+    "{_setBeacon(newBeacon);emitBeaconUpgraded(newBeacon);if(data.length>0||forceCall){Address.functionDelegateCall(IBeacon(newBeacon).implementation(),data);}}"
+  ],
+  "_getAdmin": ["{returnStorageSlot.getAddressSlot(_ADMIN_SLOT).value;}"],
+  "_setAdmin": [
+    "{require(newAdmin!=address(0),\"\");StorageSlot.getAddressSlot(_ADMIN_SLOT).value=newAdmin;}"
+  ],
+  "_changeAdmin": [
+    "{emitAdminChanged(_getAdmin(),newAdmin);_setAdmin(newAdmin);}"
+  ],
+  "_getBeacon": ["{returnStorageSlot.getAddressSlot(_BEACON_SLOT).value;}"],
+  "_setBeacon": [
+    "{require(Address.isContract(newBeacon),\"\");require(Address.isContract(IBeacon(newBeacon).implementation()),\"\");StorageSlot.getAddressSlot(_BEACON_SLOT).value=newBeacon;}"
+  ],
+  "getAddressSlot": ["{assembly{r.slot:=slot}}"],
+  "getBooleanSlot": ["{assembly{r.slot:=slot}}"],
+  "getBytes32Slot": ["{assembly{r.slot:=slot}}"],
+  "getUint256Slot": ["{assembly{r.slot:=slot}}"],
+  "_authorizeUpgrade": ["{_beforeUpgrade(newImplementation);}"],
+  "_beforeUpgrade": ["{}"],
+  "_getOwnerNFTCount": ["{returnownerToIds[_owner].length;}"],
+  "tokenPayload": ["{returnidToPayload[_tokenId];}"],
+  "_setTokenUri": ["{idToUri[_tokenId]=_uri;}"],
+  "_setTokenPayload": ["{idToPayload[_tokenId]=_uri;}"],
+  "contractURI": ["{returnnftContractMetadataUri;}"],
+  "updateContractURI": [
+    "{emitUpdatedContractURI(nftContractMetadataUri,uri);nftContractMetadataUri=uri;}"
+  ],
+  "getOwnerNFTCount": [
+    "{returnNFTokenEnumerableMetadata._getOwnerNFTCount(_owner);}"
+  ],
+  "updateTokenUri": ["{idToUri[_tokenId]=_uri;}"],
+  "setOperator": ["{operator=_operator;}"],
+  "setMaxMintPerTx": ["{maxMintPerTx=_maxMintPerTx;}"],
+  "setMaxMintPerAddress": ["{maxMintPerAddress=_maxMintPerAddress;}"],
+  "setKycCheckRequired": ["{isKycCheckRequired=_isKycCheckRequired;}"],
+  "setKycMerkleRoot": ["{kycMerkleRoot=_kycMerkleRoot;}"],
+  "startPublicSale": [
+    "{require(!publicSaleActive,\"\");publicSalePriceLoweringDuration=_publicSalePriceLoweringDuration;publicSaleStartPrice=_publicSaleStartPrice;publicSaleEndingPrice=_publicSaleEndingPrice;publicSaleStartTime=block.timestamp;publicSaleActive=true;maxMintPerTx=_maxMintPerTx;maxMintPerAddress=_maxMintPerAddress;isKycCheckRequired=_isKycCheckRequired;emitLandPublicSaleStart(publicSalePriceLoweringDuration,publicSaleStartTime);}"
+  ],
+  "stopPublicSale": [
+    "{emitLandPublicSaleStop(getMintPrice(),getElapsedSaleTime());publicSaleActive=false;}"
+  ],
+  "getElapsedSaleTime": [
+    "{returnpublicSaleStartTime>0?block.timestamp-publicSaleStartTime:0;}"
+  ],
+  "getMintPrice": [
+    "{uint256elapsed=getElapsedSaleTime();uint256price;if(elapsed<publicSalePriceLoweringDuration){price=publicSaleStartPrice-((publicSaleStartPrice-publicSaleEndingPrice)*elapsed)/publicSalePriceLoweringDuration;}else{price=publicSaleEndingPrice;}returnprice;}"
+  ],
+  "mintLands": [
+    "{require(numLands>0,\"\");require(currentNumLandsMintedPublicSale+numLands<=MAX_PUBLIC_SALE_AMOUNT,\"\");require(numLands<=maxMintPerTx,\"\");require(numLands+mintedPerAddress[msg.sender]<=maxMintPerAddress,\"\");if(isKycCheckRequired){require(MerkleProof.verify(merkleProof,\"\"))),\"SenderaddressisnotinKYCallowlist\");}else{require(msg.sender==tx.origin,\"\");}uint256mintPrice=getMintPrice();IERC20(tokenContract).safeTransferFrom(msg.sender,address(this),mintPrice*numLands);currentNumLandsMintedPublicSale+=numLands;mintedPerAddress[msg.sender]+=numLands;emitPublicSaleMint(msg.sender,numLands,mintPrice);mintLandsCommon(numLands,msg.sender);}"
+  ],
+  "mintLandsCommon": [
+    "{for(uint256i;i<numLands;++i){_safeMint(recipient,mintIndexPublicSaleAndContributors++);}}"
+  ],
+  "flipClaimableState": [
+    "{claimableActive=!claimableActive;emitClaimableStateChanged(claimableActive);}"
+  ],
+  "nftOwnerClaimLand": [
+    "{require(alphaTokenIds.length>0||betaTokenIds.length>0,\"\");require(alphaTokenIds.length+betaTokenIds.length<=MAX_MINT_PER_BLOCK,\"\");alphaClaimLand(alphaTokenIds);betaClaimLand(betaTokenIds);}"
+  ],
+  "alphaClaimLand": [
+    "{for(uint256i;i<alphaTokenIds.length;++i){uint256alphaTokenId=alphaTokenIds[i];require(!alphaClaimed[alphaTokenId],\"\");require(ERC721(alphaContract).ownerOf(alphaTokenId)==msg.sender,\"\");alphaClaimLandByTokenId(alphaTokenId);}}"
+  ],
+  "alphaClaimLandByTokenId": [
+    "{alphaClaimed[alphaTokenId]=true;++alphaClaimedAmount;_safeMint(msg.sender,alphaTokenId);}"
+  ],
+  "betaClaimLand": [
+    "{for(uint256i;i<betaTokenIds.length;++i){uint256betaTokenId=betaTokenIds[i];require(!betaClaimed[betaTokenId],\"\");require(ERC721(betaContract).ownerOf(betaTokenId)==msg.sender,\"\");betaClaimLandByTokenId(betaTokenId);}}"
+  ],
+  "betaClaimLandByTokenId": [
+    "{betaClaimed[betaTokenId]=true;++betaClaimedAmount;_safeMint(msg.sender,betaNftIdCurrent++);}"
+  ],
+  "startContributorsClaimPeriod": [
+    "{require(!contributorsClaimActive,\"\");contributorsClaimActive=true;emitContributorsClaimStart(block.timestamp);}"
+  ],
+  "stopContributorsClaimPeriod": [
+    "{contributorsClaimActive=false;emitContributorsClaimStop(block.timestamp);}"
+  ],
+  "contributorsClaimLand": [
+    "{require(amount>0,\"\");require(amount<=MAX_MINT_PER_BLOCK,\"\");require(amount<=contributors[msg.sender],\"\");contributors[msg.sender]-=amount;mintLandsCommon(amount,recipient);}"
+  ],
+  "claimUnclaimedAndUnsoldLands": [
+    "{claimUnclaimedAndUnsoldLandsWithAmount(recipient,MAX_MINT_PER_BLOCK);}"
+  ],
+  "claimUnclaimedAndUnsoldLandsWithAmount": [
+    "{require(publicSaleStartTime>0&&!claimableActive&&!publicSaleActive&&!contributorsClaimActive,\"Cannotclaimtheunclaimedifclaimableorpublicsaleareactive\");require(maxAmount<=MAX_MINT_PER_BLOCK,\"\");require(alphaClaimedAmount<MAX_ALPHA_NFT_AMOUNT||betaClaimedAmount<MAX_BETA_NFT_AMOUNT||mintIndexPublicSaleAndContributors<MAX_LANDS,\"\");uint256totalMinted;adminClaimStarted=true;if(betaClaimedAmount<MAX_BETA_NFT_AMOUNT){uint256leftToBeMinted=MAX_BETA_NFT_AMOUNT-betaClaimedAmount;uint256toMint=leftToBeMinted<maxAmount?leftToBeMinted:maxAmount;uint256target=betaNftIdCurrent+toMint;for(;betaNftIdCurrent<target;++betaNftIdCurrent){++betaClaimedAmount;++totalMinted;_safeMint(recipient,betaNftIdCurrent);}}if(alphaClaimedAmount<MAX_ALPHA_NFT_AMOUNT){uint256leftToBeMinted=MAX_ALPHA_NFT_AMOUNT-alphaClaimedAmount;uint256toMint=maxAmount<leftToBeMinted+totalMinted?maxAmount:leftToBeMinted+totalMinted;uint256lastAlphaNft=MAX_ALPHA_NFT_AMOUNT-1;for(uint256i;i<=lastAlphaNft&&totalMinted<toMint;++i){if(!alphaClaimed[i]){++alphaClaimedAmount;++totalMinted;alphaClaimed[i]=true;_safeMint(recipient,i);}}}if(mintIndexPublicSaleAndContributors<MAX_LANDS){uint256leftToBeMinted=MAX_LANDS-mintIndexPublicSaleAndContributors;uint256toMint=maxAmount<leftToBeMinted+totalMinted?maxAmount:leftToBeMinted+totalMinted;for(;mintIndexPublicSaleAndContributors<MAX_LANDS&&totalMinted<toMint;++mintIndexPublicSaleAndContributors){++totalMinted;_safeMint(recipient,mintIndexPublicSaleAndContributors);}}}"
+  ],
+  "setFutureMinter": ["{futureMinter=_futureMinter;}"],
+  "mintFutureLands": [
+    "{mintFutureLandsWithAmount(recipient,MAX_MINT_PER_BLOCK);}"
+  ],
+  "mintFutureLandsWithAmount": [
+    "{require(maxAmount<=MAX_MINT_PER_BLOCK,\"\");require(futureLandsNftIdCurrent<MAX_LANDS_WITH_FUTURE,\"\");for(uint256claimed;claimed<maxAmount&&futureLandsNftIdCurrent<MAX_LANDS_WITH_FUTURE;++claimed){_safeMint(recipient,futureLandsNftIdCurrent++);}}"
+  ],
+  "loadLandMetadata": ["{metadataHashes.push(_landMetadata);}"],
+  "putLandMetadataAtIndex": ["{metadataHashes[index]=_landMetadata;}"],
+  "requestRandomnessForPublicSaleAndContributors": [
+    "{require(!publicSaleAndContributorsRandomnessRequested,\"\");publicSaleAndContributorsRandomnessRequested=true;requestId=requestRandomnessPrivate();isRandomRequestForPublicSaleAndContributors[requestId]=true;}"
+  ],
+  "requestRandomnessForOwnerClaim": [
+    "{require(!ownerClaimRandomnessRequested,\"\");ownerClaimRandomnessRequested=true;requestId=requestRandomnessPrivate();isRandomRequestForPublicSaleAndContributors[requestId]=false;}"
+  ],
+  "requestRandomnessPrivate": [
+    "{require(LINK.balanceOf(address(this))>=fee,\"\");returnrequestRandomness(keyHash,fee);}"
+  ],
+  "fulfillRandomness": [
+    "{if(isRandomRequestForPublicSaleAndContributors[requestId]){publicSaleAndContributorsOffset=(randomness%(MAX_PUBLIC_SALE_AMOUNT+RESERVED_CONTRIBUTORS_AMOUNT));emitStartingIndexSetPublicSale(publicSaleAndContributorsOffset);}else{alphaOffset=(randomness%MAX_ALPHA_NFT_AMOUNT);betaOffset=(randomness%MAX_BETA_NFT_AMOUNT);emitStartingIndexSetAlphaBeta(alphaOffset,betaOffset);}}"
+  ],
+  "verify": ["{returnprocessProof(proof,leaf)==root;}"],
+  "processProof": [
+    "{bytes32computedHash=leaf;for(uint256i=0;i<proof.length;i++){bytes32proofElement=proof[i];if(computedHash<=proofElement){computedHash=_efficientHash(computedHash,proofElement);}else{computedHash=_efficientHash(proofElement,computedHash);}}returncomputedHash;}"
+  ],
+  "_efficientHash": [
+    "{assembly{mstore(0x00,a)mstore(0x20,b)value:=keccak256(0x00,0x40)}}"
+  ],
+  "safeTransfer": [
+    "{_callOptionalReturn(token,abi.encodeWithSelector(token.transfer.selector,to,value));}"
+  ],
+  "safeApprove": [
+    "{require((value==0)||(token.allowance(address(this),\"\")==0),\"SafeERC20:approvefromnon-zerotonon-zeroallowance\");_callOptionalReturn(token,abi.encodeWithSelector(token.approve.selector,spender,value));}"
+  ],
+  "safeIncreaseAllowance": [
+    "{uint256newAllowance=token.allowance(address(this),spender)+value;_callOptionalReturn(token,abi.encodeWithSelector(token.approve.selector,spender,newAllowance));}"
+  ],
+  "safeDecreaseAllowance": [
+    "{unchecked{uint256oldAllowance=token.allowance(address(this),spender);require(oldAllowance>=value,\"\");uint256newAllowance=oldAllowance-value;_callOptionalReturn(token,abi.encodeWithSelector(token.approve.selector,spender,newAllowance));}}"
+  ],
+  "makeVRFInputSeed": [
+    "{returnuint256(keccak256(abi.encode(_keyHash,_userSeed,_requester,_nonce)));}"
+  ],
+  "makeRequestId": [
+    "{returnkeccak256(abi.encodePacked(_keyHash,_vRFInputSeed));}"
+  ],
+  "requestRandomness": [
+    "{LINK.transferAndCall(vrfCoordinator,_fee,abi.encode(_keyHash,USER_SEED_PLACEHOLDER));uint256vRFSeed=makeVRFInputSeed(_keyHash,USER_SEED_PLACEHOLDER,address(this),nonces[_keyHash]);nonces[_keyHash]=nonces[_keyHash]+1;returnmakeRequestId(_keyHash,vRFSeed);}"
+  ],
+  "rawFulfillRandomness": [
+    "{require(msg.sender==vrfCoordinator,\"\");fulfillRandomness(requestId,randomness);}"
+  ],
+  "recover": ["{}"],
+  "toEthSignedMessageHash": [
+    "{returnkeccak256(abi.encodePacked(\"\\x19EthereumSignedMessage:32\",hash));}"
+  ],
+  "toTypedDataHash": [
+    "{returnkeccak256(abi.encodePacked(\"\\x19\\x01\",domainSeparator,structHash));}"
+  ],
+  "_nextTokenId": ["{return_currentIndex;}"],
+  "_totalMinted": ["{unchecked{return_currentIndex-_startTokenId();}}"],
+  "_totalBurned": ["{return_burnCounter;}"],
+  "_ownershipAt": ["{return_unpackedOwnership(_packedOwnerships[index]);}"],
+  "_initializeOwnershipAt": [
+    "{if(_packedOwnerships[index]==0){_packedOwnerships[index]=_packedOwnershipOf(index);}}"
+  ],
+  "_unpackedOwnership": [
+    "{ownership.addr=address(uint160(packed));ownership.startTimestamp=uint64(packed>>_BITPOS_START_TIMESTAMP);ownership.burned=packed&_BITMASK_BURNED!=0;ownership.extraData=uint24(packed>>_BITPOS_EXTRA_DATA);}"
+  ],
+  "_nextInitializedFlag": [
+    "{assembly{result:=shl(_BITPOS_NEXT_INITIALIZED,eq(quantity,1))}}"
+  ],
+  "_isSenderApprovedOrOwner": [
+    "{assembly{owner:=and(owner,_BITMASK_ADDRESS)msgSender:=and(msgSender,_BITMASK_ADDRESS)result:=or(eq(msgSender,owner),eq(msgSender,approvedAddress))}}"
+  ],
+  "_mintERC2309": [
+    "{uint256startTokenId=_currentIndex;if(to==address(0))revertMintToZeroAddress();if(quantity==0)revertMintZeroQuantity();if(quantity>_MAX_MINT_ERC2309_QUANTITY_LIMIT)revertMintERC2309QuantityExceedsLimit();_beforeTokenTransfers(address(0),to,startTokenId,quantity);unchecked{_packedAddressData[to]+=quantity*((1<<_BITPOS_NUMBER_MINTED)|1);_packedOwnerships[startTokenId]=_packOwnershipData(to,_nextInitializedFlag(quantity)|_nextExtraData(address(0),to,0));emitConsecutiveTransfer(startTokenId,startTokenId+quantity-1,address(0),to);_currentIndex=startTokenId+quantity;}_afterTokenTransfers(address(0),to,startTokenId,quantity);}"
+  ],
+  "_setExtraDataAt": [
+    "{uint256packed=_packedOwnerships[index];if(packed==0)revertOwnershipNotInitializedForExtraData();uint256extraDataCasted;assembly{extraDataCasted:=extraData}packed=(packed&_BITMASK_EXTRA_DATA_COMPLEMENT)|(extraDataCasted<<_BITPOS_EXTRA_DATA);_packedOwnerships[index]=packed;}"
+  ],
+  "_toString": [
+    "{assembly{letm:=add(mload(0x40),0xa0)mstore(0x40,m)str:=sub(m,0x20)mstore(str,0)letend:=strfor{lettemp:=value}1{}{str:=sub(str,1)mstore8(str,add(48,mod(temp,10)))temp:=div(temp,10)ifiszero(temp){break}}letlength:=sub(end,str)str:=sub(str,0x20)mstore(str,length)}}"
+  ],
+  "setStage": [
+    "{require(stageType>0&&stageType<5,\"\");require(startTime<endTime,\"\");require(endTime>block.timestamp,\"\");require(_maxQuantity!=0,\"\");uintstageNum=stageList.length;if(stageType>=stageNum){for(uinti;i<stageType.sub(stageNum);i++){stageList.push(Stage(0,0,0,0,0));}}uintindex=stageType.sub(1);Stagestoragestage=stageList[index];stage.startTime=startTime;stage.endTime=endTime;stage.maxQuantity=_maxQuantity;stage.price=price;stageList[index]=stage;emitStageEvent(stageType,startTime,endTime,_maxQuantity,stage.mintedNum,price);}"
+  ],
+  "getStage": [
+    "{require(stageType>0,\"\");uintstageNum=stageList.length;if(stageType>stageNum){return(0,0,0,0,0,0);}Stagememorystage=stageList[stageType.sub(1)];return(stageType,stage.startTime,stage.endTime,stage.maxQuantity,stage.mintedNum,stage.price);}"
+  ],
+  "getTokenURI": [
+    "{if(!_exists(tokenId))revertURIQueryForNonexistentToken();return_tokenURI[tokenId];}"
+  ],
+  "getExecutorAddress": [
+    "{if(owner()!=_msgSender()){returnaddress(0);}returnexecutorAddress;}"
+  ],
+  "getWhitelistAddress": [
+    "{if(owner()!=_msgSender()){returnaddress(0);}returnwhitelistAddress;}"
+  ],
+  "setTokenURI": ["{_tokenURI[tokenId]=uri;emitTokenURIEvent(tokenId,uri);}"],
+  "setTokenURIBatch": [
+    "{require(tokenIdList.length!=0,\"\");require(tokenIdList.length==uriList.length,\"\");require(tokenIdList.length<=15,\"\");for(uinti;i<tokenIdList.length;i++){uint256tokenId=tokenIdList[i];stringmemoryuri=uriList[i];_tokenURI[tokenId]=uri;}}"
+  ],
+  "setOpenBoxTime": [
+    "{require(_openBoxTime>block.timestamp,\"\");openBoxTime=_openBoxTime;emitOpenBoxTimeEvent(_openBoxTime);}"
+  ],
+  "setMaxQuantity": [
+    "{maxQuantity=_maxQuantity;emitMaxQuantityEvent(_maxQuantity);}"
+  ],
+  "setExecutorAddress": [
+    "{executorAddress=_executorAddress;emitExecutorAddressEvent(_executorAddress);}"
+  ],
+  "setWhitelistAddress": [
+    "{whitelistAddress=_whitelistAddress;emitWhitelistAddressEvent(_whitelistAddress);}"
+  ],
+  "executorMint": [
+    "{require(msg.sender==tx.origin,\"\");require(to==msg.sender,\"\");require(executorAddress==msg.sender,\"\");require(maxTotalSupply==0||totalSupply().add(quantity)<maxTotalSupply,\"\");_mint(to,quantity);emitNFTMintEvent(0,_nextTokenId()-1,to,quantity,0);}"
+  ],
+  "currentStage": [
+    "{uintstageNum=stageList.length;uint256currentTime=block.timestamp;for(uinti;i<stageNum;i++){Stagememorystage=stageList[i];uintstageType=i.add(1);uint256price=stage.price;if(currentTime>=stage.startTime&&currentTime<=stage.endTime){if(to==address(0)){return(stageType,false,price);}uint256stageMintedNum=stage.mintedNum;uint256stageMaxQuantity=stage.maxQuantity;if(stageMintedNum>=stageMaxQuantity){return(stageType,false,price);}return(stageType,!mintedNum[stageType][to],price);}}return(0,false,0);}"
+  ],
+  "updateStage": [
+    "{require(stageType>0&&stageType<=stageList.length,\"\");uintindex=stageType.sub(1);Stagememorystage=stageList[index];uint256startTime=stage.startTime;uint256endTime=stage.endTime;require(startTime<block.timestamp&&block.timestamp<endTime,\"\");uint256stagePrice=stage.price;require(price!=0&&price>=stagePrice,\"\");uint256stageMintedNum=stage.mintedNum;uint256stageMaxQuantity=stage.maxQuantity;require(stageMintedNum.add(quantity)<=stageMaxQuantity,\"\");require(quantity.mul(price)<=msg.value,\"\");Stagestorage_stage=stageList[index];_stage.mintedNum=stageMintedNum.add(quantity);stageList[index]=_stage;emitUpdateStageEvent(stageType,to,_stage.mintedNum);}"
+  ],
+  "signatureMint": [
+    "{returnECDSA.recover(keccak256(abi.encode(stageType,to,quantity,price,_timestamp)),_signature);}"
+  ],
+  "setBlackMarketplaces": ["{_blackMarketplaces[operator]=approved;}"],
+  "isBlackMarketplaces": ["{return_blackMarketplaces[operator];}"],
+  "withDrawAll": [
+    "{(boolsuccess,)=to.call{gas:21000,value:address(this).balance}(\"\");require(success,\"\");"
+  ]
 }
