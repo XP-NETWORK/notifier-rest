@@ -966,12 +966,6 @@
     "{require(isContract(target),\"\");(boolsuccess,bytesmemoryreturndata)=target.staticcall(data);return_verifyCallResult(success,returndata,errorMessage);}",
     "{require(isContract(target),\"\");(boolsuccess,bytesmemoryreturndata)=target.staticcall(data);returnverifyCallResult(success,returndata,errorMessage);}"
   ],
-  "functionDelegateCall": [
-    "{require(isContract(target),\"Address:delegatecalltonon-contract\");(boolsuccess,bytesmemoryreturndata)=target.delegatecall(data);return_verifyCallResult(success,returndata,errorMessage);}",
-    "{require(isContract(target),\"Address:delegatecalltonon-contract\");(boolsuccess,bytesmemoryreturndata)=target.delegatecall(data);returnverifyCallResult(success,returndata,errorMessage);}",
-    "{require(isContract(target),\"\");(boolsuccess,bytesmemoryreturndata)=target.delegatecall(data);return_verifyCallResult(success,returndata,errorMessage);}",
-    "{require(isContract(target),\"\");(boolsuccess,bytesmemoryreturndata)=target.delegatecall(data);returnverifyCallResult(success,returndata,errorMessage);}"
-  ],
   "random": ["{returnuint256(keccak256(abi.encodePacked(input)));}"],
   "getWeapon": ["{returnpluck(tokenId,\"WEAPON\",weapons);}"],
   "getChest": ["{returnpluck(tokenId,\"CHEST\",chestArmor);}"],
@@ -1212,10 +1206,7 @@
   "changeAdmin": ["{_changeAdmin(newAdmin);}"],
   "_admin": ["{return_getAdmin();}"],
   "_beforeFallback": ["{}"],
-  "_delegate": [
-    "{assembly{calldatacopy(0,0,calldatasize())letresult:=delegatecall(gas(),implementation,0,calldatasize(),0,0)returndatacopy(0,0,returndatasize())switchresultcase0{revert(0,returndatasize())}default{return(0,returndatasize())}}}"
-  ],
-  "_fallback": ["{_beforeFallback();_delegate(_implementation());}"],
+  "_fallback": [""],
   "_getImplementation": [
     "{returnStorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value;}"
   ],
@@ -1228,10 +1219,6 @@
   ],
   "_changeAdmin": [
     "{emitAdminChanged(_getAdmin(),newAdmin);_setAdmin(newAdmin);}"
-  ],
-  "_getBeacon": ["{returnStorageSlot.getAddressSlot(_BEACON_SLOT).value;}"],
-  "_setBeacon": [
-    "{require(Address.isContract(newBeacon),\"\");require(Address.isContract(IBeacon(newBeacon).implementation()),\"\");StorageSlot.getAddressSlot(_BEACON_SLOT).value=newBeacon;}"
   ],
   "getAddressSlot": ["{assembly{r.slot:=slot}}"],
   "getBooleanSlot": ["{assembly{r.slot:=slot}}"],
