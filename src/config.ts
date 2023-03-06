@@ -137,20 +137,12 @@ const chainData: Config = {
 //@ts-ignore
 export const getChain = (nonce: string) => {
   try {
-    Object.keys(chainData).forEach((key: string) => {
+    Object.keys(chainData).find((key: string) => {
       const item: ChainConfig | ChainConfig[] = chainData[key];
-
       if (Array.isArray(item)) {
-        for (const c of item) {
-          if (c.nonce == nonce || c.name.toUpperCase() === nonce.toUpperCase())
-            throw c;
-        }
+        return item.find((i) => i.nonce == nonce);
       } else {
-        if (
-          (item.nonce && item.nonce == nonce) ||
-          (item.name && item.name.toUpperCase() == nonce.toUpperCase())
-        )
-          throw item;
+        if (item.nonce == nonce) return item;
       }
     });
   } catch (chain) {
