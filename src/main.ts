@@ -28,7 +28,6 @@ import * as socket from './socket';
 import { IRequest, IWhiteListBody, TExplorerConfig } from './types';
 import { isWhitelistable } from './utils';
 import { getRandomArbitrary } from './utils/getRandomArbitrary';
-import { chain } from '@dfinity/agent/lib/cjs/polling/strategy';
 
 const mutex = new Mutex();
 
