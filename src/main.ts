@@ -397,11 +397,10 @@ async function main() {
           chainFactory['minter_addr'],
           chainFactory['provider']
         );
-        const nftWhitelist = await minterContract.functions.nftWhitelist(
-          contract
-        );
+        const isWhitelisted: [boolean] =
+          await minterContract.functions.nftWhitelist(contract);
 
-        if (nftWhitelist[0]) {
+        if (isWhitelisted[0]) {
           return res.send({ status: 'ok' });
         }
 
