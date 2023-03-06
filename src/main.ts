@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import http from 'http';
 import { HttpAgent } from '@dfinity/agent';
 import { PipeArrayBuffer, safeReadUint8 } from '@dfinity/candid';
@@ -10,12 +11,14 @@ import axios from 'axios';
 import BN from 'bignumber.js';
 import cors from 'cors';
 import express, { Request } from 'express';
+import { Minter__factory } from 'xpnet-web3-contracts';
 import {
   config_scan,
   dfinity_bridge,
   dfinity_uri,
   elrond_minter,
   elrond_uri,
+  getChain,
   port,
 } from './config';
 import { TxStore } from './db/TxStore';
@@ -25,6 +28,7 @@ import * as socket from './socket';
 import { IRequest, IWhiteListBody, TExplorerConfig } from './types';
 import { isWhitelistable } from './utils';
 import { getRandomArbitrary } from './utils/getRandomArbitrary';
+import { chain } from '@dfinity/agent/lib/cjs/polling/strategy';
 
 const mutex = new Mutex();
 
@@ -380,13 +384,24 @@ async function main() {
             .status(400)
             .send({ error: 'Invalid request body', contract, chainNonce });
         }
-        console.log({ config_scan });
+        const chainConfig = getChain(String(chainNonce));
+        if (!chainConfig) {
+          return res.status(500).send({ error: 'chain Nonce not found' });
+        }
+        const chainFactory = await chainConfig.chainFactory;
+        const minterContract = Minter__factory.connect(
+          chainFactory['minter_addr'],
+          chainFactory['provider']
+        );
+        const isWhitelisted: [boolean] =
+          await minterContract.functions.nftWhitelist(contract);
+
+        if (isWhitelisted[0]) {
+          return res.send({ status: 'ok' });
+        }
 
         const explorerConfig: TExplorerConfig = config_scan[chainNonce] || {};
-        console.log({ explorerConfig });
-
         const { secret = '', url = '' } = explorerConfig;
-        console.log({ secret, url });
         let isWhitelistable_: { success: boolean; reason?: string };
         if (!url.trim()) {
           isWhitelistable_ = { success: false, reason: 'url not valid' };
