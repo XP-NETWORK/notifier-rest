@@ -23,7 +23,29 @@ interface Config {
   web3: ChainConfig[];
 }
 
-export const getChainFactory = async (chain: string) => {
+type TChainParams =
+  | 'abeyChainParams'
+  | 'auroraParams'
+  | 'bscParams'
+  | 'ropstenParams'
+  | 'velasParams'
+  | 'polygonParams'
+  | 'avalancheParams'
+  | 'iotexParams'
+  | 'fantomParams'
+  | 'harmonyParams'
+  | 'xDaiParams'
+  | 'fuseParams'
+  | 'gateChainParams'
+  | 'vechainParams'
+  | 'godwokenParams'
+  | 'moonbeamParams'
+  | 'caduceusParams'
+  | 'okcParams'
+  | 'skaleParams'
+  | 'arbitrumParams';
+
+export const getChainFactory = async (chain: TChainParams) => {
   const con = await ChainFactoryConfigs.MainNet();
   return con[chain];
 };
