@@ -19,9 +19,6 @@ export interface ChainConfig {
   chainFactory: any;
   nonce: string;
 }
-interface Config {
-  web3: ChainConfig[];
-}
 
 type TChainParams =
   | 'abeyChainParams'
@@ -50,124 +47,108 @@ export const getChainFactory = async (chain: TChainParams) => {
   return con[chain];
 };
 
-const chainData: Config = {
-  web3: [
-    {
-      name: 'ABEYCHAIN',
-      chainFactory: getChainFactory('abeyChainParams'),
-      nonce: '33',
-    },
-    {
-      name: 'AURORA',
-      chainFactory: getChainFactory('auroraParams'),
-      nonce: '21',
-    },
-    {
-      name: 'BSC',
-      chainFactory: getChainFactory('bscParams'),
-      nonce: '4',
-    },
-    {
-      name: 'ETHEREUM',
-      chainFactory: getChainFactory('ropstenParams'),
-      nonce: '5',
-    },
-    {
-      name: 'VELAS',
-      chainFactory: getChainFactory('velasParams'),
-      nonce: '19',
-    },
-    {
-      name: 'POLYGON',
-      chainFactory: getChainFactory('polygonParams'),
-      nonce: '7',
-    },
-    {
-      name: 'AVALANCHE',
-      chainFactory: getChainFactory('avalancheParams'),
-      nonce: '6',
-    },
-    {
-      name: 'IOTEX',
-      chainFactory: getChainFactory('iotexParams'),
-      nonce: '20',
-    },
-    {
-      name: 'FANTOM',
-      chainFactory: getChainFactory('fantomParams'),
-      nonce: '8',
-    },
-    {
-      name: 'HARMONY',
-      chainFactory: getChainFactory('harmonyParams'),
-      nonce: '12',
-    },
-    {
-      name: 'GNOSIS',
-      chainFactory: getChainFactory('xDaiParams'),
-      nonce: '14',
-    },
-    {
-      name: 'FUSE',
-      chainFactory: getChainFactory('fuseParams'),
-      nonce: '16',
-    },
-    {
-      name: 'GATECHAIN',
-      chainFactory: getChainFactory('gateChainParams'),
-      nonce: '23',
-    },
-    {
-      name: 'VECHAIN',
-      chainFactory: getChainFactory('vechainParams'),
-      nonce: '25',
-    },
-    {
-      name: 'GODWOKEN',
-      chainFactory: getChainFactory('godwokenParams'),
-      nonce: '22',
-    },
-    {
-      name: 'MOONBEAM',
-      chainFactory: getChainFactory('moonbeamParams'),
-      nonce: '32',
-    },
-    {
-      name: 'CADUCEUS',
-      chainFactory: getChainFactory('caduceusParams'),
-      nonce: '35',
-    },
-    {
-      name: 'OKC',
-      chainFactory: getChainFactory('okcParams'),
-      nonce: '36',
-    },
-    {
-      name: 'SKALE',
-      chainFactory: getChainFactory('skaleParams'),
-      nonce: '30',
-    },
-    {
-      name: 'ARBITRUM',
-      chainFactory: getChainFactory('arbitrumParams'),
-      nonce: '37',
-    },
-  ],
-};
+const chainData: ChainConfig[] = [
+  {
+    name: 'ABEYCHAIN',
+    chainFactory: getChainFactory('abeyChainParams'),
+    nonce: '33',
+  },
+  {
+    name: 'AURORA',
+    chainFactory: getChainFactory('auroraParams'),
+    nonce: '21',
+  },
+  {
+    name: 'BSC',
+    chainFactory: getChainFactory('bscParams'),
+    nonce: '4',
+  },
+  {
+    name: 'ETHEREUM',
+    chainFactory: getChainFactory('ropstenParams'),
+    nonce: '5',
+  },
+  {
+    name: 'VELAS',
+    chainFactory: getChainFactory('velasParams'),
+    nonce: '19',
+  },
+  {
+    name: 'POLYGON',
+    chainFactory: getChainFactory('polygonParams'),
+    nonce: '7',
+  },
+  {
+    name: 'AVALANCHE',
+    chainFactory: getChainFactory('avalancheParams'),
+    nonce: '6',
+  },
+  {
+    name: 'IOTEX',
+    chainFactory: getChainFactory('iotexParams'),
+    nonce: '20',
+  },
+  {
+    name: 'FANTOM',
+    chainFactory: getChainFactory('fantomParams'),
+    nonce: '8',
+  },
+  {
+    name: 'HARMONY',
+    chainFactory: getChainFactory('harmonyParams'),
+    nonce: '12',
+  },
+  {
+    name: 'GNOSIS',
+    chainFactory: getChainFactory('xDaiParams'),
+    nonce: '14',
+  },
+  {
+    name: 'FUSE',
+    chainFactory: getChainFactory('fuseParams'),
+    nonce: '16',
+  },
+  {
+    name: 'GATECHAIN',
+    chainFactory: getChainFactory('gateChainParams'),
+    nonce: '23',
+  },
+  {
+    name: 'VECHAIN',
+    chainFactory: getChainFactory('vechainParams'),
+    nonce: '25',
+  },
+  {
+    name: 'GODWOKEN',
+    chainFactory: getChainFactory('godwokenParams'),
+    nonce: '22',
+  },
+  {
+    name: 'MOONBEAM',
+    chainFactory: getChainFactory('moonbeamParams'),
+    nonce: '32',
+  },
+  {
+    name: 'CADUCEUS',
+    chainFactory: getChainFactory('caduceusParams'),
+    nonce: '35',
+  },
+  {
+    name: 'OKC',
+    chainFactory: getChainFactory('okcParams'),
+    nonce: '36',
+  },
+  {
+    name: 'SKALE',
+    chainFactory: getChainFactory('skaleParams'),
+    nonce: '30',
+  },
+  {
+    name: 'ARBITRUM',
+    chainFactory: getChainFactory('arbitrumParams'),
+    nonce: '37',
+  },
+];
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
-export const getChain = (nonce: string) => {
-  try {
-    Object.keys(chainData).find((key: string) => {
-      const item: ChainConfig | ChainConfig[] = chainData[key];
-      if (Array.isArray(item)) {
-        return item.find((i) => i.nonce == nonce);
-      } else {
-        if (item.nonce == nonce) return item;
-      }
-    });
-  } catch (chain) {
-    return chain as ChainConfig;
-  }
-};
+export const getChain = (nonce: string) =>
+  chainData.find((i) => i.nonce == nonce);
