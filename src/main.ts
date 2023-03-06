@@ -28,6 +28,7 @@ import * as socket from './socket';
 import { TExplorerConfig } from './types';
 import { isWhitelistable } from './utils';
 import { getRandomArbitrary } from './utils/getRandomArbitrary';
+import { chain } from '@dfinity/agent/lib/cjs/polling/strategy';
 
 const mutex = new Mutex();
 
@@ -392,6 +393,9 @@ async function main() {
             .send({ error: 'Invalid request body', contract, chainNonce });
         }
         const chainConfig = getChain(String(chainNonce));
+        if (!chainConfig) {
+          return res.status(500).send({ error: 'chain Nonce not found' });
+        }
         const chainFactory = await chainConfig.chainFactory;
         const minterContract = Minter__factory.connect(
           chainFactory['minter_addr'],
