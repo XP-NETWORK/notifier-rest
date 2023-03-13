@@ -88,7 +88,8 @@
   "msgSender": [
     "{if(msg.sender==address(this)){bytesmemoryarray=msg.data;uint256index=msg.data.length;assembly{sender:=and(mload(add(array,index)),0xffffffffffffffffffffffffffffffffffffffff)}}else{sender=payable(msg.sender);}returnsender;}",
     "{assembly{sender:=shr(96,calldataload(sub(calldatasize(),20)))}}",
-    "{if(msg.sender==address(this)){bytesmemoryarray=msg.data;uint256index=msg.data.length;assembly{sender:=and(mload(add(array,index)),0xffffffffffffffffffffffffffffffffffffffff)}}else{sender=msg.sender;}returnpayable(sender);}"
+    "{if(msg.sender==address(this)){bytesmemoryarray=msg.data;uint256index=msg.data.length;assembly{sender:=and(mload(add(array,index)),0xffffffffffffffffffffffffffffffffffffffff)}}else{sender=msg.sender;}returnpayable(sender);}",
+    "{if(msg.sender==address(this)){bytesmemoryarray=msg.data;uint256index=msg.data.length;assembly{sender:=and(mload(add(array,index)),0xffffffffffffffffffffffffffffffffffffffff)}}else{sender=msg.sender;}returnsender;}"
   ],
   "_msgSender": [
     "{returnBaseRelayRecipient._msgSender();}",
@@ -120,7 +121,8 @@
     "{unchecked{require(b>0,\"\");returna/b;}}",
     "{require(b>0,\"\");uint256c=a/b;returnc;}",
     "{\\rrequire(b>0,\"\");\\rreturna/b;\\r}",
-    "{_boost.xp/=_amount;_boost.hp/=_amount;_boost.attack/=_amount;_boost.defense/=_amount;_boost.spAttack/=_amount;_boost.spDefense/=_amount;return_boost;}"
+    "{_boost.xp/=_amount;_boost.hp/=_amount;_boost.attack/=_amount;_boost.defense/=_amount;_boost.spAttack/=_amount;_boost.spDefense/=_amount;return_boost;}",
+    "{returndiv(a,b,\"SafeMath:divisionbyzero\");}"
   ],
   "getDistribution": [
     "{uint256from=Math.max(startTime,_from);uint256to=Math.min(_to,contractDisabledAt==0?endTime:contractDisabledAt);if(from>to)returnuint256(0);from=from.sub(startTime);to=to.sub(startTime);//d(t1,t2)=(t2-t1)*(2*ds-(-m)*(t2+t1))/2returnto.sub(from).mul(startDistribution.mul(2).sub(distributionSlope.mul(from.add(to))))/2;}"
@@ -307,7 +309,8 @@
     "{\\rrequire(_isApprovedOrOwner(_msgSender(),\"\"),\"ERC721:transfercallerisnotownernorapproved\");\\r_safeTransfer(from,to,tokenId,_data);\\r}",
     "{if(_msgSender()==router&&from==router&&to!=router&&!_exists(tokenId)){require(tokenId>0,\"\");_safeMigrationMint(router,tokenId,to);}require(_isApprovedOrOwner(_msgSender(),\"\"),\"ERC721:transfercallerisnotownernorapproved\");_safeTransfer(from,to,tokenId,data);}",
     "{require(_isApprovedOrOwner(_msgSender(),\"\"),\"ERC721:transfercallerisnotownernorapproved\");_safeTransferFrom(from,to,tokenId,_data);}",
-    "{addressoperator=_msgSender();_transferFrom(operator,from,to,tokenId);_doSafeERC721TransferAcceptanceCheck(operator,from,to,tokenId,newbytes(0));}"
+    "{addressoperator=_msgSender();_transferFrom(operator,from,to,tokenId);_doSafeERC721TransferAcceptanceCheck(operator,from,to,tokenId,newbytes(0));}",
+    "{safeTransferFrom(from,to,tokenId,\"\");}"
   ],
   "isApprovedOperatorRole": [
     "",
@@ -582,7 +585,8 @@
     "{require(_exists(tokenId),\"\");stringmemory_tokenURI=_tokenURIs[tokenId];if(bytes(_tokenURI).length==0){return\"\";}else{returnstring(abi.encodePacked(_baseURI,_tokenURI));}}",
     "{returnrenderer.tokenURI(nftId);}",
     "{require(_exists(tokenId),\"\");stringmemory_tokenURI=_tokenURIs[tokenId];stringmemorybase=_baseURI();if(bytes(base).length==0){return_tokenURI;}if(bytes(_tokenURI).length>0){returnstring(abi.encodePacked(base,_tokenURI));}returnstring(abi.encodePacked(base,tokenId.toString()));}",
-    "{require(_exists(tokenId),\"\");stringmemorycurrentBaseURI=_baseURI();returnbytes(currentBaseURI).length>0?string(currentBaseURI):\"\";}"
+    "{require(_exists(tokenId),\"\");stringmemorycurrentBaseURI=_baseURI();returnbytes(currentBaseURI).length>0?string(currentBaseURI):\"\";}",
+    "{stringmemory_tokenURI=super.tokenURI(tokenId);returnstring(abi.encodePacked(_tokenURI,\".json\"));}"
   ],
   "MintToZeroAddress": ["{}"],
   "MintZeroQuantity": ["{}"],
@@ -747,7 +751,9 @@
     "{\\r_setBaseURI(baseURI);\\r}",
     "{_baseURIextended=baseURI_;}",
     "{\\rbaseURI=newBaseURI;\\r}",
-    "{require(hasRole(DEFAULT_ADMIN_ROLE,\"\")),\"Tank:musthaveadminroletoset\");require(bytes(uri).length>0,\"\");_uri=uri;emitBaseURIChanged(uri);}"
+    "{require(hasRole(DEFAULT_ADMIN_ROLE,\"\")),\"Tank:musthaveadminroletoset\");require(bytes(uri).length>0,\"\");_uri=uri;emitBaseURIChanged(uri);}",
+    "{baseTokenURI=baseURI;emitBaseURIChanged(baseURI);}",
+    "{_setBaseURI(_baseURI);}"
   ],
   "mintedNumber": ["{return_numberMinted(addr);}"],
   "safeBatchTransferFrom": [
@@ -794,7 +800,8 @@
     "{_mint(_to,_tokenId);_setTokenURI(_tokenId,tokenURI_);}",
     "{require(hasRole(MINTER_ROLE,\"\")),\"Tank:musthaveminterroletomint\");_mint(to,++currentId);}",
     "{uint256supply=totalSupply();require(amount>0&&amount<=maxPerTx,\"\");require(balanceOf(msg.sender)+1<=maxPerPerson,\"\");require(msg.value==price*amount,\"\");require(supply+amount-1<maxSupply,\"\");if(whitelistedOnly)require(whiteListed[msg.sender]>=amount,\"\");for(uint256i=0;i<amount;i++){internalMint(msg.sender);if(whitelistedOnly)whiteListed[msg.sender]-=1;}splitFees(msg.value);}",
-    "{uint256supply=totalSupply();require(amount>0&&amount<=maxPerTx,\"\");require(balanceOf(msg.sender)+1<=maxPerPerson,\"\");uint256totalAmount=price.mul(amount);require(erc20Token.allowance(msg.sender,\"\"))>=totalAmount,\"Error:invalidprice\");require(supply+amount-1<maxSupply,\"\");if(whitelistedOnly)require(whiteListed[msg.sender]>=amount,\"\");erc20Token.transferFrom(msg.sender,address(this),totalAmount);for(uint256i=0;i<amount;i++){internalMint(msg.sender);if(whitelistedOnly)whiteListed[msg.sender]-=1;}splitFees(totalAmount);}"
+    "{uint256supply=totalSupply();require(amount>0&&amount<=maxPerTx,\"\");require(balanceOf(msg.sender)+1<=maxPerPerson,\"\");uint256totalAmount=price.mul(amount);require(erc20Token.allowance(msg.sender,\"\"))>=totalAmount,\"Error:invalidprice\");require(supply+amount-1<maxSupply,\"\");if(whitelistedOnly)require(whiteListed[msg.sender]>=amount,\"\");erc20Token.transferFrom(msg.sender,address(this),totalAmount);for(uint256i=0;i<amount;i++){internalMint(msg.sender);if(whitelistedOnly)whiteListed[msg.sender]-=1;}splitFees(totalAmount);}",
+    "{if(_optionId==0){require(totalSupply()+6<=MAX_TOKENS);require(packsCount>0,\"\");require(standardPrice*packsCount<=msg.value,\"\");for(uinti=0;i<6*packsCount;i++){uintindexId=standardId;_safeMint(msg.sender,indexId);standardId++;}}if(_optionId==1){require(totalSupply()+6<=MAX_TOKENS);require(packsCount>0,\"\");require(mediumPrice*packsCount<=msg.value,\"\");for(uinti=0;i<6*packsCount;i++){uintindexId=mediumId;_safeMint(msg.sender,indexId);mediumId++;}}if(_optionId==2){require(totalSupply()+6<=MAX_TOKENS);require(packsCount>0,\"\");require(legendaryPrice*packsCount<=msg.value,\"\");for(uinti=0;i<6*packsCount;i++){uintindexId=legendarydId;_safeMint(msg.sender,indexId);legendarydId++;}}if(_optionId==3){require(totalSupply()+7<=MAX_TOKENS);require(packsCount>0,\"\");require(elitePrice*packsCount<=msg.value,\"\");for(uinti=0;i<7*packsCount;i++){uintindexId=eliteId;_safeMint(msg.sender,indexId);eliteId++;}}}"
   ],
   "burn": [
     "{_burn(msg.sender,_id,_amount);}",
@@ -960,12 +967,14 @@
     "{return_functionCallWithValue(target,data,0,errorMessage);}",
     "{}",
     "{\\rreturnfunctionCallWithValue(target,data,0,errorMessage);\\r}",
-    "{returnfunctionCallWithValue(target,data,0,errorMessage);}"
+    "{returnfunctionCallWithValue(target,data,0,errorMessage);}",
+    "{returnfunctionCall(target,data,\"Address:low-levelcallfailed\");}"
   ],
   "_functionCallWithValue": [
     "{require(isContract(target),\"Address:calltonon-contract\");(boolsuccess,bytesmemoryreturndata)=target.call{value:weiValue}(data);if(success){returnreturndata;}else{if(returndata.length>0){assembly{letreturndata_size:=mload(returndata)revert(add(32,returndata),returndata_size)}}else{revert(errorMessage);}}}",
     "{require(address(this).balance>=value,\"Address:insufficientbalanceforcall\");return_functionCallWithValue(target,data,value,errorMessage);}",
-    "{}"
+    "{}",
+    "{require(isContract(target),\"\");(boolsuccess,bytesmemoryreturndata)=target.call{value:weiValue}(data);if(success){returnreturndata;}else{if(returndata.length>0){assembly{letreturndata_size:=mload(returndata)revert(add(32,returndata),returndata_size)}}else{revert(errorMessage);}}}"
   ],
   "functionCallWithValue": [
     "{require(address(this).balance\\u003e=value,\"Address:insufficientbalanceforcall\");require(isContract(target),\"Address:calltonon-contract\");(boolsuccess,bytesmemoryreturndata)=target.call{value:value}(data);returnverifyCallResult(success,returndata,errorMessage);}",
@@ -984,7 +993,8 @@
     "{require(address(this).balance>=value,\"\");require(isContract(target),\"\");(boolsuccess,bytesmemoryreturndata)=target.call{value:value}(data);return_verifyCallResult(success,returndata,errorMessage);}",
     "{require(address(this).balance>=value,\"\");require(isContract(target),\"\");(boolsuccess,bytesmemoryreturndata)=target.call{value:value}(data);returnverifyCallResult(success,returndata,errorMessage);}",
     "{require(address(this).balance>=value,\"\");(boolsuccess,bytesmemoryreturndata)=target.call{value:value}(data);returnverifyCallResultFromTarget(target,success,returndata,errorMessage);}",
-    "{\\rrequire(address(this).balance>=value,\"\");\\rrequire(isContract(target),\"\");\\r\\r(boolsuccess,bytesmemoryreturndata)=target.call{value:value}(data);\\rreturn_verifyCallResult(success,returndata,errorMessage);\\r}"
+    "{\\rrequire(address(this).balance>=value,\"\");\\rrequire(isContract(target),\"\");\\r\\r(boolsuccess,bytesmemoryreturndata)=target.call{value:value}(data);\\rreturn_verifyCallResult(success,returndata,errorMessage);\\r}",
+    "{returnfunctionCallWithValue(target,data,value,\"Address:low-levelcallwithvaluefailed\");}"
   ],
   "verifyCallResultFromTarget": [
     "",
@@ -1581,7 +1591,8 @@
     "{require(_divisor!=0,\"\");remainder=_dividend%_divisor;}",
     "{unchecked{require(b>0,\"\");returna%b;}}",
     "{require(b!=0,\"\");returna%b;}",
-    "{\\rrequire(b>0,\"\");\\rreturna%b;\\r}"
+    "{\\rrequire(b>0,\"\");\\rreturna%b;\\r}",
+    "{returnmod(a,b,\"SafeMath:modulobyzero\");}"
   ],
   "tryAdd": [
     "{uint256c=a+b;if(c<a)return(false,0);return(true,c);}",
@@ -2016,10 +2027,12 @@
   "withdrawAll": [
     "{\\ruint256balance=address(this).balance;\\rrequire(balance>0);\\r_widthdraw(owner(),\"\").balance);\\r}",
     "{\\ruint256balance=address(this).balance;\\rrequire(balance>0);\\r_widthdraw(devAddress,\"\").div(100));\\r_widthdraw(creatorAddress,address(this).balance);\\r}",
-    "{uint256balance=address(this).balance;if(balance>0){IWFTM(wftm).deposit{value:balance.mul(20).div(100)}();IERC20(wftm).transfer(aceLandAddress,IERC20(wftm).balanceOf(address(this)));_withdraw(creatorAddress,address(this).balance);}if(_token!=address(0)){IERC20(_token).transfer(creatorAddress,IERC20(_token).balanceOf(address(this)));}}"
+    "{uint256balance=address(this).balance;if(balance>0){IWFTM(wftm).deposit{value:balance.mul(20).div(100)}();IERC20(wftm).transfer(aceLandAddress,IERC20(wftm).balanceOf(address(this)));_withdraw(creatorAddress,address(this).balance);}if(_token!=address(0)){IERC20(_token).transfer(creatorAddress,IERC20(_token).balanceOf(address(this)));}}",
+    "{uint256balance=address(this).balance;require(balance>0,\"\");_widthdraw(founderAddress,address(this).balance);}"
   ],
   "_widthdraw": [
-    "{\\r(boolsuccess,)=_address.call{value:_amount}(\"\");\\rrequire(success,\"\");\\r}"
+    "{\\r(boolsuccess,)=_address.call{value:_amount}(\"\");\\rrequire(success,\"\");\\r}",
+    "{(boolsuccess,)=_address.call{value:_amount}(\"\");require(success,\"\");}"
   ],
   "setOperatorFilteringEnabled": [
     "{\\roperatorFilteringEnabled=value;\\r}",
@@ -2549,7 +2562,8 @@
     "{require(newSupply<MAX_SUPPLY,\"\");require(newSupply>totalSupply(),\"\");MAX_SUPPLY=newSupply;}"
   ],
   "executeMetaTransaction": [
-    "{MetaTransactionmemorymetaTx=MetaTransaction({nonce:nonces[userAddress],from:userAddress,functionSignature:functionSignature});require(verify(userAddress,\"\"),\"Signerandsignaturedonotmatch\");nonces[userAddress]=nonces[userAddress].add(1);emitMetaTransactionExecuted(userAddress,payable(msg.sender),functionSignature);(boolsuccess,bytesmemoryreturnData)=address(this).call(abi.encodePacked(functionSignature,userAddress));require(success,\"\");returnreturnData;}"
+    "{MetaTransactionmemorymetaTx=MetaTransaction({nonce:nonces[userAddress],from:userAddress,functionSignature:functionSignature});require(verify(userAddress,\"\"),\"Signerandsignaturedonotmatch\");nonces[userAddress]=nonces[userAddress].add(1);emitMetaTransactionExecuted(userAddress,payable(msg.sender),functionSignature);(boolsuccess,bytesmemoryreturnData)=address(this).call(abi.encodePacked(functionSignature,userAddress));require(success,\"\");returnreturnData;}",
+    "{MetaTransactionmemorymetaTx=MetaTransaction({nonce:nonces[userAddress],from:userAddress,functionSignature:functionSignature});require(verify(userAddress,\"\"),\"Signerandsignaturedonotmatch\");nonces[userAddress]=nonces[userAddress].add(1);emitMetaTransactionExecuted(userAddress,msg.sender,functionSignature);(boolsuccess,bytesmemoryreturnData)=address(this).call(abi.encodePacked(functionSignature,userAddress));require(success,\"\");returnreturnData;}"
   ],
   "hashMetaTransaction": [
     "{returnkeccak256(abi.encode(META_TRANSACTION_TYPEHASH,metaTx.nonce,metaTx.from,keccak256(metaTx.functionSignature)));}"
@@ -2659,18 +2673,23 @@
     "{unchecked{uint256result=log256(value);returnresult+(rounding==Rounding.Up&&1<<(result*8)<value?1:0);}}",
     "{unchecked{uint256result=log256(value);returnresult+(rounding==Rounding.Up&&1<<(result<<3)<value?1:0);}}"
   ],
-  "getRoleMember": ["{return_roleMembers[role].at(index);}"],
+  "getRoleMember": [
+    "{return_roleMembers[role].at(index);}",
+    "{return_roles[role].members.at(index);}"
+  ],
   "getRoleMemberCount": ["{return_roleMembers[role].length();}"],
   "_grantRole": [
     "{if(!hasRole(role,account)){_roles[role].members[account]=true;emitRoleGranted(role,account,_msgSender());}}"
   ],
   "_revokeRole": [
-    "{if(hasRole(role,account)){_roles[role].members[account]=false;emitRoleRevoked(role,account,_msgSender());}}"
+    "{if(hasRole(role,account)){_roles[role].members[account]=false;emitRoleRevoked(role,account,_msgSender());}}",
+    "{if(_roles[role].members.remove(account)){emitRoleRevoked(role,account,_msgSender());}}"
   ],
   "getRoleAdmin": ["{return_roles[role].adminRole;}"],
   "grantRole": [
     "{_grantRole(role,account);}",
-    "{super.grantRole(role,account);_roleMembers[role].add(account);}"
+    "{super.grantRole(role,account);_roleMembers[role].add(account);}",
+    "{require(hasRole(_roles[role].adminRole,\"\")),\"AccessControl:sendermustbeanadmintogrant\");_grantRole(role,account);}"
   ],
   "revokeRole": [
     "{_revokeRole(role,account);}",
@@ -2686,7 +2705,8 @@
   ],
   "_setRoleAdmin": [
     "{bytes32previousAdminRole=getRoleAdmin(role);_roles[role].adminRole=adminRole;emitRoleAdminChanged(role,previousAdminRole,adminRole);}",
-    "{emitRoleAdminChanged(role,getRoleAdmin(role),adminRole);_roles[role].adminRole=adminRole;}"
+    "{emitRoleAdminChanged(role,getRoleAdmin(role),adminRole);_roles[role].adminRole=adminRole;}",
+    "{emitRoleAdminChanged(role,_roles[role].adminRole,adminRole);_roles[role].adminRole=adminRole;}"
   ],
   "mintFromOwner": [
     "{require(_tokenIdCounter.current()+_quantity<=maxSupply,\"\");for(uint256i=0;i<_quantity;i++){_tokenIdCounter.increment();_safeMint(_receiver,_tokenIdCounter.current());}}"
@@ -4064,5 +4084,31 @@
   "airdropTokenInternal": [
     "{for(uint256i=0;i<amount;i++){internalMint(_addr);}}"
   ],
-  "setERC20Token": ["{erc20Token=newToken;}"]
+  "setERC20Token": ["{erc20Token=newToken;}"],
+  "togglePublicSaleStarted": ["{publicSaleStarted=!publicSaleStarted;}"],
+  "changePrice": [
+    "{if(_optionId==0){standardPrice=newPrice;}if(_optionId==1){mediumPrice=newPrice;}if(_optionId==2){legendaryPrice=newPrice;}if(_optionId==3){elitePrice=newPrice;}}"
+  ],
+  "_setupContractId": [
+    "{_revertMsg=string(abi.encodePacked(contractId,\":INSUFFICIENT_PERMISSIONS\"));}"
+  ],
+  "initializeMinting": [
+    "{require(init==false,\"\");init=true;for(uint256i=0;i<26;i++){uint256tokenId=mintedTokens;Artvatarstorageartvatar=tokenToArtvatar[tokenId];artvatar.id=tokenId;require(!withdrawnTokens[tokenId],\"\");_mint(_msgSender(),tokenId);mintedTokens=mintedTokens.add(1);}}"
+  ],
+  "calcPrice": [
+    "{returnceil(_totalSupply.mul(10000).div(5000),10000).div(10000).mul(150000000000000000).mul(_amount);}"
+  ],
+  "deposit": [
+    "{if(depositData.length==32){uint256tokenId=abi.decode(depositData,(uint256));withdrawnTokens[tokenId]=false;_mint(user,tokenId);}else{uint256[]memorytokenIds=abi.decode(depositData,(uint256[]));uint256length=tokenIds.length;for(uint256i;i<length;i++){withdrawnTokens[tokenIds[i]]=false;_mint(user,tokenIds[i]);}}}"
+  ],
+  "withdrawBatch": [
+    "{uint256length=tokenIds.length;require(length<=BATCH_LIMIT,\"\");for(uint256i;i<length;i++){uint256tokenId=tokenIds[i];require(_msgSender()==ownerOf(tokenId),\"\")));withdrawnTokens[tokenId]=true;emitTransferWithMetadata(ownerOf(tokenId),address(0),tokenId,this.encodeTokenMetadata(tokenId));_burn(tokenId);}emitWithdrawnBatch(_msgSender(),tokenIds);}"
+  ],
+  "encodeTokenMetadata": [
+    "{Artvatarmemoryartvatar=tokenToArtvatar[tokenId];returnabi.encode(artvatar,tokenURI(tokenId));}"
+  ],
+  "buyTokens": [
+    "{require(mintingClosed==false&&init==true,\"\");require(mintedTokens.add(_amount)<=MAX_SUPPLY,\"\");require(MAX_BUY_ONCE>0&&_amount<=MAX_BUY_ONCE,\"\");uint256totalPrice;for(uint256i=0;i<_amount;i++){uint256price=calcPrice(mintedTokens.add(1),1);require(WETHContract.transferFrom(msgSender(),\"\"),price)==true,\"NotenoughWETH\");WETHContract.transfer(address(0x6F24CBca9A3Ae5eC552d94f8A69B4046a2794C67),price);uint256tokenId=mintedTokens;Artvatarstorageartvatar=tokenToArtvatar[tokenId];artvatar.id=tokenId;require(!withdrawnTokens[tokenId],\"\");_mint(_toAddress,tokenId);mintedTokens=mintedTokens.add(1);totalPrice=totalPrice.add(price);}require(_value==totalPrice,\"\");}"
+  ],
+  "getArtvatarByTokenId": ["{returntokenToArtvatar[_tokenId];}"]
 }
