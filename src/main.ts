@@ -25,7 +25,12 @@ import { TxStore } from './db/TxStore';
 import { WhiteListStore } from './db/WhiteListStore';
 import mikroConf from './mikro-orm';
 import * as socket from './socket';
-import { IRequest, IWhiteListBody, TExplorerConfig } from './types';
+import {
+  ICreateCollectionContractBody,
+  IRequest,
+  IWhiteListBody,
+  TExplorerConfig,
+} from './types';
 import { isWhitelistable } from './utils';
 import { getRandomArbitrary } from './utils/getRandomArbitrary';
 
@@ -362,6 +367,28 @@ async function main() {
       );
 
       res.send({ status: 'ok' });
+    }
+  );
+
+  app.post(
+    '/create-collection-contract',
+    requireAuth,
+    (req: IRequest<ICreateCollectionContractBody, {}, {}>, res) => {
+      const collectionAddress = req.body.collectionAddress;
+      const chainNonce = req.body.chainNonce;
+
+      if (!chainNonce || !collectionAddress) {
+        return res.status(500).send({ error: 'Invalid body!' });
+      }
+
+      const randomNonce = getRandomArbitrary();
+      const actionId = BN(parseInt(collectionAddress, 16))
+        .plus(BN(chainNonce))
+        .plus(randomNonce);
+
+      io.emit('deploy_contract', chainNonce, collectionAddress, actionId);
+
+      return res.status(200).send({ status: 'ok' });
     }
   );
 
