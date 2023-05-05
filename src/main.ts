@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import http from 'http';
 import { HttpAgent } from '@dfinity/agent';
 import { PipeArrayBuffer, safeReadUint8 } from '@dfinity/candid';
-import { encode, Nat } from '@dfinity/candid/lib/cjs/idl';
+import { Nat, encode } from '@dfinity/candid/lib/cjs/idl';
 import { Principal } from '@dfinity/principal';
 import { MikroORM, RequestContext } from '@mikro-orm/core';
 import { EntityManager, MongoDriver } from '@mikro-orm/mongodb';
@@ -11,6 +10,7 @@ import axios from 'axios';
 import BN from 'bignumber.js';
 import cors from 'cors';
 import express, { Request } from 'express';
+import http from 'http';
 import { Minter__factory } from 'xpnet-web3-contracts';
 import {
   config_scan,
@@ -33,6 +33,11 @@ import {
 } from './types';
 import { isWhitelistable } from './utils';
 import { getRandomArbitrary } from './utils/getRandomArbitrary';
+import {
+  getNoWhitelistMapping,
+  isSuccessNoWhitelistRes,
+} from './utils/noWhitelist';
+import { sleep } from './utils/sleep';
 
 const mutex = new Mutex();
 
@@ -373,12 +378,38 @@ async function main() {
   app.post(
     '/create-collection-contract',
     requireAuth,
-    (req: IRequest<ICreateCollectionContractBody, {}, {}>, res) => {
+    async (req: IRequest<ICreateCollectionContractBody, {}, {}>, res) => {
+      console.log('/create-collection-contract - START');
       const collectionAddress = req.body.collectionAddress;
-      const chainNonce = req.body.chainNonce;
+      const chainNonce = Number(req.body.chainNonce);
+
+      console.log(
+        '/create-collection-contract - collectionAddress',
+        collectionAddress,
+        typeof collectionAddress
+      );
+      console.log(
+        '/create-collection-contract - chainNonce',
+        chainNonce,
+        typeof chainNonce
+      );
 
       if (!chainNonce || !collectionAddress) {
-        return res.status(500).send({ error: 'Invalid body!' });
+        return res.status(400).send({ error: 'Invalid body!' });
+      }
+
+      try {
+        const response = await getNoWhitelistMapping(
+          collectionAddress,
+          chainNonce
+        );
+        console.log('trycatch - response', response);
+        if (isSuccessNoWhitelistRes(response)) {
+          console.log('isSuccessNoWhitelistRes(response)');
+          return res.status(200).send({ ...response.data });
+        }
+      } catch (error) {
+        console.warn(error?.response?.data?.data);
       }
 
       const randomNonce = getRandomArbitrary();
@@ -388,7 +419,27 @@ async function main() {
 
       io.emit('deploy_contract', chainNonce, collectionAddress, actionId);
 
-      return res.status(200).send({ status: 'ok' });
+      let retries = 1;
+      while (retries <= 10) {
+        try {
+          const response = await getNoWhitelistMapping(
+            collectionAddress,
+            chainNonce
+          );
+          console.log('WHILE - response', response);
+          if (isSuccessNoWhitelistRes(response)) {
+            console.log('WHILE - isSuccessNoWhitelistRes(response)');
+            return res.status(200).send({ ...response.data });
+          }
+        } catch (error) {
+          console.warn('WHILE - error', error?.response?.data?.data);
+        } finally {
+          await sleep(10_000);
+          retries++;
+        }
+      }
+      console.warn('outside');
+      return res.status(500).send({ error: 'Internal server error' });
     }
   );
 

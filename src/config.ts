@@ -14,6 +14,8 @@ export const dfinity_bridge = process.env.DFINITY_BRIDGE;
 export const config_scan: TExplorerConfig =
   process.env.EVM_WHITELIST_CONFIG &&
   JSON.parse(process.env.EVM_WHITELIST_CONFIG);
+export const sc_verify = process.env.SC_VERIFY;
+
 export interface ChainConfig {
   name: string;
   chainFactory: any;
