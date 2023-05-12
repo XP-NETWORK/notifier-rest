@@ -419,9 +419,9 @@ async function main() {
         .plus(randomNonce);
 
       io.emit('deploy_contract', chainNonce, collectionAddress, actionId);
-      await sleep(7_000);
+      await sleep(10_000);
       let retries = 1;
-      while (retries <= 10) {
+      while (retries <= 8) {
         try {
           const response = await getNoWhitelistMapping(
             collectionAddress,
@@ -435,7 +435,7 @@ async function main() {
         } catch (error) {
           console.warn('WHILE - error', error?.response?.data?.data);
         } finally {
-          await sleep(10_000);
+          await sleep(5_000);
           retries++;
         }
       }
