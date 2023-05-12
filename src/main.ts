@@ -272,6 +272,7 @@ async function main() {
           'web3:bridge_tx',
           chain,
           hash,
+          req.body.minterAddress,
           req.body?.actionId,
           req.body?.type,
           req.body?.toChain,
@@ -418,7 +419,7 @@ async function main() {
         .plus(randomNonce);
 
       io.emit('deploy_contract', chainNonce, collectionAddress, actionId);
-
+      await sleep(7_000);
       let retries = 1;
       while (retries <= 10) {
         try {
