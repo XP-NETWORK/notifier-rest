@@ -14,7 +14,6 @@ export type ServerEvents = {
   readonly 'web3:bridge_tx': (
     fromChain: number,
     fromHash: string,
-    minterAddress: string,
     actionId?: string,
     type?: string,
     toChain?: number,
