@@ -418,6 +418,7 @@ async function main() {
         .plus(randomNonce);
 
       io.emit('deploy_contract', chainNonce, collectionAddress, actionId);
+      await sleep(10_000);
 
       let retries = 1;
       while (retries <= 10) {
@@ -434,7 +435,7 @@ async function main() {
         } catch (error) {
           console.warn('WHILE - error', error?.response?.data?.data);
         } finally {
-          await sleep(10_000);
+          await sleep(4_500);
           retries++;
         }
       }
