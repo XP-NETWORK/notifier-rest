@@ -48,6 +48,7 @@ export type ServerEvents = {
   readonly deploy_contract: (
     originNonce: number,
     collectionAddress: string,
+    type: 1155 | 721,
     actionId: BigNumber
   ) => void;
 };

@@ -17,4 +17,5 @@ export interface IWhiteListBody {
 export interface ICreateCollectionContractBody {
   readonly chainNonce: number;
   readonly collectionAddress: string;
+  readonly type: 'ERC721' | 'ERC1155';
 }

@@ -425,6 +425,7 @@ async function main() {
       console.log('/create-collection-contract - START');
       const collectionAddress = req.body.collectionAddress;
       const chainNonce = Number(req.body.chainNonce);
+      const type = req.body.type;
 
       console.log(
         '/create-collection-contract - collectionAddress',
@@ -437,7 +438,11 @@ async function main() {
         typeof chainNonce
       );
 
-      if (!chainNonce || !collectionAddress) {
+      if (
+        !chainNonce ||
+        !collectionAddress ||
+        (type !== 'ERC1155' && type !== 'ERC721')
+      ) {
         return res.status(400).send({ error: 'Invalid body!' });
       }
 
@@ -460,7 +465,15 @@ async function main() {
         .plus(BN(chainNonce))
         .plus(randomNonce);
 
-      io.emit('deploy_contract', chainNonce, collectionAddress, actionId);
+      const _type = type === 'ERC1155' ? 1155 : 721;
+
+      io.emit(
+        'deploy_contract',
+        chainNonce,
+        collectionAddress,
+        _type,
+        actionId
+      );
       await sleep(10_000);
 
       let retries = 1;
