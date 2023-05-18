@@ -375,8 +375,51 @@ async function main() {
     }
   );
 
+  app.get(
+    '/collection-contract/:collectionAddress/:chainNonce',
+    requireAuth,
+    async (
+      req: IRequest<
+        {},
+        {
+          collectionAddress: string;
+          chainNonce: number;
+        },
+        {}
+      >,
+      res
+    ) => {
+      const collectionAddress = req.params.collectionAddress;
+      const chainNonce = req.params.chainNonce;
+
+      console.log(collectionAddress, chainNonce);
+
+      if (!chainNonce || !collectionAddress) {
+        return res.status(400).send({ error: 'Invalid params!' });
+      }
+
+      try {
+        const response = await getNoWhitelistMapping(
+          collectionAddress,
+          Number(chainNonce)
+        );
+        console.log('trycatch - response', response);
+        if (isSuccessNoWhitelistRes(response)) {
+          console.log('isSuccessNoWhitelistRes(response)');
+          return res.status(200).send({ ...response.data });
+        } else {
+          return res.status(404).send({ error: 'Not found' });
+        }
+      } catch (error) {
+        console.warn(error?.response?.data?.data);
+      }
+
+      return res.status(500).send({ error: 'Internal server error' });
+    }
+  );
+
   app.post(
-    '/create-collection-contract',
+    '/collection-contract',
     requireAuth,
     async (req: IRequest<ICreateCollectionContractBody, {}, {}>, res) => {
       console.log('/create-collection-contract - START');

@@ -16,16 +16,21 @@ export type TGetNoWhitelistMappingRes = {
 export const getNoWhitelistMapping = async (
   collectionAddress: string,
   chainNonce: number
-) => {
+): Promise<TGetNoWhitelistMappingRes | undefined> => {
   console.log('getNoWhitelistMapping - START');
 
-  const response = await axios.get<TGetNoWhitelistMappingRes>(
-    `${sc_verify}/no-whitelist/${collectionAddress}/${chainNonce}`
-  );
+  try {
+    const response = await axios.get<TGetNoWhitelistMappingRes>(
+      `${sc_verify}/no-whitelist/${collectionAddress}/${chainNonce}`
+    );
+    console.log('getNoWhitelistMapping - response.data', response.data);
 
-  console.log('getNoWhitelistMapping - response.data', response.data);
+    return response.data;
+  } catch (error) {
+    console.log('error', error);
+  }
 
-  return response.data;
+  return undefined;
 };
 
 export const isSuccessNoWhitelistRes = (
