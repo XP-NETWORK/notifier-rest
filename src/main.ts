@@ -475,7 +475,11 @@ async function main() {
         actionId
       );
 
-      return res.status(200).send({ status: 'ok' });
+      return res.status(200).send({
+        collectionAddress,
+        chainNonce,
+        status: 'SUCCESS',
+      });
     }
   );
 
