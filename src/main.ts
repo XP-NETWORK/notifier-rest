@@ -474,29 +474,8 @@ async function main() {
         _type,
         actionId
       );
-      await sleep(10_000);
 
-      let retries = 1;
-      while (retries <= 10) {
-        try {
-          const response = await getNoWhitelistMapping(
-            collectionAddress,
-            chainNonce
-          );
-          console.log('WHILE - response', response);
-          if (isSuccessNoWhitelistRes(response)) {
-            console.log('WHILE - isSuccessNoWhitelistRes(response)');
-            return res.status(200).send({ ...response.data });
-          }
-        } catch (error) {
-          console.warn('WHILE - error', error?.response?.data?.data);
-        } finally {
-          await sleep(4_500);
-          retries++;
-        }
-      }
-      console.warn('outside');
-      return res.status(500).send({ error: 'Internal server error' });
+      return res.status(200).send({ status: 'ok' });
     }
   );
 
