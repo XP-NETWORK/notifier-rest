@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import http from 'http';
 import { HttpAgent } from '@dfinity/agent';
 import { PipeArrayBuffer, safeReadUint8 } from '@dfinity/candid';
-import { encode, Nat } from '@dfinity/candid/lib/cjs/idl';
+import { Nat, encode } from '@dfinity/candid/lib/cjs/idl';
 import { Principal } from '@dfinity/principal';
 import { MikroORM, RequestContext } from '@mikro-orm/core';
 import { EntityManager, MongoDriver } from '@mikro-orm/mongodb';
@@ -11,6 +10,7 @@ import axios from 'axios';
 import BN from 'bignumber.js';
 import cors from 'cors';
 import express, { Request } from 'express';
+import http from 'http';
 import { Minter__factory } from 'xpnet-web3-contracts';
 import {
   config_scan,
@@ -25,9 +25,19 @@ import { TxStore } from './db/TxStore';
 import { WhiteListStore } from './db/WhiteListStore';
 import mikroConf from './mikro-orm';
 import * as socket from './socket';
-import { IRequest, IWhiteListBody, TExplorerConfig } from './types';
+import {
+  ICreateCollectionContractBody,
+  IRequest,
+  IWhiteListBody,
+  TExplorerConfig,
+} from './types';
 import { isWhitelistable } from './utils';
 import { getRandomArbitrary } from './utils/getRandomArbitrary';
+import {
+  getNoWhitelistMapping,
+  isSuccessNoWhitelistRes,
+} from './utils/noWhitelist';
+import { sleep } from './utils/sleep';
 
 const mutex = new Mutex();
 
@@ -362,6 +372,118 @@ async function main() {
       );
 
       res.send({ status: 'ok' });
+    }
+  );
+
+  app.get(
+    '/collection-contract/:collectionAddress/:chainNonce',
+    requireAuth,
+    async (
+      req: IRequest<
+        {},
+        {
+          collectionAddress: string;
+          chainNonce: number;
+        },
+        {}
+      >,
+      res
+    ) => {
+      const collectionAddress = req.params.collectionAddress;
+      const chainNonce = req.params.chainNonce;
+
+      console.log(collectionAddress, chainNonce);
+
+      if (!chainNonce || !collectionAddress) {
+        return res.status(400).send({ error: 'Invalid params!' });
+      }
+
+      try {
+        const response = await getNoWhitelistMapping(
+          collectionAddress,
+          Number(chainNonce)
+        );
+        console.log('trycatch - response', response);
+        if (isSuccessNoWhitelistRes(response)) {
+          console.log('isSuccessNoWhitelistRes(response)');
+          return res.status(200).send({ ...response.data });
+        } else {
+          return res.status(404).send({ error: 'Not found' });
+        }
+      } catch (error) {
+        console.warn(error?.response?.data?.data);
+      }
+
+      return res.status(500).send({ error: 'Internal server error' });
+    }
+  );
+
+  app.post(
+    '/collection-contract',
+    requireAuth,
+    async (req: IRequest<ICreateCollectionContractBody, {}, {}>, res) => {
+      console.log('/create-collection-contract - START');
+      const collectionAddress = req.body.collectionAddress;
+      const chainNonce = Number(req.body.chainNonce);
+      const type = req.body.type;
+
+      console.log(
+        '/create-collection-contract - collectionAddress',
+        collectionAddress,
+        typeof collectionAddress
+      );
+      console.log(
+        '/create-collection-contract - chainNonce',
+        chainNonce,
+        typeof chainNonce
+      );
+
+      if (
+        !chainNonce ||
+        !collectionAddress ||
+        (type !== 'ERC1155' && type !== 'ERC721')
+      ) {
+        return res.status(400).send({ error: 'Invalid body!' });
+      }
+
+      if (chainNonce === 5) {
+        return res.status(400).send({ error: 'Not allowed!' });
+      }
+
+      try {
+        const response = await getNoWhitelistMapping(
+          collectionAddress,
+          chainNonce
+        );
+        console.log('trycatch - response', response);
+        if (isSuccessNoWhitelistRes(response)) {
+          console.log('isSuccessNoWhitelistRes(response)');
+          return res.status(200).send({ ...response.data });
+        }
+      } catch (error) {
+        console.warn(error?.response?.data?.data);
+      }
+
+      const randomNonce = getRandomArbitrary();
+      const actionId = BN(parseInt(collectionAddress, 16))
+        .plus(BN(chainNonce))
+        .plus(randomNonce);
+
+      const _type = type === 'ERC1155' ? 1155 : 721;
+
+      io.emit(
+        'deploy_contract',
+        chainNonce,
+        collectionAddress,
+        _type,
+        actionId
+      );
+
+      return res.status(200).send({
+        collectionAddress,
+        chainNonce,
+        status: 'SUCCESS',
+      });
     }
   );
 

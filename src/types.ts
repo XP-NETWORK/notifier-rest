@@ -13,3 +13,9 @@ export interface IWhiteListBody {
   readonly isOpenSeaCollection: boolean;
   readonly openSeaCollectionIdentifier: string;
 }
+
+export interface ICreateCollectionContractBody {
+  readonly chainNonce: number;
+  readonly collectionAddress: string;
+  readonly type: 'ERC721' | 'ERC1155';
+}
