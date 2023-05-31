@@ -37,7 +37,6 @@ import {
   getNoWhitelistMapping,
   isSuccessNoWhitelistRes,
 } from './utils/noWhitelist';
-import { sleep } from './utils/sleep';
 
 const mutex = new Mutex();
 
@@ -191,7 +190,7 @@ async function elrondExtractFunctionEvent(em: EntityManager, txHash: string) {
     if (!multiEsdt) return undefined;
 
     await elrondWaitTxnConfirmed(multiEsdt);
-    return (await emitEvent(em, 0x2, multiEsdt, () => {})) == 'ok'
+    return (await emitEvent(em, 0x2, multiEsdt, () => { })) == 'ok'
       ? multiEsdt
       : undefined;
   } else {
