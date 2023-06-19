@@ -445,9 +445,9 @@ async function main() {
         return res.status(400).send({ error: 'Invalid body!' });
       }
 
-      if (chainNonce === 5) {
-        return res.status(400).send({ error: 'Not allowed!' });
-      }
+      // if (chainNonce === 5) {
+      //   return res.status(400).send({ error: 'Not allowed!' });
+      // }
 
       try {
         const response = await getNoWhitelistMapping(
