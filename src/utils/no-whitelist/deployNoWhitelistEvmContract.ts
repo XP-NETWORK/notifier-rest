@@ -1,7 +1,6 @@
 import { BigNumber, ethers } from 'ethers';
 import { ETH_GAS_IN_WEI, ETH_NO_WHITELIST_UTILS } from '../../config';
 import { sleep } from '../sleep';
-import { hasEip1559 } from './hasEip1559';
 import { UserStore1155ABI as abi1155 } from './userStore1155ABI';
 import { UserStore1155ByteCode as bytecode1155 } from './userStore1155ByteCode';
 import { UserStore721ABI as abi721 } from './userStore721ABI';

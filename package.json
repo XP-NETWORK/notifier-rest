@@ -37,7 +37,10 @@
     "socket.io": "^4.1.2",
     "ton-x": "^2.1.0",
     "xp.network": "git+https://github.com/xp-network/xpjs#bleeding-edge",
-    "xpnet-web3-contracts": "git+https://github.com/xp-network/XP.network-HECO-Migration#aa9473ea3b0f748bba54f5755abcfd17e3548237"
+    "xpnet-web3-contracts": "git+https://github.com/xp-network/XP.network-HECO-Migration#aa9473ea3b0f748bba54f5755abcfd17e3548237",
+    "ethers": "^5.5.4",
+    "@ethersproject/experimental": "^5.5.0",
+    "@ethersproject/providers": "^5.5.3"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.0.1",
