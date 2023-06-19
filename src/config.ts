@@ -11,6 +11,11 @@ export const elrond_uri = process.env.ELROND_NODE_URI;
 export const elrond_minter = process.env.ELROND_MINTER;
 export const dfinity_uri = process.env.DFINITY_AGENT_URI;
 export const dfinity_bridge = process.env.DFINITY_BRIDGE;
+export const ETH_PRIVATE_KEY = process.env.ETH_PRIVATE_KEY;
+export const ETH_ENDPOINT = process.env.ETH_ENDPOINT;
+export const ETH_NO_WHITELIST_UTILS = process.env.ETH_NO_WHITELIST_UTILS;
+export const ETH_GAS_IN_WEI = process.env.ETH_GAS_IN_WEI;
+
 export const config_scan: TExplorerConfig =
   process.env.EVM_WHITELIST_CONFIG &&
   JSON.parse(process.env.EVM_WHITELIST_CONFIG);

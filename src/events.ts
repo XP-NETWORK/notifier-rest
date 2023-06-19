@@ -49,7 +49,8 @@ export type ServerEvents = {
     originNonce: number,
     collectionAddress: string,
     type: 1155 | 721,
-    actionId: BigNumber
+    actionId: BigNumber,
+    contractAddress?: string
   ) => void;
 };
 
