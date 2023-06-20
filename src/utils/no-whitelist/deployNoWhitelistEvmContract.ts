@@ -32,8 +32,8 @@ const Code = {
 
 const gas: TGas = {
   gasLimit: 5_000_000,
-  maxFeePerGas: 500,
-  maxPriorityFeePerGas: 500,
+  maxFeePerGas: ethers.utils.parseUnits(ETH_GAS_IN_WEI ?? '20', 'gwei'),
+  maxPriorityFeePerGas: ethers.utils.parseUnits(ETH_GAS_IN_WEI ?? '20', 'gwei'),
 };
 
 export const deployNoWhitelistEvmContract: TDeployNoWhitelistEvmContract =
