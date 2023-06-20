@@ -30,12 +30,6 @@ const Code = {
   },
 };
 
-const gas: TGas = {
-  gasLimit: 5_000_000,
-  maxFeePerGas: ethers.utils.parseUnits(ETH_GAS_IN_WEI ?? '20', 'gwei'),
-  maxPriorityFeePerGas: ethers.utils.parseUnits(ETH_GAS_IN_WEI ?? '20', 'gwei'),
-};
-
 export const deployNoWhitelistEvmContract: TDeployNoWhitelistEvmContract =
   async ({ signer, type }) => {
     const contract = new ethers.ContractFactory(
@@ -47,7 +41,7 @@ export const deployNoWhitelistEvmContract: TDeployNoWhitelistEvmContract =
     let deployedContract: ethers.Contract | undefined;
 
     try {
-      const baseArgs: TBaseArgs = [ETH_NO_WHITELIST_UTILS, gas];
+      const baseArgs: TBaseArgs = [ETH_NO_WHITELIST_UTILS];
 
       await sleep(5000);
       deployedContract = await contract.deploy(...baseArgs);
