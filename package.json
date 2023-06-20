@@ -38,7 +38,7 @@
     "ton-x": "^2.1.0",
     "xp.network": "git+https://github.com/xp-network/xpjs#bleeding-edge",
     "xpnet-web3-contracts": "git+https://github.com/xp-network/XP.network-HECO-Migration#aa9473ea3b0f748bba54f5755abcfd17e3548237",
-    "ethers": "^5.5.4",
+    "ethers": "5.7.2",
     "@ethersproject/experimental": "^5.5.0",
     "@ethersproject/providers": "^5.5.3"
   },
