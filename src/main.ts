@@ -312,6 +312,18 @@ async function main() {
     return res.json({ status });
   });
 
+  app.post('/tx/casper', async (req, res) => {
+    const status = await emitEvent(
+      orm.em,
+      39,
+      req.body.tx_hash,
+      async (_, txHash) => {
+        io.emit('casper:bridge_tx', txHash);
+      }
+    );
+    return res.json({ status });
+  });
+
   app.post('/tx/ton', async (req, res) => {
     const status = await emitEvent(
       orm.em,

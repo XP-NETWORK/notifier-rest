@@ -45,6 +45,7 @@ export type ServerEvents = {
   readonly 'near:bridge_tx': (tx_hash: string) => void;
   readonly 'aptos:bridge_tx': (tx_hash: string) => void;
   readonly 'ton:bridge_tx': (tx_hash: string) => void;
+  readonly 'casper:bridge_tx': (tx_hash: string) => void;
   readonly deploy_contract: (
     originNonce: number,
     collectionAddress: string,
