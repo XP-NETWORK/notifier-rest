@@ -479,9 +479,7 @@ async function main() {
       }
 
       const randomNonce = getRandomArbitrary();
-      const actionId = BN(parseInt(collectionAddress, 16))
-        .plus(BN(chainNonce))
-        .plus(randomNonce);
+      const actionId = randomNonce.plus(chainNonce);
 
       const _type = type === 'ERC1155' ? 1155 : 721;
 
