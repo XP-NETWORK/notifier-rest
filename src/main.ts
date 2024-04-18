@@ -356,6 +356,27 @@ async function main() {
     res.json({ status });
   });
 
+  app.post('/tx/elrondevent', async (req, res) => {
+    const status = await emitEvent(
+      orm.em,
+      2,
+      req.body.tx_hash,
+      async (_, txHash) => {
+        const ex = txHash;
+        ex &&
+          io.emit(
+            'elrond:bridge_tx',
+            ex,
+            req.body.sender,
+            req.body.uris,
+            req.body.action_id
+          );
+        console.log('elrond sent tx to validator', ex);
+      }
+    );
+    res.json({ status });
+  });
+
   app.post(
     '/tx/tezos',
     (req: Request<{}, {}, { readonly tx_hash: string }>, res) => {
