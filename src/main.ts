@@ -521,87 +521,87 @@ async function main() {
     }
   );
 
-  app.post(
-    '/eth-collection-contract',
-    requireAuth,
-    async (req: IRequest<ICreateCollectionContractBody, {}, {}>, res) => {
-      console.log('/eth-collection-contract - START');
-      const collectionAddress = req.body.collectionAddress;
-      const _type = req.body.type;
+  // app.post(
+  //   '/eth-collection-contract',
+  //   requireAuth,
+  //   async (req: IRequest<ICreateCollectionContractBody, {}, {}>, res) => {
+  //     console.log('/eth-collection-contract - START');
+  //     const collectionAddress = req.body.collectionAddress;
+  //     const _type = req.body.type;
 
-      console.log(
-        '/eth-collection-contract - collectionAddress',
-        collectionAddress,
-        typeof collectionAddress
-      );
+  //     console.log(
+  //       '/eth-collection-contract - collectionAddress',
+  //       collectionAddress,
+  //       typeof collectionAddress
+  //     );
 
-      if (!collectionAddress || (_type !== 'ERC1155' && _type !== 'ERC721')) {
-        return res.status(400).send({ error: 'Invalid body!' });
-      }
+  //     if (!collectionAddress || (_type !== 'ERC1155' && _type !== 'ERC721')) {
+  //       return res.status(400).send({ error: 'Invalid body!' });
+  //     }
 
-      const type = _type === 'ERC1155' ? 1155 : 721;
-      const CHAIN_NONCE = 5;
-      const signer = getEthSigner();
+  //     const type = _type === 'ERC1155' ? 1155 : 721;
+  //     const CHAIN_NONCE = 5;
+  //     const signer = getEthSigner();
 
-      /*  ================================================
-                      check mapping in bridge
-          ================================================    */
+  //     /*  ================================================
+  //                     check mapping in bridge
+  //         ================================================    */
 
-      const response = await checkIfMappingExistsInBridge(
-        signer,
-        collectionAddress
-      );
+  //     const response = await checkIfMappingExistsInBridge(
+  //       signer,
+  //       collectionAddress
+  //     );
 
-      console.log('handleAddContractToBridge', { response });
+  //     console.log('handleAddContractToBridge', { response });
 
-      if (response.status === 'exists') {
-        return res
-          .status(200)
-          .send({ msg: 'Already deployed!', data: response.address });
-      } else if (response.status === 'error') {
-        return res.status(500).send({ error: 'Internal server error!' });
-      }
+  //     if (response.status === 'exists') {
+  //       return res
+  //         .status(200)
+  //         .send({ msg: 'Already deployed!', data: response.address });
+  //     } else if (response.status === 'error') {
+  //       return res.status(500).send({ error: 'Internal server error!' });
+  //     }
 
-      /*  ================================================
-                            deploy contract
-          ================================================    */
+  //     /*  ================================================
+  //                           deploy contract
+  //         ================================================    */
 
-      let contractAddress: string | undefined;
-      console.log('handleAddContractToBridge deploy contract');
-      try {
-        contractAddress = await deployNoWhitelistEvmContract({
-          signer,
-          type,
-        });
-        console.log('handleAddContractToBridge', { contractAddress });
-        if (!contractAddress) {
-          return res.status(500).send({ error: 'Internal server error!' });
-        }
-      } catch (error) {
-        console.error('deployContractListener - error', error);
-        return res.status(500).send({ error: 'Internal server error!' });
-      }
+  //     let contractAddress: string | undefined;
+  //     console.log('handleAddContractToBridge deploy contract');
+  //     try {
+  //       contractAddress = await deployNoWhitelistEvmContract({
+  //         signer,
+  //         type,
+  //       });
+  //       console.log('handleAddContractToBridge', { contractAddress });
+  //       if (!contractAddress) {
+  //         return res.status(500).send({ error: 'Internal server error!' });
+  //       }
+  //     } catch (error) {
+  //       console.error('deployContractListener - error', error);
+  //       return res.status(500).send({ error: 'Internal server error!' });
+  //     }
 
-      const randomNonce = getRandomArbitrary();
-      const actionId = BN(parseInt(collectionAddress, 16))
-        .plus(BN(CHAIN_NONCE))
-        .plus(randomNonce);
+  //     const randomNonce = getRandomArbitrary();
+  //     const actionId = BN(parseInt(collectionAddress, 16))
+  //       .plus(BN(CHAIN_NONCE))
+  //       .plus(randomNonce);
 
-      io.emit(
-        'deploy_contract',
-        CHAIN_NONCE,
-        collectionAddress,
-        type,
-        actionId,
-        contractAddress
-      );
+  //     io.emit(
+  //       'deploy_contract',
+  //       CHAIN_NONCE,
+  //       collectionAddress,
+  //       type,
+  //       actionId,
+  //       contractAddress
+  //     );
 
-      return res.status(200).send({
-        collectionAddress,
-        status: 'SUCCESS',
-      });
-    }
-  );
+  //     return res.status(200).send({
+  //       collectionAddress,
+  //       status: 'SUCCESS',
+  //     });
+  //   }
+  // );
 
   app.post(
     '/whitelist',
